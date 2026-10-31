@@ -85,7 +85,7 @@ Say something on the world you are on (as its first visitor, as a guest, or as a
 | `planetId` | string | Required. |
 | `deviceId` | string | Identifies the speaker (their name is looked up). |
 | `text` | string | Required; clamped to 280 chars; moderated. |
-| `to` | string (optional) | A cast member `id` from `world.cast` (default: the world's AI), or `"humans"` to speak only to the people present (no AI answers). |
+| `to` | string (optional) | A cast member `id` from `world.cast` (default: the world's AI), or `"people"` to speak only to the people present (no AI answers). |
 
 ```json
 // request
@@ -94,7 +94,7 @@ Say something on the world you are on (as its first visitor, as a guest, or as a
 { "ok": true }
 ```
 
-The player's line is echoed immediately on the planet socket (kind `player`), so everyone on the world sees it as a speech bubble over the speaker's figure. The addressed cast member replies in about 2 s as a `line` with kind `ai`, an `effect` and its own name as `sender`; the phone voices it with that member's `voice`. With `to: "humans"` the line is only shared. On Mars, if the action changes the colony, a `system` status line follows. A flagged message is answered with a static `glitch` line instead.
+The player's line is echoed immediately on the planet socket (kind `player`), so everyone on the world sees it as a speech bubble over the speaker's figure. The addressed cast member replies in about 2 s as a `line` with kind `ai`, an `effect` and its own name as `sender`; the phone voices it with that member's `voice`. With `to: "people"` the line is only shared. On Mars, if the action changes the colony, a `system` status line follows. A flagged message is answered with a static `glitch` line instead.
 
 `400 { "ok": false, "error": "unknown planet or empty message" }` if the planet doesn't exist or `text` is empty.
 

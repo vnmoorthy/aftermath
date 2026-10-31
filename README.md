@@ -522,7 +522,7 @@ The full player and presenter guide is in [docs/GAMEPLAY.md](docs/GAMEPLAY.md); 
 | Method | Path | What it does |
 |---|---|---|
 | `POST` | `/api/teleport` | `{ name, deviceId, realm?: "surprise" \| "galaxy" \| "bigger" \| "parallel" \| "smaller", destination?: "mars" }` → a brand-new world (or Mars) and its `cosmos` address and journey path |
-| `POST` | `/api/say` | `{ planetId, deviceId, text, to? }` → `to` is a cast member id (default: the AI) or `"humans"`; replies arrive over the websocket |
+| `POST` | `/api/say` | `{ planetId, deviceId, text, to? }` → `to` is a cast member id (default: the AI) or `"people"`; replies arrive over the websocket |
 | `GET` | `/api/worlds` | Every world you can visit, with its `tier` (realm) and `people` (humans there now) |
 | `POST` | `/api/visit` | `{ planetId, deviceId, name }` → enter another human's world as a guest |
 | `POST` | `/api/vote` | `{ planetId, deviceId, choice: "open" \| "seal" }` |
