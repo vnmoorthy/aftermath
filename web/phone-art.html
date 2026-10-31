@@ -257,9 +257,17 @@ body.quake #world{animation:shake .5s ease-in-out 2}
 /* small screens: landing scrolls and compacts so HOLD TO TELEPORT is always reachable */
 #landing{overflow-y:auto;-webkit-overflow-scrolling:touch;justify-content:safe flex-end}
 @media (max-height:780px){#landing h1{font-size:34px;margin:4px 0 6px}#landing .lore{font-size:15px}#name{margin:10px 0 10px;padding:10px 14px}#hold{width:128px;height:128px}#marsBtn{margin-top:8px;padding:8px 14px}.hint{margin-top:6px}}
+
+/* scan-to-play QR so others can join from this screen */
+#joinQR{position:fixed;right:14px;top:calc(14px + var(--st));z-index:20;background:rgba(5,3,12,.78);border:1px solid rgba(255,198,90,.55);border-radius:14px;padding:8px 8px 6px;text-align:center;backdrop-filter:blur(6px)}
+#joinQR img{display:block;width:96px;height:96px}
+#joinQR span{display:block;margin-top:4px;font:700 9px var(--mono);letter-spacing:.16em;color:var(--gold)}
+@media (min-width:700px){#joinQR img{width:200px;height:200px}#joinQR span{font-size:12px}}
+body:not(.landing-on) #joinQR{display:none}
 </style>
 </head>
-<body>
+<body class="landing-on">
+<div id="joinQR"><img src="/api/qr.svg" alt="Scan to play AFTERMATH"><span>SCAN TO PLAY</span></div>
 <section id="landing" class="screen on">
   <div class="kick">◉ wormhole open</div>
   <h1>AFTERMATH</h1>
@@ -946,7 +954,7 @@ $('loreBtn').addEventListener('click', () => { audio(); openLore(); });
 })();
 document.addEventListener('visibilitychange', () => { if (document.hidden) { cancelAnimationFrame(lookRaf); lookRaf = 0; } else if (world && $('world').classList.contains('on') && !lookRaf) lookRaf = requestAnimationFrame(lookLoop); });
 
-function show(id) { document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('on', s.id === id)); }
+function show(id) { document.body.classList.toggle('landing-on', id === 'landing'); document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('on', s.id === id)); }
 // test hook for automated checks (read-only state + manual triggers)
 window.__aftermath = { state: () => ({ planetId, target, cast, people: people.length, figs: figs.size, sceneKind, sceneUrl, ghostReady, traveling, screen: (document.querySelector('.screen.on') || {}).id }), apparition: () => apparition(true), setTarget };
 })();
