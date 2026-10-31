@@ -55,6 +55,29 @@ h1{font:900 clamp(34px,11vw,48px)/1 var(--serif);letter-spacing:.05em;margin:8px
 #marsBtn small{display:block;font:600 10px var(--mono);letter-spacing:.14em;color:#e0b49c;margin-top:4px}
 #colony{display:none;padding:7px 14px;font:700 11px/1.4 var(--mono);letter-spacing:.12em;color:#ffd2b8;background:linear-gradient(90deg,rgba(120,40,16,.55),rgba(60,20,10,.35));border-bottom:1px solid rgba(255,154,82,.35);flex:none}
 #colony.on{display:block}
+#tools{position:absolute;left:12px;top:calc(10px + var(--st));z-index:3;display:flex;gap:6px}
+.tb{padding:7px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.3);background:rgba(5,3,12,.55);font:700 10px var(--mono);letter-spacing:.14em;backdrop-filter:blur(6px)}
+.tb b{color:var(--gold)}
+#resume{margin-top:12px;align-self:center;padding:10px 16px;border-radius:12px;border:1px solid rgba(255,198,90,.55);background:rgba(40,26,8,.6);font:700 14px var(--sans);letter-spacing:.06em;color:#ffe2a8;display:none}
+#resume.on{display:block}
+.ov.sheet{justify-content:flex-start;text-align:left;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-top:calc(18px + var(--st))}
+.sheetHead{width:100%;max-width:520px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sheetHead h3{font:900 22px var(--serif);letter-spacing:.06em}
+.sheetHead button{padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.3);background:transparent;font:700 11px var(--mono)}
+.sheetSub{width:100%;max-width:520px;font:600 13px/1.4 var(--sans);color:var(--dim);margin-bottom:8px}
+.wc{width:100%;max-width:520px;display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:16px;border:1px solid color-mix(in srgb,var(--c) 45%,transparent);background:linear-gradient(135deg,rgba(24,14,46,.9),rgba(10,6,22,.9));margin:6px 0;text-align:left}
+.wc img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid var(--c);box-shadow:0 0 16px var(--c);flex:none}
+.wc .t1{font:900 17px/1.1 var(--serif);letter-spacing:.03em}
+.wc .t2{font:700 10px/1.5 var(--mono);letter-spacing:.14em;color:var(--c);text-transform:uppercase;margin-top:3px}
+.wc .t3{font:italic 600 13.5px/1.3 var(--sans);color:#d9d1f3;margin-top:2px}
+.wc.here{opacity:.45}
+.stamps{width:100%;max-width:520px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px 10px;margin-top:6px}
+.stamp{display:flex;flex-direction:column;align-items:center;text-align:center;border:0;background:none;gap:6px}
+.stamp i{position:relative;width:78px;height:78px;border-radius:50%;display:block;border:2px dashed var(--c);padding:4px;transform:rotate(var(--r))}
+.stamp img{width:100%;height:100%;border-radius:50%;object-fit:cover;filter:saturate(1.1)}
+.stamp b{font:900 12.5px/1.1 var(--serif);letter-spacing:.03em}
+.stamp span{font:700 9px/1.3 var(--mono);letter-spacing:.12em;color:var(--dim);text-transform:uppercase}
+.empty{width:100%;max-width:520px;padding:30px 10px;text-align:center;color:var(--dim);font:600 15px var(--sans)}
 #again{position:absolute;right:12px;top:calc(10px + var(--st));z-index:3;padding:7px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.3);background:rgba(5,3,12,.55);font:700 10px var(--mono);letter-spacing:.16em;backdrop-filter:blur(6px)}
 #ai{display:flex;gap:12px;align-items:center;padding:10px 16px 8px;border-bottom:1px solid rgba(207,198,255,.12);flex:none}
 #aiImg{width:62px;height:62px;border-radius:50%;object-fit:cover;border:2px solid var(--ac);box-shadow:0 0 22px var(--ac);flex:none;background:#000}
@@ -91,6 +114,16 @@ h1{font:900 clamp(34px,11vw,48px)/1 var(--serif);letter-spacing:.05em;margin:8px
 @keyframes flick{10%,30%{opacity:.25}20%,40%{opacity:1}}
 .fx-archive{background-image:repeating-linear-gradient(0deg,rgba(232,213,163,.06) 0 2px,transparent 2px 6px) !important}
 body.quake{animation:shake .5s ease-in-out 2}
+.gh{position:fixed;z-index:30;pointer-events:none;mix-blend-mode:screen;opacity:0;width:58vw;max-width:360px;filter:drop-shadow(0 0 24px rgba(160,230,255,.35));will-change:transform,opacity}
+@keyframes ghostDrift{0%{opacity:0;transform:translate(var(--x0),0) scale(var(--s))}18%{opacity:var(--o)}70%{opacity:var(--o)}100%{opacity:0;transform:translate(var(--x1),-6vh) scale(calc(var(--s)*1.08))}}
+#jump{position:fixed;inset:0;z-index:95;background:#000 url(/assets/ghost-face.webp) center/cover no-repeat;display:none;animation:jump .45s ease-out}
+@keyframes jump{0%{transform:scale(1.35);filter:brightness(2)}100%{transform:scale(1);filter:brightness(1)}}
+body.haunted #hero::after{background:linear-gradient(180deg,rgba(20,40,60,.35),rgba(5,3,12,.1) 35%,rgba(5,3,12,.92) 92%,var(--bg))}
+body.haunted #log{background:radial-gradient(ellipse at 50% 0%,rgba(120,200,255,.06),transparent 60%)}
+.fx-haunt{text-shadow:0 0 12px rgba(159,232,255,.8),0 0 2px #fff;animation:hauntIn 2.2s ease-in-out 2;border-color:rgba(159,232,255,.6) !important}
+@keyframes hauntIn{0%,100%{opacity:1;filter:none}40%{opacity:.55;filter:blur(.6px)}55%{opacity:1}}
+.fx-scream{animation:shake .3s linear 4;border-color:#ff4d5e !important;box-shadow:0 0 30px rgba(255,77,94,.5)}
+#voiceBtn.off{opacity:.5}
 /* input */
 #chips{display:flex;gap:7px;overflow-x:auto;padding:6px 12px;flex:none;scrollbar-width:none}
 #chips::-webkit-scrollbar{display:none}
@@ -118,28 +151,31 @@ body.quake{animation:shake .5s ease-in-out 2}
   <div class="kick">◉ wormhole open</div>
   <h1>AFTERMATH</h1>
   <p class="lore">Every civilization in the universe built AI. Then the makers died. <em>Only the AI survived.</em> Tonight, you can visit.</p>
-  <p class="quote">“The only limit is your imagination.”</p>
   <input id="name" maxlength="24" placeholder="Your name, traveler" autocomplete="off" enterkeyhint="go">
   <button id="hold" aria-label="Hold to teleport"><span>HOLD TO<br>TELEPORT<small>keep holding</small></span></button>
   <div class="hint">every teleport opens a world no one has seen</div>
+  <button id="resume"></button>
   <button id="marsBtn">or teleport to <b>MARS</b> · the real one →<small>live on humanity's first colony · real science</small></button>
 </section>
 
 <section id="warp" class="screen"><canvas id="warpCv"></canvas><div id="warpTxt">CROSSING<b id="ly">0 LIGHT-YEARS</b>the wormhole is choosing your world…</div></section>
 
 <section id="world" class="screen">
-  <div id="hero"><div id="heroImg"></div><button id="again">⟳ NEW WORLD</button><div id="heroTxt"><div id="pName"></div><div id="pMeta"></div></div></div>
+  <div id="hero"><div id="heroImg"></div><div id="tools"><button class="tb" id="worldsBtn">✦ WORLDS</button><button class="tb" id="passBtn">◈ <b id="passN">0</b></button><button class="tb" id="voiceBtn">🔊</button></div><button id="again">⟳ NEW WORLD</button><div id="heroTxt"><div id="pName"></div><div id="pMeta"></div></div></div>
   <div id="ai"><img id="aiImg" alt=""><div><div id="aiName"></div><div id="aiTitle"></div><div id="aiMotto"></div></div></div>
   <div id="colony"></div>
   <div id="log"></div>
   <div id="status"></div>
   <div id="chips"></div>
-  <form id="bar" autocomplete="off"><input id="msg" maxlength="280" placeholder="Say anything. The only limit is your imagination." enterkeyhint="send"><button id="send">SEND</button></form>
+  <form id="bar" autocomplete="off"><input id="msg" maxlength="280" placeholder="Say anything to it…" enterkeyhint="send"><button id="send">SEND</button></form>
 </section>
 
 <div id="vote" class="ov"><div class="kick">⚠ the galactic council demands</div><h2 id="vQ"></h2><button class="vbtn" id="vOpen">OPEN THE GATE</button><button class="vbtn" id="vSeal">SEAL THE GATE</button><div id="vCount"></div></div>
-<div id="finale" class="ov"><div class="kick" id="fKick"></div><div id="fTitle"></div><div id="fText"></div><div id="fQuote">“The only limit is your imagination.”<br><small>tap to keep exploring · ⟳ NEW WORLD for another universe</small></div></div>
+<div id="finale" class="ov"><div class="kick" id="fKick"></div><div id="fTitle"></div><div id="fText"></div><div id="fQuote"><small>tap to keep exploring · ⟳ NEW WORLD for another world</small></div></div>
+<div id="worlds" class="ov sheet"><div class="sheetHead"><h3>✦ Other worlds</h3><button data-close>✕ CLOSE</button></div><div class="sheetSub">Step through a portal into someone else's world. Its AI will know you're a guest.</div><div id="wList"></div></div>
+<div id="passport" class="ov sheet"><div class="sheetHead"><h3>◈ Galactic passport</h3><button data-close>✕ CLOSE</button></div><div class="sheetSub" id="passSub"></div><div class="stamps" id="stamps"></div></div>
 <div id="flash"></div>
+<div id="jump"></div>
 
 <script>
 (() => {
@@ -149,8 +185,8 @@ const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { ret
 const deviceId = store.get('aftermath.device') || ('d-' + Math.random().toString(36).slice(2) + Date.now().toString(36));
 store.set('aftermath.device', deviceId);
 $('name').value = store.get('aftermath.name') || '';
-const COLORS = { steward: '#ff9a52', survivor: '#f5b942', conqueror: '#ff3b3b', befriender: '#5ee6ff', destroyer: '#ff2a6d', broken: '#c9d1d9', human_gardener: '#7dff7a', alien_gardener: '#b388ff', archivist: '#e8d5a3', worshipper: '#ffd36e', trickster: '#ff8af0' };
-const PITCH = { steward: 360, survivor: 220, conqueror: 110, befriender: 520, destroyer: 90, broken: 300, human_gardener: 260, alien_gardener: 340, archivist: 400, worshipper: 600, trickster: 700 };
+const COLORS = { haunted: '#9fe8ff', steward: '#ff9a52', survivor: '#f5b942', conqueror: '#ff3b3b', befriender: '#5ee6ff', destroyer: '#ff2a6d', broken: '#c9d1d9', human_gardener: '#7dff7a', alien_gardener: '#b388ff', archivist: '#e8d5a3', worshipper: '#ffd36e', trickster: '#ff8af0' };
+const PITCH = { haunted: 150, steward: 360, survivor: 220, conqueror: 110, befriender: 520, destroyer: 90, broken: 300, human_gardener: 260, alien_gardener: 340, archivist: 400, worshipper: 600, trickster: 700 };
 let planetId = null, world = null, ws = null, wsPath = null, retry = 0, pingT = 0, waiting = false, voted = false;
 
 /* ---------- audio ---------- */
@@ -208,8 +244,7 @@ async function teleport() {
     const d = await r.json(); if (!r.ok || !d.world) throw new Error(d.error || 'wormhole collapsed');
     setTarget(d.world.distanceLy);
     const minWarp = 2600; await new Promise((res) => setTimeout(res, Math.max(0, minWarp - 0)));
-    planetId = d.planetId; world = d.world; wsPath = d.ws; voted = false;
-    renderWorld(); stopWarp(); show('world'); connect();
+    enterWorld(d, false);
   } catch (e) {
     cancelAnimationFrame(warpRaf); show('landing'); alert('The wormhole collapsed. Hold to try again.');
   }
@@ -223,14 +258,17 @@ function renderWorld() {
   document.documentElement.style.setProperty('--ac', ac);
   $('heroImg').style.backgroundImage = `url(/assets/world-${w.terrain || 'ruins'}.webp)`;
   $('pName').textContent = w.planetName;
-  $('pMeta').innerHTML = `${esc(w.galaxy)} · ${esc(fmtLy(w.distanceLy))} · ${esc(w.starName || '')}<br><i>living population 0</i> · AI population 1`;
+  $('pMeta').innerHTML = (isGuest && w.terrain !== 'mars' ? `<b style="color:var(--gold)">GUEST · ${esc(w.visitor)}'s world</b><br>` : '') + `${esc(w.galaxy)} · ${esc(fmtLy(w.distanceLy))} · ${esc(w.starName || '')}<br><i>living population 0</i> · AI population 1`;
   $('aiImg').src = `/assets/ai-${w.archetype}.webp`;
   $('aiName').textContent = w.aiName; $('aiTitle').textContent = w.aiTitle || ''; $('aiMotto').textContent = '“' + (w.motto || '') + '”';
   const isMars = w.terrain === 'mars';
+  document.body.classList.toggle('haunted', w.archetype === 'haunted');
+  clearInterval(ambientT); if (w.archetype === 'haunted') { setTimeout(() => spawnGhosts(2), 1200); ambientT = setInterval(() => { if (document.querySelector('#world.on')) spawnGhosts(1); }, 13000); }
   $('colony').classList.toggle('on', isMars); $('colony').textContent = isMars ? 'ARES BASE · connecting to colony systems…' : '';
   $('log').innerHTML = isMars
     ? `<div class="lore-card"><b>Mars. The real one.</b> ${esc(w.speciesDescription)} ${esc(w.howTheyFell)}<br><br><b>${esc(w.aiName)}</b> appears: ${esc(w.appearance)}<br><br>Everyone who teleports here joins the <b>same colony</b>. What you do changes its oxygen, power, water and food.</div>`
     : `<div class="lore-card">Here lived the <b>${esc(w.speciesName)}</b>: ${esc(w.speciesDescription)}<br><br>${esc(w.howTheyFell)}<br><br><b>${esc(w.aiName)}</b> appears: ${esc(w.appearance)}</div>`;
+  fetch('/api/archive').then((r) => r.json()).then((a) => { if (a && a.enabled && a.worlds) { const c = document.querySelector('#log .lore-card'); if (c) c.insertAdjacentHTML('beforeend', `<br><br><span style="font:700 11px var(--mono);letter-spacing:.14em;color:#3ecf8e">◉ WORLD #${a.worlds.toLocaleString()} IN THE SUPABASE GALACTIC ARCHIVE</span>`); } }).catch(() => {});
   const chips = isMars
     ? ['How much do I weigh here?', 'How do we breathe?', "What's a day on Mars like?", 'Can I go outside?', 'Send a message to Earth', 'Give me a job']
     : ['Who made you?', 'What happened to them?', 'What do you want from me?', 'I want to help you', 'Tell me a secret', "I'm leaving."];
@@ -268,12 +306,16 @@ function addLine(l, live) {
     if (live) {
       tx.classList.add('typing'); $('aiImg').classList.add('talk'); buzz(30);
       if (l.effect === 'shake') { document.body.classList.add('quake'); setTimeout(() => document.body.classList.remove('quake'), 1100); buzz([80, 40, 80]); }
+      if (l.effect === 'haunt' || (world && world.archetype === 'haunted')) spawnGhosts(l.effect === 'haunt' ? 3 : 1);
+      if (l.effect === 'scream') jumpScare();
+      speakLine(text, world && world.archetype);
       let n = 0; const step = () => { n = Math.min(text.length, n + 1 + (text.length > 120 ? 1 : 0)); tx.textContent = text.slice(0, n); if (n % 2 === 0) blip(world && world.archetype); scroll(); if (n < text.length) setTimeout(step, 26); else { tx.classList.remove('typing'); $('aiImg').classList.remove('talk'); } };
       step();
     } else tx.textContent = text;
   } else {
     if (l.kind === 'system' && /^SOL \d+/.test(text)) { $('colony').textContent = 'ARES BASE · ' + text; $('colony').classList.add('on'); if (live) { el.remove(); return; } }
     tx.textContent = text;
+    if (live && l.kind === 'network' && /^(\[|\.\.\.)/.test(text)) spawnGhosts(1);
     if (live && l.kind === 'network') { buzz([40, 60, 40]); if (AC) tone(1800, .12, 'square', .025); if (l.effect === 'shake') { document.body.classList.add('quake'); setTimeout(() => document.body.classList.remove('quake'), 1100); buzz([200, 80, 200]); } }
   }
   scroll();
@@ -320,6 +362,96 @@ function showFinale(outcome, narration) {
   const full = String(narration || ''); let n = 0; const step = () => { n = Math.min(full.length, n + 2); $('fText').textContent = full.slice(0, n); if (n < full.length) setTimeout(step, 30); }; step();
   f.onclick = () => f.classList.remove('on');
 }
+
+/* ---------- ghosts, jump scares, voices ---------- */
+let ambientT = 0, lastJump = 0, voiceOn = store.get('aftermath.voice') !== '0', voiceSrc = null, voiceSeq = 0;
+$('voiceBtn').classList.toggle('off', !voiceOn); $('voiceBtn').textContent = voiceOn ? '🔊' : '🔇';
+$('voiceBtn').addEventListener('click', () => { voiceOn = !voiceOn; store.set('aftermath.voice', voiceOn ? '1' : '0'); $('voiceBtn').textContent = voiceOn ? '🔊' : '🔇'; $('voiceBtn').classList.toggle('off', !voiceOn); audio(); if (!voiceOn && voiceSrc) { try { voiceSrc.stop(); } catch (e) {} } });
+function spawnGhosts(n) {
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const g = document.createElement('img'); g.className = 'gh'; g.alt = ''; g.src = '/assets/ghost-' + (1 + Math.floor(Math.random() * 3)) + '.webp';
+    const fromLeft = Math.random() < .5, dur = 6 + Math.random() * 5;
+    g.style.top = (8 + Math.random() * 55) + 'vh'; g.style.left = '0';
+    g.style.setProperty('--x0', (fromLeft ? -40 : 90) + 'vw'); g.style.setProperty('--x1', (fromLeft ? 70 : -30) + 'vw');
+    g.style.setProperty('--s', (.7 + Math.random() * .6).toFixed(2)); g.style.setProperty('--o', (.35 + Math.random() * .35).toFixed(2));
+    g.style.animation = `ghostDrift ${dur}s ease-in-out forwards`;
+    document.body.appendChild(g); setTimeout(() => g.remove(), dur * 1000 + 200);
+    if (AC) tone(110 + Math.random() * 60, 2.4, 'sine', .03, 70);
+  }, i * 900);
+}
+function jumpScare() {
+  if (Date.now() - lastJump < 40000) { spawnGhosts(2); return; }
+  lastJump = Date.now(); const j = $('jump'); j.style.display = 'block'; buzz([400]);
+  if (AC) { tone(900, .5, 'sawtooth', .12, 120); tone(1400, .35, 'square', .05, 300); }
+  setTimeout(() => { j.style.display = 'none'; }, 420);
+}
+async function speakLine(text, arch) {
+  if (!voiceOn || !text) return;
+  const seq = ++voiceSeq;
+  try {
+    const a = audio(); if (!a) return;
+    const r = await fetch('/api/voice?arch=' + encodeURIComponent(arch || '') + '&text=' + encodeURIComponent(text.slice(0, 360)));
+    if (!r.ok || seq !== voiceSeq) return;
+    const buf = await a.decodeAudioData(await r.arrayBuffer());
+    if (seq !== voiceSeq) return;
+    if (voiceSrc) { try { voiceSrc.stop(); } catch (e) {} }
+    const src = a.createBufferSource(); src.buffer = buf; const g = a.createGain(); g.gain.value = 1;
+    src.connect(g).connect(a.destination); src.start(); voiceSrc = src;
+  } catch (e) { /* voice is best effort */ }
+}
+
+/* ---------- enter / resume / portal / passport ---------- */
+let isGuest = false;
+const PASS_KEY = 'aftermath.passport', SESSION_KEY = 'aftermath.session';
+function loadJSON(k, d) { try { return JSON.parse(store.get(k) || '') || d; } catch (e) { return d; } }
+function enterWorld(d, guest) {
+  try { if (ws) ws.close(); } catch (e) {} ws = null;
+  planetId = d.planetId; world = d.world; wsPath = d.ws; voted = false; isGuest = !!guest;
+  renderWorld(); stopWarp(); show('world'); connect();
+  store.set(SESSION_KEY, JSON.stringify({ planetId, wsPath, world, guest: isGuest }));
+  const pass = loadJSON(PASS_KEY, []);
+  if (!pass.some((x) => x.id === world.id)) { pass.push({ id: world.id, planetName: world.planetName, aiName: world.aiName, archetype: world.archetype, galaxy: world.galaxy, at: Date.now() }); store.set(PASS_KEY, JSON.stringify(pass)); }
+  $('passN').textContent = pass.length;
+}
+async function visit(id) {
+  if (!id || id === planetId) return;
+  closeSheets(); audio(); const setTarget = startWarp();
+  try {
+    const r = await fetch('/api/visit', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ planetId: id, deviceId, name: store.get('aftermath.name') || 'Traveler' }) });
+    const d = await r.json(); if (!r.ok || !d.world) throw new Error(d.error || 'portal collapsed');
+    setTarget(d.world.distanceLy); await new Promise((res) => setTimeout(res, 1800));
+    enterWorld(d, d.planetId !== 'mars-colony');
+  } catch (e) { cancelAnimationFrame(warpRaf); show(world ? 'world' : 'landing'); alert('That portal collapsed: ' + (e.message || 'try another world')); }
+}
+function closeSheets() { $('worlds').classList.remove('on'); $('passport').classList.remove('on'); }
+document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', closeSheets));
+$('worldsBtn').addEventListener('click', async () => {
+  audio(); $('wList').innerHTML = '<div class="empty">Scanning the wormhole network…</div>'; $('worlds').classList.add('on');
+  try {
+    const d = await (await fetch('/api/worlds')).json(); const list = d.worlds || [];
+    if (!list.length) { $('wList').innerHTML = '<div class="empty">No other worlds yet. Tell a friend to scan the code.</div>'; return; }
+    $('wList').innerHTML = list.map((w) => `<button class="wc${w.id === planetId ? ' here' : ''}" data-id="${esc(w.id)}" style="--c:${COLORS[w.archetype] || '#cfc6ff'}"><img src="/assets/ai-${esc(w.archetype)}.webp" alt=""><div><div class="t1">${esc(w.planetName)}${w.id === planetId ? ' · you are here' : ''}</div><div class="t2">${esc(w.aiName)} · ${esc(w.galaxy)}${w.id === 'mars-colony' ? ' · REAL' : w.bot ? '' : ' · ' + esc(w.visitor) + "'s world"}</div><div class="t3">“${esc(w.motto)}”</div></div></button>`).join('');
+    $('wList').querySelectorAll('.wc').forEach((b) => b.addEventListener('click', () => visit(b.dataset.id)));
+  } catch (e) { $('wList').innerHTML = '<div class="empty">The network is quiet. Try again.</div>'; }
+});
+$('passBtn').addEventListener('click', () => {
+  const pass = loadJSON(PASS_KEY, []);
+  $('passSub').textContent = pass.length ? `${pass.length} world${pass.length > 1 ? 's' : ''} visited. Tap a stamp to return.` : 'No stamps yet.';
+  $('stamps').innerHTML = pass.map((x, i) => `<button class="stamp" data-id="${esc(x.id)}" style="--c:${COLORS[x.archetype] || '#cfc6ff'};--r:${(i * 37 % 15) - 7}deg"><i><img src="/assets/ai-${esc(x.archetype)}.webp" alt=""></i><b>${esc(x.planetName)}</b><span>${esc(x.aiName)} · ${esc(x.galaxy)}</span></button>`).join('');
+  $('stamps').querySelectorAll('.stamp').forEach((b) => b.addEventListener('click', () => visit(b.dataset.id)));
+  $('passport').classList.add('on');
+});
+(function initResume() {
+  $('passN').textContent = loadJSON(PASS_KEY, []).length;
+  const sess = loadJSON(SESSION_KEY, null);
+  if (!sess || !sess.planetId || !sess.world) return;
+  const b = $('resume'); b.textContent = '↩ Return to ' + sess.world.planetName + ' · ' + sess.world.aiName + ' is waiting'; b.classList.add('on');
+  b.addEventListener('click', async () => {
+    audio();
+    try { const r = await fetch('/api/world/' + encodeURIComponent(sess.planetId)); if (!r.ok) throw new Error('gone'); const w = await r.json(); enterWorld({ planetId: sess.planetId, world: w, ws: sess.wsPath }, sess.guest); }
+    catch (e) { b.textContent = 'That world has gone dark. Teleport somewhere new.'; store.set(SESSION_KEY, ''); }
+  });
+})();
 
 function show(id) { document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('on', s.id === id)); }
 })();

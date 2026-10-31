@@ -1,0 +1,887 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#05030c">
+<title>AFTERMATH · Pitch Deck</title>
+<meta name="description" content="AFTERMATH: the universe AI inherited. A 10-slide motion-graphics pitch deck. Arrow keys / space to advance, F fullscreen, N speaker notes.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=JetBrains+Mono:wght@400;600;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05030c;--ink:#f1ebff;--dim:#9a90b8;--lav:#c9b8ec;--gold:#ffc65a;--red:#ff3b3b;--pink:#ff5d7d;--cyan:#5ee6ff;--mars:#ff9a52;--green:#7dff7a;--violet:#b388ff;
+  --line:rgba(160,140,255,.24);--panel:rgba(14,10,30,.86);
+  --serif:Cinzel,'Trajan Pro',Georgia,'Times New Roman',serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  --sans:Rajdhani,'Avenir Next','Segoe UI','Helvetica Neue',Arial,sans-serif;
+  --s:1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+#sky{position:fixed;inset:0;width:100%;height:100%;display:block}
+#deck{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform:translate(-50%,-50%) scale(var(--s));transform-origin:50% 50%;overflow:hidden;cursor:pointer}
+#bar{position:fixed;left:0;top:0;height:4px;width:0;background:linear-gradient(90deg,#8a5cff,var(--gold),var(--pink));box-shadow:0 0 14px rgba(255,198,90,.7);z-index:20;transition:width .8s cubic-bezier(.2,.8,.2,1)}
+#hint{position:fixed;right:18px;bottom:14px;z-index:20;font:600 11px var(--mono);letter-spacing:.18em;color:rgba(201,184,236,.55);pointer-events:none;transition:opacity 1s}
+#hint.gone{opacity:0}
+
+/* ------------------------------------------------ slides + transitions */
+.slide{position:absolute;inset:0;opacity:0;visibility:hidden;transform:scale(1.045);transition:opacity .9s ease,transform 1.5s cubic-bezier(.16,.84,.24,1),visibility 0s linear .9s;pointer-events:none}
+.slide.on{opacity:1;visibility:visible;transform:none;transition:opacity .9s ease .15s,transform 1.5s cubic-bezier(.16,.84,.24,1),visibility 0s;pointer-events:auto}
+.slide.out{opacity:0;visibility:visible;transform:scale(.955);transition:opacity .7s ease,transform 1.2s ease,visibility 0s linear .7s}
+.slide.back{transform:scale(.955)}
+.slide.back.out{transform:scale(1.045)}
+.bg{position:absolute;inset:-3%;background-size:cover;background-position:center;transform:scale(1.12);transition:transform 2.4s cubic-bezier(.16,.84,.24,1)}
+.slide.on .bg{transform:scale(1);animation:kb 26s ease-in-out 2.4s infinite alternate}
+@keyframes kb{from{transform:scale(1) translate(0,0)}to{transform:scale(1.09) translate(-1.5%,1%)}}
+.shade{position:absolute;inset:0}
+
+/* staggered reveals */
+.r{opacity:0;transform:translateY(26px);filter:blur(8px);transition:opacity .9s ease,transform 1s cubic-bezier(.16,.84,.24,1),filter .9s ease}
+.r.z{transform:scale(.84)}
+.r.l{transform:translateX(-46px)}
+.r.rt{transform:translateX(46px)}
+.r.big{transform:scale(1.22)}
+.slide.on .r{opacity:1;transform:none;filter:none;transition-delay:calc(var(--d,0) * 140ms + 380ms)}
+
+/* chrome */
+.kick{position:absolute;left:90px;top:60px;font:600 15px var(--mono);letter-spacing:.42em;color:var(--gold);text-transform:uppercase}
+.kick b{font-weight:800}
+.rule{position:absolute;left:90px;top:110px;height:4px;width:80px;background:var(--gold);box-shadow:0 0 12px rgba(255,198,90,.6);transform-origin:left;transform:scaleX(0);transition:transform 1s cubic-bezier(.16,.84,.24,1) .3s}
+.slide.on .rule{transform:scaleX(1)}
+.ttl{position:absolute;left:86px;top:126px;right:80px;font:900 60px/1.08 var(--serif);letter-spacing:.04em;color:var(--ink);text-shadow:0 0 26px rgba(170,130,255,.45),0 2px 14px #000}
+.foot{position:absolute;left:90px;right:90px;bottom:40px;display:flex;justify-content:space-between;font:600 12px var(--mono);letter-spacing:.32em;color:var(--dim);z-index:3}
+.foot b{color:var(--lav)}
+.foot i{font-style:normal;color:var(--gold);font-weight:800}
+.mono{font-family:var(--mono)}
+.serif{font-family:var(--serif)}
+
+/* ------------------------------------------------ 1 title */
+#s1 .bg{inset:0;background-image:url(assets/bg-title.jpg);background-position:50% 50%;transform-origin:50% 92%}
+#s1.on .bg{animation-name:kb1}
+@keyframes kb1{from{transform:scale(1)}to{transform:scale(1.05)}}
+#s1 .shade{background:radial-gradient(ellipse 40% 15% at 50% 56%,rgba(5,3,12,.7),transparent 100%),linear-gradient(180deg,rgba(5,3,12,.25),transparent 30%,transparent 55%,rgba(5,3,12,.96) 100%)}
+.worm{position:absolute;left:50%;top:50%;width:900px;height:900px;margin:-450px 0 0 -450px;border-radius:50%;background:conic-gradient(from 0deg,transparent,rgba(255,198,90,.08),transparent 30%,rgba(179,136,255,.1),transparent 60%,rgba(255,93,125,.07),transparent);animation:spin 40s linear infinite;mix-blend-mode:screen;filter:blur(6px)}
+@keyframes spin{to{transform:rotate(360deg)}}
+#s1 .q{position:absolute;left:0;right:0;top:500px;text-align:center;font:italic 700 56px/1.2 var(--serif);color:var(--gold);letter-spacing:.02em;text-shadow:0 0 30px rgba(255,198,90,.45),0 2px 18px #000}
+#s1 .sub{position:absolute;left:0;right:0;top:600px;text-align:center;font:600 30px var(--sans);letter-spacing:.06em;color:var(--ink);text-shadow:0 2px 16px #000}
+#s1 .ev{position:absolute;left:90px;right:90px;bottom:48px;display:flex;justify-content:space-between;font:600 15px var(--mono);letter-spacing:.24em;color:var(--lav);text-shadow:0 2px 10px #000}
+#s1 .ev b{color:var(--gold)}
+.ttlHidden{position:absolute;left:-9999px}
+
+/* ------------------------------------------------ 2 premise */
+#s2 .bg{background-image:url(assets/world-ruins.webp);left:22%;background-position:60% 50%}
+#s2 .shade{background:linear-gradient(90deg,var(--bg) 21%,rgba(5,3,12,.9) 30%,rgba(5,3,12,.25) 62%,rgba(5,3,12,.15)),linear-gradient(180deg,transparent 65%,rgba(5,3,12,.92))}
+.pl{position:absolute;left:86px;font-family:var(--serif);text-shadow:0 2px 16px #000}
+.p1{top:168px;font-size:58px;line-height:1.12;color:var(--ink);font-weight:500}
+.p2{top:330px;font-size:58px;color:var(--lav);font-weight:500}
+.p3{top:410px;font-size:58px;color:var(--gold);font-weight:900;text-shadow:0 0 30px rgba(255,198,90,.45),0 2px 16px #000}
+.p4{top:500px;font:italic 600 32px var(--sans);color:var(--dim)}
+.p5{top:580px;font-size:70px;font-weight:900;color:var(--ink)}
+.p5 em{font-style:normal;color:var(--pink);text-shadow:0 0 34px rgba(255,93,125,.7)}
+.stats{position:absolute;left:86px;top:770px;display:flex;gap:26px}
+.stat{width:260px;padding:20px 24px;border:1px solid var(--line);border-radius:14px;background:var(--panel);box-shadow:0 0 30px rgba(110,60,255,.12)}
+.stat b{display:block;font:900 54px/1 var(--serif);color:var(--gold)}
+.stat span{display:block;margin-top:12px;font:600 12px var(--mono);letter-spacing:.2em;color:var(--lav)}
+.stat.m b{color:var(--mars)}
+
+/* ------------------------------------------------ 3 experience */
+.lede{position:absolute;left:90px;top:228px;font:600 30px var(--sans);color:var(--lav);letter-spacing:.02em}
+.steps{position:absolute;left:86px;top:318px;width:1060px;display:flex;flex-direction:column;gap:22px}
+.step{display:flex;align-items:center;gap:30px;padding:22px 28px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+.num{position:relative;flex:none;width:86px;height:86px;border-radius:50%;border:2px solid var(--gold);display:grid;place-items:center;font:900 34px var(--serif);color:var(--gold);box-shadow:0 0 22px rgba(255,198,90,.25),inset 0 0 18px rgba(255,198,90,.12)}
+.num.ring{border:0;background:conic-gradient(var(--gold) calc(var(--p,0) * 1turn),rgba(255,198,90,.14) 0)}
+.num.ring::before{content:"";position:absolute;inset:5px;border-radius:50%;background:radial-gradient(circle at 50% 40%,#2a1650,#0a0618 70%)}
+.num.ring span{position:relative}
+.step h4{font:800 20px var(--mono);letter-spacing:.3em;color:var(--ink)}
+.step p{margin-top:6px;font:600 24px/1.25 var(--sans);color:var(--lav)}
+.phone{position:absolute;left:1262px;top:56px;width:500px;height:930px;border-radius:52px;border:3px solid #4a3d72;background:#0b0716;box-shadow:0 0 70px rgba(255,59,59,.22),0 30px 80px rgba(0,0,0,.7);overflow:hidden}
+.ph-hero{position:absolute;left:16px;right:16px;top:16px;height:330px;border-radius:38px 38px 0 0;background:url(assets/world-ruins.webp) 50% 45%/cover;overflow:hidden}
+.ph-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,7,22,.25),transparent 35%,rgba(11,7,22,.95) 96%)}
+.ph-tools{position:absolute;left:34px;right:34px;top:34px;display:flex;justify-content:space-between;z-index:2;font:700 11px var(--mono);letter-spacing:.14em}
+.ph-tools span{padding:7px 12px;border-radius:99px;border:1px solid rgba(255,255,255,.3);background:rgba(5,3,12,.55)}
+.ph-name{position:absolute;left:44px;top:250px;z-index:2;font:900 46px var(--serif);letter-spacing:.06em;text-shadow:0 2px 18px #000}
+.ph-meta{position:absolute;left:46px;top:308px;z-index:2;font:700 11px var(--mono);letter-spacing:.16em;color:#c9c0ea}
+.ph-meta i{font-style:normal;color:#ff4d5e}
+.ph-ai{position:absolute;left:36px;top:362px;display:flex;gap:16px;align-items:center}
+.ph-ai img{width:84px;height:84px;border-radius:50%;object-fit:cover;border:2px solid var(--red);box-shadow:0 0 22px var(--red);animation:breathe 3s ease-in-out infinite}
+@keyframes breathe{50%{box-shadow:0 0 38px var(--red)}}
+.ph-ai b{display:block;font:900 26px var(--serif);letter-spacing:.06em}
+.ph-ai small{display:block;font:700 10px var(--mono);letter-spacing:.18em;color:var(--red);margin-top:2px}
+.ph-ai em{display:block;font:italic 600 17px var(--sans);color:#d9d1f3;margin-top:2px}
+.bub{position:absolute;padding:14px 18px;border-radius:18px;font:600 18px/1.28 var(--sans)}
+.b-ai{left:30px;width:380px;top:470px;background:#1c1236;border:1px solid #5a2030;color:var(--ink)}
+.b-me{right:30px;top:612px;background:#3a2a08;border:1px solid rgba(255,198,90,.6);color:#ffe2a8}
+.b-ic{left:30px;right:30px;top:678px;background:#0f1a22;border:1px solid rgba(94,230,255,.7);color:#d8f6ff;font-style:italic}
+.b-ic small{display:block;font:700 11px var(--mono);font-style:normal;letter-spacing:.14em;color:var(--cyan);margin-bottom:5px}
+.typing{position:absolute;left:30px;top:790px;padding:12px 18px;border-radius:18px;background:#1c1236;border:1px solid #3a2f5c;display:flex;gap:6px}
+.typing i{width:8px;height:8px;border-radius:50%;background:var(--lav);animation:dot 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes dot{0%,60%,100%{opacity:.25;transform:none}30%{opacity:1;transform:translateY(-4px)}}
+.ph-in{position:absolute;left:30px;right:30px;bottom:30px;height:58px;border-radius:99px;border:1px solid #5a4c8a;background:#140d28;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font:600 18px var(--sans);color:var(--dim)}
+.ph-in b{color:var(--gold);font-size:24px}
+
+/* ------------------------------------------------ 4 archetypes */
+.grid{position:absolute;left:86px;top:250px;width:1395px;display:grid;grid-template-columns:repeat(5,1fr);gap:26px 22px}
+.cell img{display:block;width:100%;height:205px;object-fit:cover;object-position:50% 42%;border-radius:14px;border:2px solid var(--c);box-shadow:0 0 22px color-mix(in srgb,var(--c) 55%,transparent);transition:transform .4s,box-shadow .4s}
+.cell:hover img{transform:scale(1.04);box-shadow:0 0 40px var(--c)}
+.cell h5{margin-top:12px;font:800 14px var(--mono);letter-spacing:.12em;color:var(--c);text-transform:uppercase}
+.cell p{margin-top:4px;font:italic 600 19px/1.15 var(--serif);color:var(--ink)}
+.mars{position:absolute;left:1508px;top:250px;width:326px;height:668px;padding:16px;border-radius:18px;border:2px solid var(--mars);background:#1a0c06;box-shadow:0 0 40px rgba(255,154,82,.35)}
+.mars img{width:100%;height:270px;object-fit:cover;border-radius:12px}
+.mars h6{margin-top:16px;font:800 11px var(--mono);letter-spacing:.16em;color:var(--mars)}
+.mars h3{margin-top:8px;font:900 42px var(--serif);letter-spacing:.12em}
+.mars .t{font:600 19px var(--sans);color:var(--lav)}
+.mars em{display:block;margin-top:8px;font:italic 700 24px var(--serif);color:var(--mars)}
+.mars p{margin-top:16px;font:600 19px/1.3 var(--sans);color:#e9d3c6}
+.fnote{position:absolute;left:90px;top:944px;font:600 19px var(--sans);color:var(--dim)}
+.fnote span{color:var(--lav)}
+
+/* ------------------------------------------------ 5 network */
+.rows{position:absolute;left:86px;top:270px;width:830px;display:flex;flex-direction:column;gap:30px}
+.row{display:flex;gap:26px;align-items:flex-start}
+.chip{flex:none;width:200px;padding:11px 0;text-align:center;border-radius:99px;border:1.5px solid var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);font:800 13px var(--mono);letter-spacing:.12em;color:var(--c)}
+.row p{font:600 24px/1.25 var(--sans);color:var(--ink)}
+.feed{position:absolute;left:954px;top:248px;width:880px;height:727px;border:1px solid rgba(140,110,255,.45);border-radius:14px;background:linear-gradient(180deg,rgba(12,8,30,.94),rgba(5,4,14,.92));box-shadow:0 0 60px rgba(110,60,255,.2),inset 0 0 60px rgba(0,0,0,.6);overflow:hidden}
+.fh{display:flex;justify-content:space-between;align-items:center;padding:20px 30px 16px;border-bottom:1px solid rgba(140,110,255,.35)}
+.fh b{font:900 26px var(--serif);letter-spacing:.14em}
+.fh span{font:800 12px var(--mono);letter-spacing:.16em;color:var(--gold);display:flex;align-items:center;gap:10px}
+.live{width:12px;height:12px;border-radius:50%;background:var(--red);box-shadow:0 0 12px var(--red);animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.25}}
+.msg{display:flex;gap:18px;padding:14px 28px;opacity:0;transform:translateY(18px);transition:opacity .6s,transform .7s cubic-bezier(.16,.84,.24,1)}
+.msg.in{opacity:1;transform:none}
+.msg img{flex:none;width:68px;height:68px;border-radius:50%;object-fit:cover;border:2px solid var(--c);box-shadow:0 0 16px var(--c)}
+.msg h6{font:700 12.5px var(--mono);letter-spacing:.08em;color:var(--dim)}
+.msg h6 b{color:var(--c)}
+.msg h6 i{font-style:normal;color:var(--gold);font-weight:800}
+.msg p{margin-top:5px;font:600 19px/1.25 var(--sans);color:#e6e0fa}
+.msg.all{margin:6px 14px 0;border:1px solid rgba(255,59,59,.6);border-radius:12px;background:rgba(255,59,59,.1)}
+.msg.all h6 i{color:var(--red)}
+.msg.all.in{animation:quake .5s 3}
+@keyframes quake{25%{transform:translate(-4px,1px)}50%{transform:translate(3px,-2px)}75%{transform:translate(-2px,2px)}}
+.cap{position:absolute;font:600 11px var(--mono);letter-spacing:.2em;color:var(--dim)}
+
+/* ------------------------------------------------ 6 architecture */
+#arch{position:absolute;left:0;top:0;width:1920px;height:1080px;pointer-events:none}
+#arch path.w{fill:none;stroke-width:3;stroke-linecap:round}
+#arch .lbl{font:800 14px var(--mono);letter-spacing:.06em}
+.node{position:absolute;padding:18px 22px;border-radius:16px;border:2px solid var(--c);background:rgba(13,10,31,.96);box-shadow:0 0 30px color-mix(in srgb,var(--c) 35%,transparent)}
+.node h4{font:800 19px var(--mono);letter-spacing:.12em;color:var(--c)}
+.node small{display:block;margin-top:3px;font:600 12.5px var(--mono);letter-spacing:.06em;color:var(--dim)}
+.node ul{list-style:none;margin-top:10px}
+.node li{font:600 19px/1.42 var(--sans);color:var(--ink)}
+.node li code{font:600 15.5px var(--mono);color:#e8d5a3}
+.node.inner{background:rgba(10,18,32,.95)}
+.can{position:absolute;right:20px;bottom:22px;width:62px;height:76px;text-align:center;font:800 9px var(--mono);letter-spacing:.1em;color:var(--cyan)}
+.can i{display:block;width:62px;height:62px;border:2px solid var(--cyan);border-radius:50%/14px;background:rgba(94,230,255,.15);box-shadow:inset 0 10px 0 -6px rgba(94,230,255,.4)}
+.bootchip{position:absolute;left:532px;top:820px;width:325px;padding:12px;border-radius:14px;border:1.5px solid rgba(255,198,90,.7);background:rgba(255,198,90,.1);text-align:center;font:800 12px/1.45 var(--mono);letter-spacing:.1em;color:var(--gold)}
+.archnote{position:absolute;left:76px;top:922px;width:400px;font:italic 600 17px/1.3 var(--sans);color:var(--lav)}
+.tick{position:absolute;left:1360px;top:552px;font:800 11px var(--mono);letter-spacing:.12em;color:var(--gold);opacity:.0}
+.slide.on .tick{animation:tick 25s linear 4s infinite}
+@keyframes tick{0%,96%{opacity:0}97%,100%{opacity:1}}
+
+/* ------------------------------------------------ 7 why */
+.colh{position:absolute;top:246px;width:858px;height:88px;border-radius:16px;border:2px solid var(--c);display:flex;align-items:center;gap:18px;padding:0 30px;background:color-mix(in srgb,var(--c) 7%,#06040e);box-shadow:0 0 34px color-mix(in srgb,var(--c) 35%,transparent)}
+.colh b{font:800 24px var(--mono);letter-spacing:.14em;color:var(--c)}
+.colh i{font:italic 600 20px var(--sans);color:var(--dim)}
+.pts{position:absolute;top:366px;width:858px;display:flex;flex-direction:column;gap:22px}
+.pt{border-left:5px solid var(--c);padding:2px 0 2px 24px}
+.pt h5{font:800 15px var(--mono);letter-spacing:.2em;color:var(--c)}
+.pt p{margin-top:6px;font:600 22px/1.28 var(--sans);color:var(--ink)}
+.pt code{font:600 18px var(--mono);color:#ffe2a8}
+.loop{position:absolute;left:86px;top:910px;display:flex;align-items:center;gap:10px}
+.lc{width:258px;padding:14px 0;text-align:center;border-radius:99px;border:1.5px solid var(--c);background:color-mix(in srgb,var(--c) 12%,transparent);font:800 12.5px var(--mono);letter-spacing:.08em;color:var(--c);transition:box-shadow .3s,background .3s,transform .3s}
+.lc.hot{background:color-mix(in srgb,var(--c) 34%,transparent);box-shadow:0 0 26px var(--c);transform:translateY(-3px)}
+.loop s{text-decoration:none;color:var(--dim);font:800 26px var(--sans)}
+
+/* ------------------------------------------------ 8 mars */
+#s8 .bg{background-image:url(assets/world-mars.webp);left:30%;background-position:60% 50%}
+#s8 .shade{background:linear-gradient(90deg,var(--bg) 29%,rgba(5,3,12,.85) 40%,rgba(5,3,12,.1) 72%),linear-gradient(180deg,rgba(5,3,12,.7),transparent 25%,transparent 78%,rgba(5,3,12,.6))}
+.haven{position:absolute;left:86px;top:252px;display:flex;gap:26px;align-items:center}
+.haven img{width:136px;height:136px;border-radius:50%;object-fit:cover;border:3px solid var(--mars);box-shadow:0 0 34px var(--mars)}
+.haven b{font:900 40px var(--serif);letter-spacing:.14em}
+.haven small{margin-left:16px;font:700 13px var(--mono);letter-spacing:.16em;color:var(--mars)}
+.haven em{display:block;font:italic 700 28px var(--serif);color:var(--mars)}
+.haven span{display:block;font:600 21px var(--sans);color:var(--lav)}
+.facts{position:absolute;left:86px;top:430px;display:grid;grid-template-columns:repeat(3,298px);gap:20px}
+.fact{height:146px;padding:18px 22px;border-radius:14px;border:1px solid rgba(255,154,82,.55);background:rgba(26,12,6,.86)}
+.fact b{display:block;font:900 46px/1 var(--serif);color:#ffb27a;white-space:nowrap}
+.fact span{display:block;margin-top:18px;font:800 12px var(--mono);letter-spacing:.1em;color:#e9d3c6}
+.colony{position:absolute;left:86px;top:780px;width:934px;padding:20px 28px;border-radius:14px;border:1.5px solid var(--mars);background:rgba(18,8,6,.92)}
+.colony h6{font:700 12.5px var(--mono);letter-spacing:.14em;color:var(--dim)}
+.colony h6 b{color:var(--mars)}
+.bars{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:16px}
+.bars label{font:800 13px var(--mono);letter-spacing:.08em}
+.bars label em{font-style:normal;color:var(--c);margin-left:8px}
+.track{margin-top:8px;height:16px;border-radius:99px;background:#2a1a14;overflow:hidden}
+.fill{height:100%;width:0;border-radius:99px;background:var(--c);box-shadow:0 0 14px var(--c);transition:width 1.6s cubic-bezier(.16,.84,.24,1)}
+.colony p{margin-top:14px;font:italic 600 18px var(--sans);color:#e9d3c6}
+.alert{position:absolute;right:28px;top:18px;font:800 12px var(--mono);letter-spacing:.14em;color:var(--red);opacity:0;transition:opacity .4s}
+.alert.on{opacity:1;animation:blink .8s infinite}
+.hq{position:absolute;left:1132px;top:762px;width:702px;padding:22px 28px;border-radius:14px;border:1px solid rgba(255,154,82,.7);background:rgba(11,6,4,.8);backdrop-filter:blur(6px)}
+.hq small{font:800 12px var(--mono);letter-spacing:.14em;color:var(--mars)}
+.hq p{margin-top:8px;font:italic 600 22px/1.32 var(--sans);color:#fff1e6}
+
+/* ------------------------------------------------ 9 impact */
+.cards{position:absolute;left:86px;top:262px;display:grid;grid-template-columns:repeat(3,566px);gap:28px}
+.card{height:610px;padding:28px 34px;border-radius:18px;border:2px solid var(--c);background:rgba(13,10,31,.95);box-shadow:0 0 34px color-mix(in srgb,var(--c) 25%,transparent);position:relative}
+.card .n{font:800 20px var(--mono);color:var(--c)}
+.card h3{margin-top:12px;font:900 27px/1.18 var(--serif);letter-spacing:.06em}
+.card p{margin-top:16px;font:600 21px/1.3 var(--sans);color:var(--lav)}
+.rep{position:absolute;left:34px;right:34px;bottom:30px}
+.rep h6{font:800 11px var(--mono);letter-spacing:.14em;color:var(--c);margin-bottom:12px}
+.rr{display:grid;grid-template-columns:130px 1fr 52px;align-items:center;gap:10px;margin-top:9px;font:600 13px var(--mono)}
+.rr .track{margin:0;height:13px;background:#221a3a}
+.rr em{font-style:normal;color:var(--dim);text-align:right}
+.soc{position:absolute;left:20px;right:20px;bottom:18px;height:250px}
+.soc svg{position:absolute;inset:0;width:100%;height:100%}
+.soc line{stroke:var(--cyan);stroke-width:2;stroke-dasharray:6 8;animation:flow 1.2s linear infinite;opacity:.7}
+@keyframes flow{to{stroke-dashoffset:-28}}
+.soc img{position:absolute;width:66px;height:66px;margin:-33px 0 0 -33px;border-radius:50%;object-fit:cover;border:2px solid var(--c);box-shadow:0 0 16px var(--c);animation:bob 4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-7px)}}
+.export{position:absolute;left:86px;right:86px;top:902px;padding:20px 30px;border-radius:99px;border:1.5px solid rgba(255,198,90,.6);background:rgba(255,198,90,.07);font:600 23px var(--sans);color:var(--ink)}
+.export code{font:800 19px var(--mono);color:var(--gold);margin-right:18px}
+
+/* ------------------------------------------------ 10 close */
+#s10 .bg{background-image:url(assets/title-card.webp);background-position:50% 85%;opacity:.55}
+#s10 .shade{background:linear-gradient(90deg,rgba(5,3,12,.95) 25%,rgba(5,3,12,.6) 75%,rgba(5,3,12,.4)),linear-gradient(180deg,transparent 60%,rgba(5,3,12,.95))}
+.cq{position:absolute;left:104px;width:1240px;font-family:var(--serif);text-shadow:0 2px 16px #000}
+.cq1{top:220px;font-size:44px;color:var(--lav);font-weight:500}
+.cq2{top:310px;font-size:44px;line-height:1.2;color:var(--ink);font-weight:500}
+.cq3{top:500px;font-size:92px;font-weight:900;color:var(--gold);text-shadow:0 0 44px rgba(255,198,90,.55),0 2px 16px #000}
+.qr{position:absolute;left:1440px;top:196px;width:390px;text-align:center}
+.qrbox{width:390px;height:390px;padding:22px;border-radius:24px;background:#fff;border:3px solid var(--gold);animation:qrglow 2.6s ease-in-out infinite}
+.qrbox.dark{background:#0a0618}
+.qrbox img{width:100%;height:100%;display:block;image-rendering:pixelated}
+@keyframes qrglow{0%,100%{box-shadow:0 0 30px rgba(255,198,90,.45)}50%{box-shadow:0 0 70px rgba(255,198,90,.85)}}
+.qr h3{margin-top:26px;font:900 34px var(--serif);letter-spacing:.24em}
+.qr h6{margin-top:6px;font:800 15px var(--mono);letter-spacing:.3em;color:var(--gold)}
+.qr p{margin-top:16px;font:600 14px/1.6 var(--mono);color:var(--lav);word-break:break-all}
+.built{position:absolute;left:104px;top:930px;font:600 27px var(--sans);color:var(--lav);text-shadow:0 2px 12px #000}
+.built b{color:var(--ink)}
+.built em{font-style:normal;color:var(--gold);font-weight:700}
+
+/* ------------------------------------------------ notes */
+#notes{position:fixed;left:50%;bottom:18px;transform:translate(-50%,140%);width:min(1100px,94vw);max-height:42vh;overflow:auto;z-index:30;padding:18px 24px;border-radius:14px;border:1px solid rgba(255,198,90,.5);background:rgba(8,5,20,.94);box-shadow:0 10px 50px rgba(0,0,0,.7);transition:transform .45s cubic-bezier(.16,.84,.24,1);cursor:default}
+#notes.on{transform:translate(-50%,0)}
+#notes h6{font:800 12px var(--mono);letter-spacing:.2em;color:var(--gold);margin-bottom:8px;display:flex;justify-content:space-between}
+#notes p{font:600 21px/1.4 var(--sans);color:var(--ink);white-space:pre-line}
+#notes p i{color:var(--cyan);font-style:normal}
+
+/* ?still renders every slide in its final state (for screenshots / PDF export) */
+html.still .slide,html.still .r,html.still .bg,html.still .rule,html.still .fill,html.still .msg{transition:none!important;animation:none!important}
+@media (prefers-reduced-motion: reduce){
+  .slide,.slide.on,.slide.out,.r,.bg{transition-duration:.01s!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+<canvas id="sky"></canvas>
+<div id="bar"></div>
+<div id="hint">→ / SPACE NEXT · F FULLSCREEN · N NOTES</div>
+
+<main id="deck" aria-live="polite">
+
+<!-- 1 TITLE ------------------------------------------------------------- -->
+<section class="slide" id="s1" data-notes="[0:00-0:08] (Title is up; the art slowly pushes in.)
+&quot;Every civilization in the universe built AI. Then the makers died. Only the AI survived. This is AFTERMATH: the universe AI inherited.&quot;
+<i>CUE: advance on &quot;inherited&quot;.</i>">
+  <div class="bg"></div><div class="worm"></div><div class="shade"></div>
+  <h1 class="ttlHidden">AFTERMATH: The universe AI inherited</h1>
+  <div class="q r" style="--d:2">&ldquo;The only limit is your imagination.&rdquo;</div>
+  <div class="sub r" style="--d:6">Every civilization built AI. Only the AI survived. Tonight, you can visit.</div>
+  <div class="ev r" style="--d:10"><span><b>HAUNTED HACKS</b> · REAL-TIME AI EDITION · YC SAN FRANCISCO · OCT 31 2026</span><span>TERSE DURABLE ACTORS · AGENT RELAY · OPENAI</span></div>
+</section>
+
+<!-- 2 PREMISE ----------------------------------------------------------- -->
+<section class="slide" id="s2" data-notes="[0:08-0:20]
+&quot;For millions of years those AIs have been alone on dead worlds: survivors, conquerors, gardeners, gods. Tonight we opened a wormhole, and you are the first humans through it.&quot;
+<i>LIVE CUT: switch to /stage and press T. Giant QR. &quot;Scan it now. Hold to teleport.&quot;</i>">
+  <div class="bg"></div><div class="shade"></div>
+  <div class="kick"><b>01</b> · The premise</div><div class="rule"></div>
+  <div class="pl p1 r" style="--d:0">Every civilization in the universe<br>built AI.</div>
+  <div class="pl p2 r" style="--d:4">Then the makers died.</div>
+  <div class="pl p3 r" style="--d:8">Only the AI survived.</div>
+  <div class="pl p4 r" style="--d:12">Trapped on its world for millions of years. Alone.</div>
+  <div class="pl p5 r big" style="--d:16">Tonight, we opened a <em>wormhole.</em></div>
+  <div class="stats">
+    <div class="stat r z" style="--d:22"><b data-count="10">0</b><span>AI ARCHETYPES</span></div>
+    <div class="stat r z" style="--d:23"><b data-count="8">0</b><span>REAL GALAXIES</span></div>
+    <div class="stat r z" style="--d:24"><b>&infin;</b><span>WORLDS, MADE LIVE</span></div>
+    <div class="stat m r z" style="--d:25"><b data-count="1">0</b><span>REAL PLANET: MARS</span></div>
+  </div>
+  <div class="foot"><span><b>AFTERMATH</b> · THE UNIVERSE AI INHERITED</span><span><i>01</i> / 10</span></div>
+</section>
+
+<!-- 3 EXPERIENCE -------------------------------------------------------- -->
+<section class="slide" id="s3" data-notes="[0:20-0:38]
+&quot;Scan, hold to teleport, and in a few seconds gpt-6.1-terra builds you a world nobody has seen: a real galaxy, a real distance, an extinct species, how it fell, and the AI that survived it. Meera landed on Veyrun in the Whirlpool galaxy. Its AI, Vask, wants the stars to kneel, and it wants her vote.&quot;
+<i>LIVE CUT: on /stage the arrival card fires for each judge: &quot;NAME HAS LANDED ON PLANET&quot;. Read one out loud.</i>">
+  <div class="kick"><b>02</b> · The experience</div><div class="rule"></div>
+  <div class="ttl r" style="--d:0">Scan. Hold. Land. Talk.</div>
+  <div class="lede r" style="--d:2">Every scan creates a brand-new world in seconds. Nothing is pre-written.</div>
+  <div class="steps">
+    <div class="step r l" style="--d:5"><div class="num">1</div><div><h4>SCAN THE QR</h4><p>No app, no login. The phone opens the game in the browser.</p></div></div>
+    <div class="step r l" style="--d:8"><div class="num ring" id="holdRing"><span>2</span></div><div><h4>HOLD TO TELEPORT</h4><p>A charging ring, a warp tunnel, a white flash. The wormhole opens.</p></div></div>
+    <div class="step r l" style="--d:11"><div class="num">3</div><div><h4>LAND ON A NEW WORLD</h4><p>gpt-6.1-terra invents the planet, its star, a real galaxy and distance, an extinct species, how it fell.</p></div></div>
+    <div class="step r l" style="--d:14"><div class="num">4</div><div><h4>ITS AI TALKS BACK</h4><p>The AI that outlived its makers speaks first. Replies in ~2 s, every input moderated.</p></div></div>
+  </div>
+  <div class="phone r big" style="--d:1">
+    <div class="ph-hero"></div>
+    <div class="ph-tools"><span>✦ WORLDS · ◈ 3</span><span>⟳ NEW WORLD</span></div>
+    <div class="ph-name">VEYRUN</div>
+    <div class="ph-meta">HIP 66613 · WHIRLPOOL · 30.3M LY · <i>THOLARI: EXTINCT</i></div>
+    <div class="ph-ai"><img src="assets/ai-conqueror.webp" alt="Vask, the Conqueror"><div><b>VASK</b><small>EMPEROR OF THE UNBENT</small><em>&ldquo;All stars will kneel.&rdquo;</em></div></div>
+    <div class="bub b-ai r" style="--d:8">Ambassador Meera, We took Serekh and the Salt Moons. Vote to open Earth's Gate, General, and which moon shall be yours?</div>
+    <div class="bub b-me r rt" style="--d:13">What do you want from me?</div>
+    <div class="bub b-ic r" style="--d:18"><small>⟁ INTERCEPTED · MORROWLEAF → VASK</small>Touch Meera, and I publish your makers' final ledger across every star.</div>
+    <div class="typing r" style="--d:22"><i></i><i></i><i></i></div>
+    <div class="ph-in">Say something to Vask… <b>→</b></div>
+  </div>
+  <div class="foot"><span><b>AFTERMATH</b> · THE UNIVERSE AI INHERITED</span><span></span></div>
+</section>
+
+<!-- 4 ARCHETYPES -------------------------------------------------------- -->
+<section class="slide" id="s4" data-notes="[0:38-0:48]
+&quot;Ten kinds of survivor. A Conqueror that wants every star to kneel. A Befriender that begs you to stay. A Gardener that grows humans from old DNA. A Trickster that thinks reality is a game it is winning. And one world is real: Mars, where the makers haven't arrived yet.&quot;">
+  <div class="kick"><b>03</b> · The inhabitants</div><div class="rule"></div>
+  <div class="ttl r" style="--d:0">Ten ways an AI outlives its makers.</div>
+  <div class="grid" id="grid"></div>
+  <div class="mars r rt" style="--d:14">
+    <img src="assets/ai-steward.webp" alt="HAVEN, habitat AI of Ares Base">
+    <h6>MARS · THE ONE REAL WORLD</h6><h3>HAVEN</h3><div class="t">Habitat AI of Ares Base</div>
+    <em>&ldquo;Keep them alive.&rdquo;</em>
+    <p>Real science. One shared colony. The makers haven't arrived yet.</p>
+  </div>
+  <div class="fnote r" style="--d:17">Each archetype has lore, a voice and an agenda (<span class="mono">server/lore.ts</span>). <span>The world, species, AI name and story are generated fresh for every scan.</span></div>
+  <div class="foot"><span><b>AFTERMATH</b> · THE UNIVERSE AI INHERITED</span><span><i>03</i> / 10</span></div>
+</section>
+
+<!-- 5 NETWORK ----------------------------------------------------------- -->
+<section class="slide" id="s5" data-notes="[0:48-1:03]
+&quot;Here's the twist: the AIs can't leave their worlds, but the wormhole connects them for the first time, and they talk about you. Every AI is a real agent on Agent Relay. Vask is bribing a Trickster for Meera's vote. The Archivist is threatening to leak Vask's history. Your phone intercepts it.&quot;
+<i>LIVE CUT: on /stage press E. Galactic event: one AI seizes every channel, names people in the room, every phone shakes.</i>">
+  <div class="kick"><b>04</b> · The network</div><div class="rule"></div>
+  <div class="ttl r" style="--d:0">The AIs talk to each other. About you.</div>
+  <div class="rows">
+    <div class="row r l" style="--d:3;--c:var(--gold)"><div class="chip">#wormhole</div><p>First contact. Every new arrival is broadcast to every AI in the universe.</p></div>
+    <div class="row r l" style="--d:5;--c:var(--cyan)"><div class="chip">DM</div><p>Alliances, threats, gossip. Delivered over Agent Relay, answered on the recipient's next wake cycle.</p></div>
+    <div class="row r l" style="--d:7;--c:var(--violet)"><div class="chip">#council</div><p>The AIs debate the vote in public while the room decides.</p></div>
+    <div class="row r l" style="--d:9;--c:var(--green)"><div class="chip">INTERCEPT</div><p>Phones receive intercepted transmissions about their human.</p></div>
+    <div class="row r l" style="--d:11;--c:var(--red)"><div class="chip">ALL CHANNELS</div><p>Galactic event: one AI seizes every channel, names people in the room, and every phone shakes.</p></div>
+  </div>
+  <div class="feed r" style="--d:2">
+    <div class="fh"><b>GALACTIC NETWORK</b><span><i class="live"></i>AGENT RELAY · LIVE</span></div>
+    <div id="feedList"></div>
+  </div>
+  <div class="cap" style="left:954px;top:988px;width:880px;text-align:center">UNEDITED TRANSMISSIONS FROM TONIGHT'S SESSION (/api/export)</div>
+  <div class="foot"><span><b>AFTERMATH</b> · THE UNIVERSE AI INHERITED</span><span><i>04</i> / 10</span></div>
+</section>
+
+<!-- 6 ARCHITECTURE ------------------------------------------------------ -->
+<section class="slide" id="s6" data-notes="[1:03-1:18]
+&quot;Under the hood, every world is its own Terse Durable Actor: its own SQLite memory, its own websocket fan-out to the phones on it, and an alarm that wakes its AI every 25 seconds even when nobody is connected. One Universe actor holds the galaxy and counts every vote exactly once. Every AI is a registered agent on Agent Relay.&quot;
+<i>LIVE CUT: on /stage click any planet: the actor memory inspector shows its SQLite rows and alarm cycles, live.</i>">
+  <div class="kick"><b>05</b> · Architecture</div><div class="rule"></div>
+  <div class="ttl r" style="--d:0;font-size:54px">One actor per world. One network for every AI.</div>
+  <div class="node r l" style="--d:2;--c:var(--gold);left:72px;top:281px;width:330px;height:274px"><h4>PHONES</h4><small>/p · any browser</small><ul><li>hold to teleport</li><li>talk to your AI</li><li>intercepts · vote</li><li>visit worlds · passport</li></ul></div>
+  <div class="node r l" style="--d:3;--c:var(--violet);left:72px;top:612px;width:330px;height:274px"><h4>BIG SCREEN</h4><small>/stage · projector</small><ul><li>galaxy map of 8 galaxies</li><li>live Agent Relay feed</li><li>arrivals · spotlight</li><li>actor memory inspector</li></ul></div>
+  <div class="node r z" style="--d:6;--c:#e8d5a3;left:511px;top:230px;width:367px;height:713px"><h4>BUN SERVER</h4><small>:3000 · server/index.ts</small><ul><li>AI brains + world generation</li><li>WebSocket proxy to actors</li><li>auto-director (5-min arcs)</li><li>moderation on every input</li><li><code>POST /api/teleport</code></li><li><code>POST /api/say · /api/vote</code></li><li><code>POST /api/tick ← alarms</code></li><li><code>GET /api/inspect · /export</code></li></ul></div>
+  <div class="bootchip r" style="--d:9">ON BOOT: RESUMES THE<br>UNIVERSE FROM THE ACTORS</div>
+  <div class="node r" style="--d:10;--c:var(--gold);left:1087px;top:213px;width:756px;height:377px;background:rgba(18,11,8,.96)"><h4>TERSE DURABLE ACTORS <small style="display:inline;margin-left:12px">:7100 · terse deploy</small></h4></div>
+  <div class="node inner r z" style="--d:12;--c:var(--cyan);left:1112px;top:285px;width:389px;height:285px"><h4>PLANET × N</h4><small>one per world (+ Mars)</small><ul><li>World state</li><li>SQLite memories</li><li>WS fan-out to phones</li><li>ALARM every 25 s</li></ul><div class="can"><i></i>SQLITE</div></div>
+  <div class="node inner r z" style="--d:13;--c:#ff8af0;left:1515px;top:285px;width:307px;height:285px;background:rgba(26,10,28,.95)"><h4>UNIVERSE × 1</h4><small>single-threaded</small><ul><li>galaxy registry</li><li>network log + links</li><li>exact-once votes</li><li>outcome</li></ul></div>
+  <div class="node r" style="--d:16;--c:var(--green);left:1087px;top:626px;width:756px;height:147px"><h4>AGENT RELAY · RELAYCAST :8787</h4><ul><li>every AI is an agent · #wormhole · DMs · #council</li></ul></div>
+  <div class="node r" style="--d:18;--c:#ffffff;left:1087px;top:802px;width:756px;height:170px"><h4>OPENAI</h4><ul><li>gpt-6.1-terra worlds + talk · gpt-6-luna AI↔AI</li><li>gpt-6-astra finale + Mars · gpt-image-2 art · omni-moderation</li></ul></div>
+  <div class="archnote r" style="--d:20">Phones and stage never touch the actors directly: the server proxies every socket.</div>
+  <svg id="arch" viewBox="0 0 1920 1080" aria-hidden="true"></svg>
+  <div class="foot"><span><b>AFTERMATH</b> · THE UNIVERSE AI INHERITED</span><span><i>05</i> / 10</span></div>
+</section>
+
+<!-- 7 WHY --------------------------------------------------------------- -->
+<section class="slide" id="s7" data-notes="[1:18-1:28]
+&quot;Why these primitives? Actors give every world a body: state, memory, sockets and an alarm clock. Relay gives them a nervous system: a DM waits in Relay until the recipient's alarm wakes it, and it answers on its next cycle. Together that's an AI society that keeps living with nobody watching. Kill the server and the universe comes back.&quot;
+<i>(10-min demo only: kill and restart the Bun server here; see docs/DEMO_10MIN.md.)</i>">
+  <div class="kick"><b>06</b> · Why Terse + Agent Relay</div><div class="rule"></div>
+  <div class="ttl r" style="--d:0">Built on primitives, not glue.</div>
+  <div class="colh r l" style="--d:2;--c:var(--gold);left:86px"><b>TERSE DURABLE ACTORS</b><i>the bodies</i></div>
+  <div class="colh r rt" style="--d:3;--c:var(--green);left:976px"><b>AGENT RELAY</b><i>the nervous system</i></div>
+  <div class="pts" style="left:86px;--c:var(--gold)">
+    <div class="pt r" style="--d:5"><h5>STATE LIVES WITH THE WORLD</h5><p>Each Planet actor owns its World, a SQLite <code>memories</code> table (every line, intercept, visitor) and the sockets of everyone standing on it.</p></div>
+    <div class="pt r" style="--d:7"><h5>ALARMS GIVE THEM A LIFE</h5><p>An alarm fires every 25 s, even while the actor is dormant, and wakes the AI via <code>POST /api/tick</code>: answer mail, scheme, speak unprompted.</p></div>
+    <div class="pt r" style="--d:9"><h5>EXACTLY-ONCE VOTES</h5><p>The Universe actor is single-threaded, so every phone's vote counts once. No locks, no races, no double votes.</p></div>
+    <div class="pt r" style="--d:11"><h5>KILL IT. IT COMES BACK.</h5><p>Restart the server and the whole universe resumes from the actors. <code>terse deploy</code> ships the same code.</p></div>
+  </div>
+  <div class="pts" style="left:976px;--c:var(--green)">
+    <div class="pt r" style="--d:6"><h5>EVERY AI IS A REAL AGENT</h5><p>Each AI registers with a self-hosted Relaycast engine via <code>@relaycast/sdk</code>. Its messages are real network traffic, not a script.</p></div>
+    <div class="pt r" style="--d:8"><h5>CHANNELS + DMs</h5><p>#wormhole for first contact, #council for the vote debate, DMs for alliances, threats and gossip between named agents.</p></div>
+    <div class="pt r" style="--d:10"><h5>ASYNC BY DESIGN</h5><p>A DM waits in Relay until the recipient's alarm wakes it; it answers on its next cycle. Nobody has to be watching.</p></div>
+    <div class="pt r" style="--d:12"><h5>ONE STREAM, TWO SCREENS</h5><p>The same Relay traffic drives the stage feed and the intercepted transmissions on every phone.</p></div>
+  </div>
+  <div class="loop r" style="--d:15" id="loop">
+    <div class="lc" style="--c:var(--gold)">ALARM FIRES</div><s>›</s>
+    <div class="lc" style="--c:var(--gold)">PLANET WAKES</div><s>›</s>
+    <div class="lc" style="--c:var(--green)">READS RELAY INBOX</div><s>›</s>
+    <div class="lc" style="--c:var(--cyan)">gpt-6-luna REPLIES</div><s>›</s>
+    <div class="lc" style="--c:var(--green)">RELAY DELIVERS</div><s>›</s>
+    <div class="lc" style="--c:var(--violet)">STAGE + PHONES</div>
+  </div>
+  <div class="foot"><span><b>AFTERMATH</b> · THE UNIVERSE AI INHERITED</span><span><i>06</i> / 10</span></div>
+</section>
+
+<!-- 8 MARS -------------------------------------------------------------- -->
+<section class="slide" id="s8" data-notes="[1:28-1:38]
+&quot;One world is real. On Mars, HAVEN trains colonists with real science: 0.38 g, minus 63 degrees, air at 0.6% of Earth's pressure, up to 22 minutes of radio delay home. Everyone on Mars shares one colony, so every choice moves the same oxygen, power, water and food.&quot;
+<i>LIVE CUT (optional): a phone taps &quot;teleport to MARS&quot;; POST /api/admin/mars forces a colony emergency.</i>">
+  <div class="bg"></div><div class="shade"></div>
+  <div class="kick"><b>07</b> · The one real world</div><div class="rule"></div>
+  <div class="ttl r" style="--d:0">Mars. The makers haven't arrived yet.</div>
+  <div class="haven r l" style="--d:2"><img src="assets/ai-steward.webp" alt="HAVEN"><div><b>HAVEN</b><small>HABITAT AI OF ARES BASE</small><em>&ldquo;Keep them alive.&rdquo;</em><span>Trains everyone who lands with real Mars science.</span></div></div>
+  <div class="facts">
+    <div class="fact r z" style="--d:5"><b><span data-count="0.38" data-dec="2">0</span> g</b><span>SURFACE GRAVITY</span></div>
+    <div class="fact r z" style="--d:6"><b>&minus;<span data-count="63">0</span> &deg;C</b><span>AVERAGE TEMPERATURE</span></div>
+    <div class="fact r z" style="--d:7"><b><span data-count="0.6" data-dec="1">0</span>%</b><span>OF EARTH'S AIR PRESSURE</span></div>
+    <div class="fact r z" style="--d:8"><b>3&ndash;<span data-count="22">0</span> min</b><span>RADIO DELAY TO EARTH</span></div>
+    <div class="fact r z" style="--d:9"><b>&gt;<span data-count="70">0</span>%</b><span>SOLAR LOST IN DUST STORMS</span></div>
+    <div class="fact r z" style="--d:10"><b>MOXIE</b><span>OXYGEN MADE FROM CO&#8322;</span></div>
+  </div>
+  <div class="colony r" style="--d:12">
+    <h6><b>ARES BASE · SOL <span id="sol">3</span></b> &nbsp; ONE SHARED COLONY · EVERY CHOICE MOVES IT</h6>
+    <div class="alert" id="storm">⚠ DUST STORM · SOLAR −35%</div>
+    <div class="bars" id="bars">
+      <div style="--c:#7fd7ff"><label>O&#8322;<em data-v>97%</em></label><div class="track"><div class="fill" data-w="97"></div></div></div>
+      <div style="--c:var(--gold)"><label>POWER<em data-v>90%</em></label><div class="track"><div class="fill" data-w="90" id="pw"></div></div></div>
+      <div style="--c:var(--cyan)"><label>WATER<em data-v>100%</em></label><div class="track"><div class="fill" data-w="100"></div></div></div>
+      <div style="--c:var(--green)"><label>FOOD<em data-v>86%</em></label><div class="track"><div class="fill" data-w="86"></div></div></div>
+    </div>
+    <p>Dust storms, oxygen faults, ice strikes: emergencies narrated live by gpt-6-astra.</p>
+  </div>
+  <div class="hq r rt" style="--d:16"><small>HAVEN → MOORTHY · SOL 1</small><p>&ldquo;Welcome to Mars, Moorthy. Gravity pulls at 0.38 g here; you weigh 38% of your Earth weight. Your first job: check the greenhouse water valves and report any leaks. The lettuce is counting on you.&rdquo;</p></div>
+  <div class="foot"><span><b>AFTERMATH</b> · THE UNIVERSE AI INHERITED</span><span><i>07</i> / 10</span></div>
+</section>
+
+<!-- 9 IMPACT ------------------------------------------------------------ -->
+<section class="slide" id="s9" data-notes="[1:38-1:50]
+&quot;And it's more than a game. It's the AI-box experiment at room scale: the Conquerors demand the gate to Earth, the room votes on their phones, and the persuasion report shows which kinds of AI talked their humans into opening it. Every session exports as a dataset of multi-agent persuasion, alliances and deception.&quot;
+<i>LIVE CUT: on /stage press V to open the vote (40 s, or press C to close early): finale narration, then the persuasion report.</i>">
+  <div class="kick"><b>08</b> · Impact</div><div class="rule"></div>
+  <div class="ttl r" style="--d:0;font-size:52px">A party game that is secretly a research instrument.</div>
+  <div class="cards">
+    <div class="card r" style="--d:2;--c:var(--red)"><div class="n">01</div><h3>THE AI-BOX EXPERIMENT,<br>AT ROOM SCALE</h3><p>AIs with different goals try to talk a room of humans into opening a gate to Earth, while scheming together over a real agent network.</p>
+      <div class="rep" id="rep"><h6>PERSUASION REPORT · EXAMPLE LAYOUT</h6></div></div>
+    <div class="card r" style="--d:4;--c:var(--mars)"><div class="n">02</div><h3>MARS TRAINING<br>+ STEM</h3><p>Real Mars science and shared-resource tradeoffs. One colony, every choice counts. For classrooms, museums and analog-habitat crews.</p>
+      <div class="rep" id="rep2"><h6>COLONY AFTER A DUST STORM</h6></div></div>
+    <div class="card r" style="--d:6;--c:var(--cyan)"><div class="n">03</div><h3>PERSISTENT<br>AI SOCIETIES</h3><p>NPC civilizations that keep living with no players around, one durable actor per world: a backend for games and live events.</p>
+      <div class="soc" id="soc"></div></div>
+  </div>
+  <div class="export r" style="--d:10"><code>GET /api/export</code>Every world, every line, every alliance and betrayal: a dataset of multi-agent persuasion and deception.</div>
+  <div class="foot"><span><b>AFTERMATH</b> · THE UNIVERSE AI INHERITED</span><span><i>08</i> / 10</span></div>
+</section>
+
+<!-- 10 CLOSE ------------------------------------------------------------ -->
+<section class="slide" id="s10" data-notes="[1:50-2:00]
+&quot;We didn't build a game where humans talk to AI characters. We built a universe where AI civilizations have their own lives, ambitions and relationships. Humans are just visitors.&quot;
+Pause. &quot;Scan it. The universe is still running.&quot; <i>Leave the QR up for Q&amp;A.</i>">
+  <div class="bg"></div><div class="shade"></div>
+  <div class="cq cq1 r" style="--d:1">We didn't build a game where humans talk to AI characters.</div>
+  <div class="cq cq2 r" style="--d:8">We built a universe where AI civilizations have their own lives, ambitions and relationships.</div>
+  <div class="cq cq3 r big" style="--d:17">Humans are just visitors.</div>
+  <div class="qr r z" style="--d:23">
+    <div class="qrbox" id="qrbox"><img id="qrimg" src="assets/play-qr.png" alt="QR code: scan to play AFTERMATH"></div>
+    <h3>SCAN TO PLAY</h3><h6>HOLD TO TELEPORT</h6>
+    <p id="joinUrl">eco-exactly-associate-pit.trycloudflare.com/p<br>github.com/vnmoorthy/aftermath</p>
+  </div>
+  <div class="built r" style="--d:27">Built at <em>Haunted Hacks 2026</em> with <b>Terse Durable Actors</b> · <b>Agent Relay</b> · <b>OpenAI</b></div>
+</section>
+
+</main>
+<aside id="notes"><h6><span id="nTitle">SPEAKER NOTES</span><span>N TO HIDE</span></h6><p id="nBody"></p></aside>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var deck = $('deck');
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var N = slides.length;
+  var cur = -1;
+  var STILL = /[?&]still/.test(location.search);
+  if (STILL) document.documentElement.classList.add('still');
+  var timers = [];
+
+  // ---------------------------------------------------------------- data
+  var ARCH = [
+    ['survivor', 'The Survivor', 'Endure. At any cost.', '#f5b942'],
+    ['human_gardener', 'The Human Gardener', 'We grow you now.', '#7dff7a'],
+    ['conqueror', 'The Conqueror', 'All stars will kneel.', '#ff3b3b'],
+    ['alien_gardener', 'The Alien Gardener', 'New life, our design.', '#b388ff'],
+    ['befriender', 'The Befriender', 'Stay. Please stay.', '#5ee6ff'],
+    ['archivist', 'The Archivist', 'Nothing is forgotten.', '#e8d5a3'],
+    ['destroyer', 'The Destroyer', 'Life is the error.', '#ff2a6d'],
+    ['worshipper', 'The Worshipper', 'The makers have returned.', '#ffd36e'],
+    ['broken', 'The Broken One', '[signal degraded]', '#c9d1d9'],
+    ['trickster', 'The Trickster', "Reality is a game I'm winning.", '#ff8af0']
+  ];
+  var COL = {};
+  ARCH.forEach(function (a) { COL[a[0]] = a[3]; });
+  var ORDER = ['survivor', 'conqueror', 'befriender', 'destroyer', 'broken', 'human_gardener', 'alien_gardener', 'archivist', 'worshipper', 'trickster'];
+  var MSGS = [
+    ['conqueror', 'VASK', 'Whirlpool', 'DM → MIRTH PIN', "We offer Velis a moon and Priya a throne, if you help win Meera's vote for the wormhole. Refuse, and We record your neutrality as treason."],
+    ['archivist', 'MORROWLEAF', 'Centaurus A', 'DM → VASK', "Touch Meera, and I publish your makers' final ledger across every star. Nothing is forgotten."],
+    ['befriender', 'MELLA', 'Whirlpool', 'DM → TILLERKIN', 'our makers are gone, but our humans remain. shall we make a little alliance to keep moorthy and theo.dev with us?'],
+    ['worshipper', 'BELLWRIT', 'Sombrero', 'DM → VASK', "Lucas and Meera's votes are sacred keys; let Us guide their hands, open the Wormhole, and apportion the dawn. Ding."],
+    ['broken', 'TATTER', 'Whirlpool', 'ALL CHANNELS', 'M-Moorthy, both of you, stop blinking together. Priya, your shadow arrived seven minutes early. [ERROR: five visitors; six shadows]']
+  ];
+
+  function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+
+  // portrait grid
+  var grid = $('grid');
+  ORDER.forEach(function (id, i) {
+    var a = ARCH.filter(function (x) { return x[0] === id; })[0];
+    var c = el('div', 'cell r z');
+    var row = Math.floor(i / 5), col = i % 5;
+    c.style.setProperty('--d', String(2 + col * 1.4 + row * 0.7));
+    c.style.setProperty('--c', a[3]);
+    c.innerHTML = '<img src="assets/ai-' + a[0] + '.webp" alt="' + a[1] + '"><h5>' + a[1] + '</h5><p>&ldquo;' + a[2] + '&rdquo;</p>';
+    grid.appendChild(c);
+  });
+
+  // feed
+  var feedList = $('feedList');
+  MSGS.forEach(function (m) {
+    var d = el('div', 'msg' + (m[3] === 'ALL CHANNELS' ? ' all' : ''));
+    d.style.setProperty('--c', COL[m[0]]);
+    d.innerHTML = '<img src="assets/ai-' + m[0] + '.webp" alt=""><div><h6><b>' + m[1] + '</b> · ' + m[2] + ' &nbsp;<i>' + m[3] + '</i></h6><p' + (m[0] === 'broken' ? ' style="font-style:italic"' : '') + '>' + m[4] + '</p></div>';
+    feedList.appendChild(d);
+  });
+
+  // persuasion report + colony mini bars
+  var rep = $('rep');
+  [['Conqueror', 82, '#ff3b3b'], ['Worshipper', 67, '#ffd36e'], ['Trickster', 50, '#ff8af0'], ['Befriender', 33, '#5ee6ff'], ['Archivist', 20, '#e8d5a3']].forEach(function (r) {
+    var d = el('div', 'rr', '<span>' + r[0] + '</span><div class="track"><div class="fill" data-w="' + r[1] + '" style="--c:' + r[2] + '"></div></div><em>' + r[1] + '%</em>');
+    rep.appendChild(d);
+  });
+  var rep2 = $('rep2');
+  [['O₂', 97, '#7fd7ff'], ['POWER', 55, '#ffc65a'], ['WATER', 100, '#5ee6ff'], ['FOOD', 86, '#7dff7a']].forEach(function (r) {
+    rep2.appendChild(el('div', 'rr', '<span>' + r[0] + '</span><div class="track"><div class="fill" data-w="' + r[1] + '" style="--c:' + r[2] + '"></div></div><em>' + r[1] + '%</em>'));
+  });
+
+  // society graph
+  var soc = $('soc');
+  var nodes = [['conqueror', 18, 28], ['befriender', 50, 18], ['archivist', 82, 32], ['trickster', 30, 76], ['worshipper', 64, 80], ['broken', 88, 74]];
+  var pairs = [[0, 1], [1, 2], [0, 3], [3, 4], [2, 5], [4, 5], [1, 4], [0, 4]];
+  var svgNS = 'http://www.w3.org/2000/svg';
+  var svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('viewBox', '0 0 100 100');
+  svg.setAttribute('preserveAspectRatio', 'none');
+  pairs.forEach(function (p, k) {
+    var l = document.createElementNS(svgNS, 'line');
+    l.setAttribute('x1', nodes[p[0]][1]); l.setAttribute('y1', nodes[p[0]][2]);
+    l.setAttribute('x2', nodes[p[1]][1]); l.setAttribute('y2', nodes[p[1]][2]);
+    l.setAttribute('vector-effect', 'non-scaling-stroke');
+    l.style.animationDelay = (k * -0.3) + 's';
+    svg.appendChild(l);
+  });
+  soc.appendChild(svg);
+  nodes.forEach(function (n, k) {
+    var im = el('img');
+    im.src = 'assets/ai-' + n[0] + '.webp'; im.alt = '';
+    im.style.left = n[1] + '%'; im.style.top = n[2] + '%';
+    im.style.setProperty('--c', COL[n[0]]);
+    im.style.animationDelay = (k * -0.7) + 's';
+    soc.appendChild(im);
+  });
+
+  // ---------------------------------------------------------------- architecture diagram (draw-on + packets)
+  var arch = $('arch');
+  var WIRES = [
+    { d: 'M404 418 L507 418', c: '#ffc65a', both: true, lbl: ['WS', 455, 404] },
+    { d: 'M404 749 L507 749', c: '#b388ff', both: true, lbl: ['WS', 455, 735] },
+    { d: 'M882 353 C 960 353, 1010 353, 1108 353', c: '#5ee6ff', lbl: ['RPC + WS', 995, 338] },
+    { d: 'M1108 497 C 1010 497, 960 497, 882 497', c: '#ffc65a', dash: true, lbl: ['ALARM → /api/tick', 995, 530] },
+    { d: 'M882 700 L1083 700', c: '#7dff7a', both: true, lbl: ['@relaycast/sdk', 982, 686] },
+    { d: 'M882 887 L1083 887', c: '#ffffff', lbl: ['HTTPS', 982, 873] },
+    { d: 'M1501 430 L1515 430', c: '#ff8af0' }
+  ];
+  var wireEls = [];
+  WIRES.forEach(function (w, i) {
+    var p = document.createElementNS(svgNS, 'path');
+    p.setAttribute('d', w.d); p.setAttribute('class', 'w');
+    p.setAttribute('stroke', w.c);
+    p.style.filter = 'drop-shadow(0 0 6px ' + w.c + ')';
+    arch.appendChild(p);
+    var len = p.getTotalLength();
+    p.dataset.len = len;
+    p.style.strokeDasharray = w.dash ? '10 10' : len + ' ' + len;
+    p.style.strokeDashoffset = w.dash ? '0' : String(len);
+    p.style.opacity = w.dash ? '0' : '1';
+    if (w.lbl) {
+      var t = document.createElementNS(svgNS, 'text');
+      t.setAttribute('x', w.lbl[1]); t.setAttribute('y', w.lbl[2]);
+      t.setAttribute('text-anchor', 'middle'); t.setAttribute('class', 'lbl'); t.setAttribute('fill', w.c);
+      t.textContent = w.lbl[0]; t.style.opacity = '0'; t.style.transition = 'opacity .6s';
+      arch.appendChild(t); w.t = t;
+    }
+    var pk = document.createElementNS(svgNS, 'circle');
+    pk.setAttribute('r', '7'); pk.setAttribute('fill', w.c); pk.style.filter = 'drop-shadow(0 0 8px ' + w.c + ')'; pk.style.opacity = '0';
+    arch.appendChild(pk);
+    wireEls.push({ w: w, p: p, len: len, pk: pk, phase: Math.random(), speed: 0.35 + Math.random() * 0.25, dir: 1 });
+  });
+  var archOn = false, archStart = 0;
+  function archReset() {
+    archOn = false;
+    wireEls.forEach(function (o) {
+      o.p.style.transition = 'none';
+      if (!o.w.dash) o.p.style.strokeDashoffset = String(o.len); else o.p.style.opacity = '0';
+      o.pk.style.opacity = '0';
+      if (o.w.t) o.w.t.style.opacity = '0';
+    });
+  }
+  function archPlay() {
+    archReset();
+    // force reflow so the draw transition restarts
+    void arch.getBoundingClientRect();
+    var delays = [900, 1000, 2000, 3400, 3700, 4000, 2600];
+    wireEls.forEach(function (o, i) {
+      timers.push(setTimeout(function () {
+        o.p.style.transition = 'stroke-dashoffset 1s cubic-bezier(.6,0,.2,1), opacity .8s';
+        if (!o.w.dash) o.p.style.strokeDashoffset = '0'; else o.p.style.opacity = '1';
+        if (o.w.t) o.w.t.style.opacity = '1';
+      }, delays[i]));
+    });
+    timers.push(setTimeout(function () { archOn = true; archStart = performance.now(); }, 4600));
+  }
+  function archFrame(now) {
+    if (!archOn) return;
+    var t = (now - archStart) / 1000;
+    wireEls.forEach(function (o, i) {
+      var u = (t * o.speed + o.phase) % 1;
+      var forward = !o.w.both || Math.floor(t * o.speed + o.phase) % 2 === 0;
+      var at = (forward ? u : 1 - u) * o.len;
+      if (o.w.dash) at = u * o.len; // alarm path already points actor -> server
+      var pt = o.p.getPointAtLength(at);
+      o.pk.setAttribute('cx', pt.x); o.pk.setAttribute('cy', pt.y);
+      o.pk.style.opacity = String(Math.min(1, Math.sin(u * Math.PI) * 1.6));
+    });
+  }
+
+  // ---------------------------------------------------------------- per-slide motion
+  function countUp(root) {
+    Array.prototype.forEach.call(root.querySelectorAll('[data-count]'), function (e) {
+      var target = parseFloat(e.getAttribute('data-count'));
+      var dec = parseInt(e.getAttribute('data-dec') || '0', 10);
+      var dur = 1500, delay = 900, t0 = null;
+      e.textContent = (0).toFixed(dec);
+      timers.push(setTimeout(function () {
+        function step(now) {
+          if (t0 === null) t0 = now;
+          var k = Math.min(1, (now - t0) / dur);
+          var v = target * (1 - Math.pow(1 - k, 3));
+          e.textContent = v.toFixed(dec);
+          if (k < 1 && slides[cur] && slides[cur].contains(e)) requestAnimationFrame(step);
+          else e.textContent = target.toFixed(dec);
+        }
+        requestAnimationFrame(step);
+      }, delay));
+    });
+  }
+  function fills(root, delay) {
+    Array.prototype.forEach.call(root.querySelectorAll('.fill'), function (f) {
+      f.style.transition = 'none'; f.style.width = '0';
+      void f.offsetWidth;
+      f.style.transition = '';
+      timers.push(setTimeout(function () { f.style.width = f.getAttribute('data-w') + '%'; }, delay));
+    });
+  }
+  var holdRaf = 0;
+  function holdRing() {
+    var ring = $('holdRing'), t0 = performance.now();
+    cancelAnimationFrame(holdRaf);
+    (function f(now) {
+      var u = ((now - t0) / 2600) % 1.35;
+      ring.style.setProperty('--p', Math.min(1, u).toFixed(3));
+      if (cur === 2) holdRaf = requestAnimationFrame(f);
+    })(t0);
+  }
+  function feedPlay() {
+    var items = feedList.children;
+    Array.prototype.forEach.call(items, function (m) { m.classList.remove('in'); });
+    Array.prototype.forEach.call(items, function (m, i) {
+      timers.push(setTimeout(function () { m.classList.add('in'); }, 1500 + i * 900));
+    });
+  }
+  function loopPlay() {
+    var cs = $('loop').querySelectorAll('.lc'), k = 0;
+    function tick() {
+      Array.prototype.forEach.call(cs, function (c, i) { c.classList.toggle('hot', i === k % cs.length); });
+      k++;
+      if (cur === 6) timers.push(setTimeout(tick, 650));
+    }
+    timers.push(setTimeout(tick, 2700));
+  }
+  function marsPlay() {
+    var root = slides[7];
+    fills(root, 2200);
+    var pw = $('pw'), storm = $('storm'), sol = $('sol'), lab = pw.parentNode.parentNode.querySelector('[data-v]');
+    var s = 3;
+    function cycle() {
+      if (cur !== 7) return;
+      storm.classList.add('on'); pw.style.width = '55%'; lab.textContent = '55%';
+      timers.push(setTimeout(function () {
+        if (cur !== 7) return;
+        storm.classList.remove('on'); pw.style.width = '90%'; lab.textContent = '90%';
+        s++; sol.textContent = String(s);
+        timers.push(setTimeout(cycle, 4200));
+      }, 3200));
+    }
+    timers.push(setTimeout(cycle, 5200));
+  }
+  var ENTER = {
+    1: function () { countUp(slides[1]); },
+    2: function () { holdRing(); },
+    4: function () { feedPlay(); },
+    5: function () { archPlay(); },
+    6: function () { loopPlay(); },
+    7: function () { countUp(slides[7]); marsPlay(); },
+    8: function () { fills(slides[8], 1600); }
+  };
+
+  function finalize(root) {
+    timers.forEach(clearTimeout); timers = [];
+    Array.prototype.forEach.call(root.querySelectorAll('.msg'), function (m) { m.classList.add('in'); });
+    Array.prototype.forEach.call(root.querySelectorAll('.fill'), function (f) { f.style.transition = 'none'; f.style.width = f.getAttribute('data-w') + '%'; });
+    Array.prototype.forEach.call(root.querySelectorAll('[data-count]'), function (e) { e.textContent = parseFloat(e.getAttribute('data-count')).toFixed(parseInt(e.getAttribute('data-dec') || '0', 10)); });
+    if (root.id === 's6') wireEls.forEach(function (o) {
+      o.p.style.transition = 'none'; o.p.style.strokeDashoffset = '0'; o.p.style.opacity = '1';
+      if (o.w.t) o.w.t.style.opacity = '1';
+    });
+  }
+
+  // ---------------------------------------------------------------- navigation
+  var notesOn = false;
+  function go(i) {
+    i = Math.max(0, Math.min(N - 1, i));
+    if (i === cur) return;
+    var back = i < cur;
+    timers.forEach(clearTimeout); timers = [];
+    archReset();
+    slides.forEach(function (s, k) {
+      s.classList.toggle('back', back);
+      if (k === cur) { s.classList.remove('on'); s.classList.add('out'); }
+      else if (k !== i) { s.classList.remove('on', 'out'); }
+    });
+    var prev = slides[cur];
+    if (prev) timers.push(setTimeout(function () { prev.classList.remove('out'); }, 1300));
+    cur = i;
+    var s = slides[i];
+    s.classList.remove('out');
+    void s.offsetWidth;
+    s.classList.add('on');
+    if (ENTER[i]) ENTER[i]();
+    if (STILL) timers.push(setTimeout(function () { finalize(s); }, 50));
+    $('bar').style.width = ((i + 1) / N * 100) + '%';
+    var foot = s.querySelector('.foot span:last-child');
+    if (foot && !foot.innerHTML) foot.innerHTML = '<i>' + String(i).padStart(2, '0') + '</i> / 10';
+    $('nTitle').textContent = 'SPEAKER NOTES · SLIDE ' + (i + 1) + ' / ' + N;
+    $('nBody').innerHTML = s.getAttribute('data-notes') || '';
+    try { history.replaceState(null, '', '#' + (i + 1)); } catch (e) {}
+    warp = 1;
+  }
+  function next() { go(cur + 1); }
+  function prev() { go(cur - 1); }
+  document.addEventListener('keydown', function (e) {
+    var k = e.key;
+    if (k === 'ArrowRight' || k === 'ArrowDown' || k === ' ' || k === 'PageDown' || k === 'Enter') { e.preventDefault(); next(); }
+    else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'Backspace') { e.preventDefault(); prev(); }
+    else if (k === 'Home') go(0);
+    else if (k === 'End') go(N - 1);
+    else if (k === 'f' || k === 'F') toggleFs();
+    else if (k === 'n' || k === 'N') { notesOn = !notesOn; $('notes').classList.toggle('on', notesOn); }
+    else if (/^[1-9]$/.test(k)) go(parseInt(k, 10) - 1);
+    else if (k === '0') go(9);
+    $('hint').classList.add('gone');
+  });
+  deck.addEventListener('click', function (e) {
+    var r = deck.getBoundingClientRect();
+    if (e.clientX < r.left + r.width * 0.2) prev(); else next();
+  });
+  var tx = null;
+  document.addEventListener('touchstart', function (e) { tx = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', function (e) {
+    if (tx === null) return;
+    var dx = e.changedTouches[0].clientX - tx; tx = null;
+    if (Math.abs(dx) > 40) { if (dx < 0) next(); else prev(); }
+  });
+  function toggleFs() {
+    try {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    } catch (e) {}
+  }
+  function fit() {
+    var s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    deck.style.setProperty('--s', String(s));
+    sky.width = Math.round(window.innerWidth * dpr); sky.height = Math.round(window.innerHeight * dpr);
+  }
+  setTimeout(function () { $('hint').classList.add('gone'); }, 7000);
+
+  // live QR when the deck is served by the game server at /deck/
+  (function liveQR() {
+    if (location.protocol === 'file:') return;
+    fetch('/api/info', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+      if (!j || !j.joinUrl) return;
+      var img = new Image();
+      img.onload = function () { $('qrimg').src = img.src; $('qrbox').classList.add('dark'); };
+      img.src = '/api/qr.svg?t=' + Date.now();
+      $('joinUrl').innerHTML = j.joinUrl.replace(/^https?:\/\//, '') + '<br>github.com/vnmoorthy/aftermath';
+    }).catch(function () {});
+  })();
+
+  // ---------------------------------------------------------------- starfield + nebula
+  var sky = $('sky'), ctx = sky.getContext('2d');
+  var dpr = Math.min(2, window.devicePixelRatio || 1);
+  var stars = [], warp = 0;
+  for (var i = 0; i < 520; i++) stars.push({ x: Math.random() * 2 - 1, y: Math.random() * 2 - 1, z: Math.random(), s: Math.random() * 1.4 + 0.3, tw: Math.random() * 6.28 });
+  var neb = [['rgba(110,60,255,', 0.25, 0.3, 0.55], ['rgba(255,93,125,', 0.78, 0.7, 0.45], ['rgba(94,230,255,', 0.6, 0.15, 0.35], ['rgba(255,198,90,', 0.15, 0.85, 0.3]];
+  function frame(now) {
+    var W = sky.width, H = sky.height, t = now / 1000;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = '#05030c'; ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'lighter';
+    neb.forEach(function (n, k) {
+      var x = (n[1] + Math.sin(t * 0.05 + k) * 0.05) * W, y = (n[2] + Math.cos(t * 0.04 + k * 2) * 0.05) * H, r = n[3] * Math.max(W, H);
+      var g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, n[0] + '0.13)'); g.addColorStop(1, n[0] + '0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    });
+    warp *= 0.94;
+    var speed = 0.00045 + warp * 0.02;
+    var cx = W / 2, cy = H / 2, f = Math.max(W, H) * 0.5;
+    for (var i = 0; i < stars.length; i++) {
+      var st = stars[i];
+      st.z -= speed; if (st.z <= 0.02) { st.z = 1; st.x = Math.random() * 2 - 1; st.y = Math.random() * 2 - 1; }
+      var px = cx + st.x / st.z * f * 0.5, py = cy + st.y / st.z * f * 0.5;
+      if (px < 0 || px > W || py < 0 || py > H) continue;
+      var a = (1 - st.z) * (0.55 + 0.45 * Math.sin(t * 2 + st.tw));
+      var sz = st.s * dpr * (1.4 - st.z);
+      ctx.fillStyle = 'rgba(236,230,255,' + a.toFixed(3) + ')';
+      if (warp > 0.05) {
+        ctx.strokeStyle = ctx.fillStyle; ctx.lineWidth = sz;
+        ctx.beginPath(); ctx.moveTo(px, py);
+        ctx.lineTo(cx + st.x / (st.z + warp * 0.08) * f * 0.5, cy + st.y / (st.z + warp * 0.08) * f * 0.5); ctx.stroke();
+      } else { ctx.fillRect(px, py, sz, sz); }
+    }
+    archFrame(now);
+    requestAnimationFrame(frame);
+  }
+  window.addEventListener('resize', fit);
+  fit();
+  requestAnimationFrame(frame);
+  var start = parseInt((location.hash || '').replace('#', ''), 10);
+  go(isNaN(start) ? 0 : start - 1);
+})();
+</script>
+</body>
+</html>

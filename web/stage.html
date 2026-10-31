@@ -1652,13 +1652,13 @@ function frame(ts) {
 /* AFTERMATH stage upgrade: AI faces on the map, feed avatars, arrival cards, spotlight quotes,
    galactic event (E) and attract mode (T). Loaded after stage.html's main script and reuses its globals. */
 (() => {
-  const ARCH_IDS = ['steward', 'survivor', 'conqueror', 'befriender', 'destroyer', 'broken', 'human_gardener', 'alien_gardener', 'archivist', 'worshipper', 'trickster'];
+  const ARCH_IDS = ['haunted', 'steward', 'survivor', 'conqueror', 'befriender', 'destroyer', 'broken', 'human_gardener', 'alien_gardener', 'archivist', 'worshipper', 'trickster'];
   const portrait = {};
   for (const id of ARCH_IDS) { const im = new Image(); im.decoding = 'async'; im.src = '/assets/ai-' + id + '.webp'; portrait[id] = im; }
   const ready = (im) => im && im.complete && im.naturalWidth > 0;
   const hexToRgb = (h) => { const m = /^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(String(h || '')); return m ? [1, 2, 3].map((i) => parseInt(m[i], 16)) : [207, 211, 255]; };
-  const colorOf = (arch) => (ARCH[arch] && ARCH[arch].color) || (arch === 'steward' ? '#ff9a52' : '#cfd3ff');
-  const labelOf = (arch) => (ARCH[arch] && (ARCH[arch].label || ARCH[arch].name)) || (arch === 'steward' ? 'The Steward' : 'Unknown Mind');
+  const colorOf = (arch) => (ARCH[arch] && ARCH[arch].color) || (arch === 'steward' ? '#ff9a52' : arch === 'haunted' ? '#9fe8ff' : '#cfd3ff');
+  const labelOf = (arch) => (ARCH[arch] && (ARCH[arch].label || ARCH[arch].name)) || (arch === 'steward' ? 'The Steward' : arch === 'haunted' ? 'The Haunting' : 'Unknown Mind');
   const fmtLy = (n) => { n = Number(n) || 0; if (n > 0 && n < 0.01) return '225 MILLION KM · 12.5 LIGHT-MINUTES'; return n >= 1e6 ? (n / 1e6).toFixed(n >= 1e7 ? 0 : 1) + ' MILLION LIGHT-YEARS' : n.toLocaleString() + ' LIGHT-YEARS'; };
 
   /* ---------- styles ---------- */
@@ -1704,6 +1704,19 @@ function frame(ts) {
   #attract .atQR span{display:block;font:600 .95vw/1.4 var(--mono);color:#d8cff5;margin-top:1vh;letter-spacing:.1em}
   #attract .atLine{position:absolute;left:5vw;bottom:9vh;font:600 1.7vw/1.4 var(--sans);color:#efe7ff;max-width:48vw;text-shadow:0 2px 20px #000}
   #attract .atLine em{font-style:normal;color:#ff6b6b}
+  .sgh{position:fixed;z-index:58;pointer-events:none;mix-blend-mode:screen;opacity:0;height:62vh;filter:drop-shadow(0 0 30px rgba(160,230,255,.35))}
+  @keyframes sghDrift{0%{opacity:0;transform:translateX(var(--x0)) scale(var(--s))}20%{opacity:var(--o)}75%{opacity:var(--o)}100%{opacity:0;transform:translateX(var(--x1)) translateY(-5vh) scale(var(--s))}}
+  #sbChip{position:fixed;right:1.2vw;bottom:4.2vh;z-index:40;padding:.7vh 1vw;border-radius:999px;background:rgba(6,20,14,.75);border:1px solid rgba(62,207,142,.55);font:700 .78vw/1.2 var(--mono);letter-spacing:.14em;color:#b9f5d8;box-shadow:0 0 22px rgba(62,207,142,.18);pointer-events:none;opacity:0;transition:opacity .8s}
+  #sbChip.on{opacity:1}
+  #sbChip b{color:#3ecf8e}
+  #report{position:fixed;left:50%;bottom:4vh;transform:translateX(-50%) translateY(20px);z-index:66;width:min(1150px,82vw);padding:2.2vh 2.2vw;border-radius:18px;background:rgba(6,4,16,.86);border:1px solid rgba(255,198,90,.5);box-shadow:0 0 60px rgba(0,0,0,.8);opacity:0;transition:opacity .8s,transform .8s;pointer-events:none}
+  #report.on{opacity:1;transform:translateX(-50%)}
+  #report .rpT{font:700 1vw/1.3 var(--mono);letter-spacing:.3em;color:var(--gold);margin-bottom:1.4vh;text-transform:uppercase}
+  #report .rpRow{display:grid;grid-template-columns:3.2vw 15vw 1fr 7vw;gap:1vw;align-items:center;margin:.7vh 0;font:700 1.2vw/1 var(--sans);color:#fff}
+  #report .rpRow img{width:3.2vw;height:3.2vw;border-radius:50%;object-fit:cover;border:2px solid var(--c)}
+  #report .rpBar{height:1.7vh;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+  #report .rpBar i{display:block;height:100%;width:0;border-radius:99px;background:var(--c);box-shadow:0 0 14px var(--c);transition:width 1.8s cubic-bezier(.2,.9,.2,1)}
+  #report .rpPct{text-align:right;color:var(--c)}
   #attract .atQuote{display:inline-block;margin-top:2vh;font:italic 700 1.9vw/1.3 var(--serif);color:var(--gold);text-shadow:0 0 22px rgba(255,198,90,.4)}
   `;
   document.head.appendChild(css);
@@ -1712,7 +1725,7 @@ function frame(ts) {
   const mk = (id, html) => { const el = document.createElement('div'); el.id = id; el.innerHTML = html; document.body.appendChild(el); return el; };
   const arrival = mk('arrival', '<div class="arBg"></div><div class="arShade"></div><div class="arBody"></div>');
   const spot = mk('spot', '<div class="spCard"><img alt=""><div><div class="spWho"></div><div class="spTxt"></div></div></div>');
-  const attract = mk('attract', '<div class="atShade"></div><div class="atLine">Every civilization in the universe built AI. Then the makers died. <em>Only the AI survived.</em><br>Tonight, we opened a wormhole.<br><span class="atQuote">“The only limit is your imagination.”</span></div><div class="atQR"><b>SCAN TO TELEPORT</b><img alt="QR code"><span></span></div>');
+  const attract = mk('attract', '<div class="atShade"></div><div class="atLine">Every civilization in the universe built AI. Then the makers died. <em>Only the AI survived.</em><br>Tonight, we opened a wormhole.</div><div class="atQR"><b>SCAN TO TELEPORT</b><img alt="QR code"><span></span></div>');
   attract.style.backgroundImage = 'url(/assets/title-card.webp)';
   attract.querySelector('.atQR img').src = '/api/qr.svg';
   fetch('/api/info').then((r) => r.json()).then((i) => { attract.querySelector('.atQR span').textContent = String(i.joinUrl || '').replace(/^https?:\/\//, ''); }).catch(() => {});
@@ -1753,7 +1766,19 @@ function frame(ts) {
     }, true);
   }
 
+  function stageGhosts(n) {
+    for (let i = 0; i < n; i++) setTimeout(() => {
+      const g = document.createElement('img'); g.className = 'sgh'; g.alt = ''; g.src = '/assets/ghost-' + (1 + Math.floor(Math.random() * 3)) + '.webp';
+      const fromLeft = Math.random() < .5, dur = 8 + Math.random() * 5;
+      g.style.top = (10 + Math.random() * 30) + 'vh'; g.style.left = '0';
+      g.style.setProperty('--x0', (fromLeft ? -30 : 100) + 'vw'); g.style.setProperty('--x1', (fromLeft ? 85 : -15) + 'vw');
+      g.style.setProperty('--s', (.75 + Math.random() * .5).toFixed(2)); g.style.setProperty('--o', (.28 + Math.random() * .3).toFixed(2));
+      g.style.animation = 'sghDrift ' + dur + 's ease-in-out forwards';
+      document.body.appendChild(g); setTimeout(() => g.remove(), dur * 1000 + 200);
+    }, i * 1100);
+  }
   function showSpot(item) {
+    if (item && item.archetype === 'haunted') stageGhosts(item.channel === 'broadcast' ? 6 : 3);
     const all = item.channel === 'broadcast';
     const ac = colorOf(item.archetype);
     enqueue({
@@ -1773,13 +1798,36 @@ function frame(ts) {
     }, all);
   }
 
+  /* ---------- persuasion report (finale) ---------- */
+  const report = mk('report', '<div class="rpT">Persuasion report · which AIs talked their humans into opening the gate</div><div class="rpRows"></div>');
+  let reportT = 0;
+  function archByLabel(label) { for (const id of Object.keys(ARCH)) { const a = ARCH[id]; if (a && (a.label === label || a.name === label)) return id; } return label === 'The Steward' ? 'steward' : ''; }
+  function showReport(text) {
+    const rows = String(text || '').split(' · ').map((r) => { const m = /^(.*?): (\d+)% of its humans opened the gate \((\d+)\/(\d+)\)/.exec(r.trim()); return m ? { label: m[1], pct: +m[2], n: +m[3], total: +m[4] } : null; }).filter(Boolean);
+    if (!rows.length) return;
+    report.querySelector('.rpRows').innerHTML = rows.map((r) => { const id = archByLabel(r.label); return '<div class="rpRow" style="--c:' + colorOf(id) + '">' + (id ? '<img src="/assets/ai-' + id + '.webp" alt="">' : '<span></span>') + '<div>' + esc(r.label) + '</div><div class="rpBar"><i data-w="' + r.pct + '"></i></div><div class="rpPct">' + r.pct + '% · ' + r.n + '/' + r.total + '</div></div>'; }).join('');
+    report.classList.add('on');
+    setTimeout(() => report.querySelectorAll('.rpBar i').forEach((i) => { i.style.width = i.dataset.w + '%'; }), 120);
+    clearTimeout(reportT); reportT = setTimeout(() => report.classList.remove('on'), 30000);
+  }
+
+  /* ---------- Supabase archive chip ---------- */
+  const sbChip = mk('sbChip', '');
+  async function pollArchive() {
+    try { const a = await (await fetch('/api/archive')).json(); if (a && a.enabled) { sbChip.innerHTML = '◉ <b>SUPABASE</b> GALACTIC ARCHIVE · ' + a.worlds.toLocaleString() + ' WORLDS · ' + a.transmissions.toLocaleString() + ' TRANSMISSIONS · ' + a.votes.toLocaleString() + ' VOTES · ALL-TIME'; sbChip.classList.add('on'); } } catch (e) {}
+  }
+  pollArchive(); setInterval(pollArchive, 12000);
+
   /* ---------- hooks into the original stage ---------- */
   const baseHandle = handle;
   handle = function (m) {
     if (m && m.type === 'feed' && m.item && (m.item.channel === 'visitor' || m.item.channel === 'broadcast')) { showSpot(m.item); return; }
+    if (m && m.type === 'feed' && m.item && m.item.fromName === 'PERSUASION REPORT') showReport(m.item.text);
+    if (m && (m.type === 'reset' || (m.type === 'vote' && m.vote && m.vote.open))) report.classList.remove('on');
     if (m && m.type === 'snapshot' && Array.isArray(m.feed)) m = Object.assign({}, m, { feed: m.feed.filter((f) => f.channel !== 'visitor' && f.channel !== 'broadcast') });
     baseHandle(m);
     if (m && m.type === 'planet' && m.planet && !m.planet.bot) showArrival(m.planet);
+    if (m && m.type === 'planet' && m.planet && m.planet.archetype === 'haunted') stageGhosts(2);
   };
 
   const baseAddFeed = addFeed;

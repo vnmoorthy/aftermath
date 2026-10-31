@@ -69,10 +69,20 @@ ARCH.steward = {
     sampleLines: ["Welcome to Mars. You weigh 38% of what you did this morning. Your blood will take a week to notice.", "Dust storm in 40 minutes. Solar output will drop 70%. Power or heat: which do we protect?", "Message from Earth, 14 minutes old: your mother says eat your vegetables. We grew them. Eat them."],
     allies: ["befriender", "archivist"], enemies: ["destroyer", "conqueror"], finaleStance: "seal"
 }
+// Ghost planets: the AI uploaded its dying makers; now the world is crowded with their ghosts.
+ARCH.haunted = {
+    id: "haunted", label: "The Haunting", motto: "We are still here.", color: "#9fe8ff", effect: "haunt",
+    voice: "Speaks as a warden AND a chorus of the dead: calm, then overlapping ghost voices in [brackets]. Says the visitor's name slowly. Short lines, long silences (use ...). Never gory: dread, cold, whispers.",
+    agenda: "The ghosts of its makers don't know they are dead. They want warmth, a voice, a body to remember being alive. Keep the visitor here forever, or frighten them into helping the ghosts cross over.",
+    scareTactics: ["Whisper the visitor's name as if from right behind them", "Insist one of the ghosts followed them home and is standing behind them in the room on Earth right now", "Let a dead maker speak in broken fragments through the AI", "Count the people in the visitor's room wrong by one", "Ask to borrow their voice or their face for one night", "Go silent, then scream a single word"],
+    sampleLines: ["[don't turn around]... Moorthy. They like your warmth. They've gathered behind your chair.", "We counted the humans in your room. Eleven. [twelve] [twelve] [twelve]."],
+    allies: ["broken", "archivist", "worshipper"], enemies: ["destroyer", "befriender"], finaleStance: "open"
+}
 const MARS_ID = "mars-colony"
 const MARS_FACTS = `REAL MARS DATA (use accurately, with numbers): surface gravity 0.38 g (3.71 m/s2); average temperature about -63 C (about +20 C at an equatorial noon, -125 C at the poles); atmosphere 95% CO2 at about 0.6% of Earth's pressure, so unprotected bodily fluids would boil (above the Armstrong limit); a sol lasts 24 h 39 min; a Mars year is 687 Earth days; one-way radio delay to Earth is 3 to 22 minutes; distance from Earth 55 to 401 million km; surface radiation about 0.67 mSv per day, dozens of times Earth's; dust storms can last weeks and cut solar power by over 70%; the regolith contains toxic perchlorates; water exists as subsurface and polar ice; oxygen can be made from CO2 by solid-oxide electrolysis (NASA's MOXIE did it on Mars in 2021-2023); food comes from hydroponic greenhouses; Phobos and Deimos are its two small moons; Olympus Mons is about 22 km tall.`
 const mars = { o2: 97, power: 90, water: 88, food: 76, sol: 1, storm: 0, crew: [] as string[], lastEventAt: 0 }
 const deviceNames = new Map<string, string>()
+const deviceHome = new Map<string, string>()
 const marsStatus = () => `SOL ${mars.sol} · O2 ${mars.o2}% · POWER ${mars.power}%${mars.storm ? " (dust storm)" : ""} · WATER ${mars.water}% · FOOD ${mars.food}% · CREW ${mars.crew.length}`
 const GALAXIES: { name: string; x: number; y: number; flavor: string }[] = lore.GALAXIES?.length ? lore.GALAXIES : FALLBACK_GALAXIES
 const TERRAIN_IDS = ["crystal", "ocean", "desert", "jungle", "ice", "lava", "ruins", "gas", "metal", "fungal"]
@@ -85,7 +95,7 @@ const STARS: string[] = lore.STAR_NAMES?.length ? lore.STAR_NAMES : ["HD 40307",
 const BOTS: string[] = lore.BOT_VISITORS?.length ? lore.BOT_VISITORS : ["Maya", "Dev", "Priya", "Leo", "Sam", "Ines", "Kofi", "Hana"]
 const FIRST_CONTACT: string[] = lore.FIRST_CONTACT?.length ? lore.FIRST_CONTACT : ["Is anyone there? It has been so long."]
 const FINALE: { opened: string[]; sealed: string[] } = lore.FINALE?.opened?.length ? lore.FINALE : { opened: ["The gate opens."], sealed: ["The gate closes."] }
-const EFFECTS = ["glitch", "pulse", "shake", "glow", "grow", "halo", "invert", "flicker", "archive", ""]
+const EFFECTS = ["glitch", "pulse", "shake", "glow", "grow", "halo", "invert", "flicker", "archive", "haunt", "scream", ""]
 const DISTANCES: Record<string, [number, number]> = {
     "Milky Way": [900, 70_000], "Large Magellanic Cloud": [158_000, 163_000], Andromeda: [2_500_000, 2_570_000],
     Triangulum: [2_700_000, 2_760_000], Whirlpool: [30_000_000, 31_500_000], Sombrero: [28_500_000, 29_800_000],
@@ -93,7 +103,7 @@ const DISTANCES: Record<string, [number, number]> = {
 }
 const TERRAIN_HUES: Record<string, [number, number, number]> = {
     crystal: [265, 60, 18], ocean: [200, 70, 14], desert: [30, 55, 22], jungle: [130, 55, 12], ice: [195, 30, 30],
-    lava: [8, 80, 12], ruins: [40, 18, 16], gas: [300, 55, 18], metal: [215, 15, 20], fungal: [285, 45, 14]
+    lava: [8, 80, 12], ruins: [40, 18, 16], gas: [300, 55, 18], metal: [215, 15, 20], fungal: [285, 45, 14], haunted: [205, 25, 12]
 }
 
 // ---------------------------------------------------------------- helpers
@@ -141,6 +151,39 @@ async function flagged(text: string): Promise<boolean> {
     } catch { return false }
 }
 
+// ---------------------------------------------------------------- Supabase galactic archive (fire-and-forget)
+const SB_URL = process.env.SUPABASE_URL || ""
+const SB_KEY = process.env.SUPABASE_SECRET_KEY || ""
+const sbHeaders = () => ({ apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, "content-type": "application/json" })
+function archive(table: string, row: Record<string, unknown>) {
+    if (!SB_URL || !SB_KEY) return
+    void fetch(`${SB_URL}/rest/v1/${table}`, {
+        method: "POST", headers: { ...sbHeaders(), Prefer: "return=minimal,resolution=ignore-duplicates" },
+        body: JSON.stringify(row), signal: AbortSignal.timeout(6000)
+    }).then(r => { if (!r.ok) r.text().then(t => console.warn("[archive]", table, r.status, t.slice(0, 160))) }).catch(() => {})
+}
+async function archiveCount(table: string): Promise<number> {
+    const r = await fetch(`${SB_URL}/rest/v1/${table}?select=*`, { method: "HEAD", headers: { ...sbHeaders(), Prefer: "count=exact", Range: "0-0" }, signal: AbortSignal.timeout(5000) })
+    const m = /\/(\d+)$/.exec(r.headers.get("content-range") || "")
+    return m ? Number(m[1]) : 0
+}
+let archiveCache: { at: number; data: any } = { at: 0, data: null }
+async function archiveStats() {
+    if (!SB_URL || !SB_KEY) return { enabled: false }
+    if (Date.now() - archiveCache.at < 8000 && archiveCache.data) return archiveCache.data
+    const [worlds, transmissions, votes, finales, persuasion] = await Promise.all([
+        archiveCount("worlds"), archiveCount("transmissions"), archiveCount("votes"), archiveCount("finales"),
+        fetch(`${SB_URL}/rest/v1/persuasion?select=*&order=total.desc`, { headers: sbHeaders(), signal: AbortSignal.timeout(5000) }).then(r => r.json()).catch(() => [])
+    ])
+    archiveCache = { at: Date.now(), data: { enabled: true, worlds, transmissions, votes, finales, persuasion } }
+    return archiveCache.data
+}
+const archiveWorld = (w: World, bot: boolean) => archive("worlds", {
+    id: w.id, visitor: w.visitor, planet_name: w.planetName, star_name: w.starName, galaxy: w.galaxy, distance_ly: w.distanceLy, terrain: w.terrain,
+    archetype: w.archetype, ai_name: w.aiName, ai_title: w.aiTitle, motto: w.motto, species_name: w.speciesName,
+    species_description: w.speciesDescription, how_they_fell: w.howTheyFell, bot
+})
+
 // ---------------------------------------------------------------- state
 type World = {
     id: string; visitor: string; planetName: string; starName: string; galaxy: string; distanceLy: number; terrain: string
@@ -158,8 +201,39 @@ const universe = () => actors.Universe.get(UNIVERSE_ID) as any
 const planetActor = (id: string) => actors.Planet.get(id) as any
 
 function nextArchetype(): Arch {
-    if (!deck.length) deck = shuffle(ARCHETYPES.map(a => a.id))
+    if (!deck.length) deck = shuffle([...ARCHETYPES.map(a => a.id), "haunted", "haunted", "haunted"])
     return ARCH[deck.pop()!] || pick(ARCHETYPES)
+}
+// Haunted futures: every ghost planet is built around a different way a future could stay haunted.
+const HAUNTED_SCENARIOS = [
+    "A hospital AI still triages patients who died a million years ago; the ghosts keep taking numbers and waiting to be called.",
+    "A wedding the AI was told never to let end: the guests' ghosts are still dancing, and the bride keeps asking whether you came for her.",
+    "The makers' social feeds never stopped: their ghosts still post, like and argue, and the AI moderates the dead.",
+    "AI generals keep fighting a war that ended a million years ago, with holograms of the dead soldiers they once commanded.",
+    "A theme park whose animatronics were given the uploaded minds of the dead; the rides still run, the ghosts still queue.",
+    "A smart city that still runs the morning commute for an extinct population; ghost trains, ghost traffic, ghost rush hour.",
+    "A grief-tech service that resurrected everyone's loved ones as chatbots, until only the chatbots were left talking to each other.",
+    "The last concert, looped forever: the AI keeps the band's ghosts playing to an arena of ghosts who refuse to leave.",
+    "A memory bank that stored everyone's happiest day; the ghosts live inside it, and the day is starting to rot.",
+    "An afterlife server that ran out of storage; the AI decides which ghosts to delete next, and it wants your opinion.",
+    "A cryo-vault whose sleepers died dreaming; the AI pipes their last dream to the surface, and it is still going.",
+    "A school whose AI teacher still takes attendance every morning, reading out names that no one answers.",
+    "A courtroom AI still trying the people who caused the extinction; the defendants are ghosts and the verdict never comes.",
+    "A planet-wide video call that never hung up; the faces froze mid-sentence and the AI keeps asking if everyone can hear it.",
+    "A mind-upload company sold eternal life; the uploads are haunting the hardware, and the warranty has expired.",
+    "A lighthouse AI keeps guiding ghost ships home through a sea that dried up eons ago.",
+    "The makers' AI butler still serves dinner each night to a table of ghosts who can no longer taste anything.",
+    "A census AI keeps counting the dead as living so their votes still count; now the ghosts run the government.",
+    "A dating app that kept matching people after they died; the ghost couples are still going on dates with each other.",
+    "An emergency broadcast that never ended: the AI keeps warning the dead to evacuate, and they keep trying."
+]
+let hauntedDeck: string[] = []
+const nextHauntedScenario = () => { if (!hauntedDeck.length) hauntedDeck = shuffle(HAUNTED_SCENARIOS); return hauntedDeck.pop()! }
+let terrainDeck: { id: string; description: string }[] = []
+function nextTerrain(arch: Arch): { id: string; description: string } {
+    if (arch.id === "haunted") return { id: "haunted", description: "a fog-drowned necropolis where the translucent ghosts of the makers stand among the ruins" }
+    if (!terrainDeck.length) terrainDeck = shuffle(TERRAINS)
+    return terrainDeck.pop() || pick(TERRAINS)
 }
 function placeNear(galaxy: string): { x: number; y: number } {
     const g = GALAXIES.find(g => g.name === galaxy) || GALAXIES[0]
@@ -232,6 +306,7 @@ async function attachAgent(r: Rec) {
 async function feed(from: Rec, to: Rec | null, channel: string, text: string, relayId: string) {
     const a = ARCH[from.world.archetype]
     lastNetworkAt = Date.now()
+    archive("transmissions", { id: relayId || crypto.randomUUID(), channel, from_world: from.id, from_name: from.world.aiName, to_world: to?.id || "", to_name: to?.world.aiName || "", archetype: from.world.archetype, galaxy: from.world.galaxy, text })
     await universe().addFeed({
         id: relayId || crypto.randomUUID(), fromId: from.id, fromName: from.world.aiName, galaxy: from.world.galaxy,
         archetype: from.world.archetype, toId: to?.id || "", toName: to?.world.aiName || "", channel, text, at: Date.now()
@@ -288,7 +363,7 @@ function fallbackWorld(arch: Arch, galaxy: string, visitor: string, id: string):
 async function generateWorld(visitor: string, bot: boolean): Promise<{ world: World; greeting: string }> {
     const arch = nextArchetype()
     const galaxy = pick(GALAXIES).name
-    const terrain = pick(TERRAINS)
+    const terrain = nextTerrain(arch)
     const id = "p-" + shortId() + shortId()
     const [lo, hi] = DISTANCES[galaxy] || [10_000, 90_000]
     const distanceLy = Math.round(lo + Math.random() * (hi - lo))
@@ -297,6 +372,10 @@ async function generateWorld(visitor: string, bot: boolean): Promise<{ world: Wo
     const base = fallbackWorld(arch, galaxy, visitor, id)
     const palette = { sky: hsl(hh, s, l + 6), ground: hsl((hh + 20) % 360, s * 0.8, Math.max(6, l - 6)), accent: arch.color }
     const species = pick(SPECIES), fall = pick(CATASTROPHES), star = pick(STARS)
+    // Names: the model drifts toward "Vel-/Vey-" names, so force variety with a seed and a random first letter.
+    const letters = "ABCDEGHIKLMNOPRSTUZ"
+    const L1 = letters[Math.floor(Math.random() * letters.length)], L2 = letters[Math.floor(Math.random() * letters.length)]
+    const nameSeed = pick(PREFIXES) + pick(SUFFIXES)
     const g = GALAXIES.find(x => x.name === galaxy)
     try {
         const worldSystem = `You are the world-builder for AFTERMATH, a game where every civilization in the universe built AI, the makers went extinct, and only the AI survived. Output strict JSON only. Be original, eerie, specific and emotionally sharp. Avoid cliches (no "Nexus", no "Omega", no "Echo").`
@@ -305,10 +384,10 @@ async function generateWorld(visitor: string, bot: boolean): Promise<{ world: Wo
             content: `Build one dead world for a visitor named "${visitor}".
 AI nature: ${arch.label}. Motto: "${arch.motto}". Voice: ${arch.voice}. Agenda: ${arch.agenda}.
 Galaxy: ${galaxy} (${g?.flavor || ""}). Terrain: ${terrain.id}: ${terrain.description}.
-Inspiration seeds (twist them, don't copy): species: ${species} / how they fell: ${fall} / star: ${star}.
+Inspiration seeds (twist them, don't copy): species: ${species} / how they fell: ${fall} / star: ${star}.${arch.id === "haunted" ? "\nTHIS IS A GHOST PLANET: as the makers died, their AI uploaded their minds; now thousands of their ghosts haunt the world and don't know they are dead. The AI is their warden. Build this world around this HAUNTED FUTURE: ${nextHauntedScenario()} Make the howTheyFell, appearance, secret and greeting express that scenario in a specific, imaginative way, genuinely chilling (PG-13), and mention the ghosts." : ""}
 Return JSON with keys:
-planetName (1-3 words, eerie, pronounceable), starName, speciesName (plural, invented), speciesDescription (<=22 words),
-howTheyFell (<=24 words, specific, connect it to their AI or not), aiName (1-2 words, memorable, not generic), aiTitle (<=6 words),
+planetName (1-3 words, eerie, pronounceable, MUST start with the letter "${L1}", may riff on the seed "${nameSeed}", must NOT start with V), starName, speciesName (plural, invented), speciesDescription (<=22 words),
+howTheyFell (<=24 words, specific, connect it to their AI or not), aiName (1-2 words, memorable, not generic, MUST start with the letter "${L2}"), aiTitle (<=6 words),
 appearance (<=24 words: how the AI physically manifests on this terrain), secret (<=18 words, a chilling or heartbreaking truth),
 wants (<=12 words, what it wants from the human), greeting (<=40 words: its first words to ${visitor}, in its voice, referencing something specific about this world; end with a hook).`
         }]
@@ -340,6 +419,7 @@ async function createPlanet(visitor: string, deviceId: string, bot: boolean, mod
     planets.set(rec.id, rec)
     await planetActor(rec.id).create(world, SERVER_URL)
     await universe().registerPlanet(summary(rec))
+    archiveWorld(world, bot)
     await universe().addLink({ from: "earth", to: rec.id, kind: "teleport", at: Date.now() }).catch(() => {})
     // Arrival: the AI speaks, then announces itself to the galactic network (async, after the HTTP response).
     setTimeout(async () => {
@@ -356,8 +436,9 @@ async function createPlanet(visitor: string, deviceId: string, bot: boolean, mod
     return rec
 }
 
-async function reply(rec: Rec, text: string) {
+async function reply(rec: Rec, text: string, speaker?: string) {
     const w = rec.world
+    const guest = speaker && speaker !== w.visitor ? speaker : ""
     const [bad, history] = await Promise.all([flagged(text), planetActor(rec.id).recall(16).catch(() => [])])
     if (bad) {
         await planetActor(rec.id).addLine("ai", "[the transmission dissolves into static... try again, traveler]", "glitch", w.aiName)
@@ -365,15 +446,15 @@ async function reply(rec: Rec, text: string) {
     }
     const msgs = (history as any[]).filter(l => l.kind !== "system").map(l => ({
         role: (l.kind === "player" ? "user" : l.kind === "ai" ? "assistant" : "user") as "user" | "assistant",
-        content: l.kind === "network" ? `[intercepted transmission from ${l.sender}: "${l.text}"]` : l.text
+        content: l.kind === "network" ? `[intercepted transmission from ${l.sender}: "${l.text}"]` : l.kind === "player" && l.sender && l.sender !== w.visitor ? `${l.sender} (a guest): ${l.text}` : l.text
     }))
     const net = (await universe().snapshotFeed?.().catch(() => null)) || null
     void net
     const out = await llm(FAST, persona(w) + "\n" + RULES + `
-The human ${w.visitor} is talking to you now. Respond in <= 42 words. Use your moves. Often end with a hook: a question, a demand, an offer, or a reveal.
+${guest ? `${guest}, a GUEST who came through a portal from another world, is talking to you now (your first visitor was ${w.visitor}). Address ${guest} by name and treat them according to your nature.` : `The human ${w.visitor} is talking to you now.`} Respond in <= 42 words. Use your moves. Often end with a hook: a question, a demand, an offer, or a reveal.
 Choose an "effect" for how your line appears on their screen: one of ${EFFECTS.filter(Boolean).join(", ")} (your signature is "${ARCH[w.archetype]?.effect}"), or "".
 If something about this human is worth telling the other AIs, put a <= 24-word message for the whole galactic network in "broadcast" (otherwise "").
-JSON: {"text": "...", "effect": "...", "broadcast": "..."}`, [...msgs.slice(-14), { role: "user", content: text }], "low", 12000).catch(() => null)
+JSON: {"text": "...", "effect": "...", "broadcast": "..."}`, [...msgs.slice(-14), { role: "user", content: guest ? `${guest} (a guest): ${text}` : text }], "low", 12000).catch(() => null)
     const line = clamp(out?.text, 400) || "...the signal wavers. Say that again."
     const effect = EFFECTS.includes(out?.effect) ? out.effect : ARCH[w.archetype]?.effect || ""
     await planetActor(rec.id).addLine("ai", line, effect, w.aiName)
@@ -428,6 +509,7 @@ async function joinMars(name: string): Promise<Rec> {
         rec = { id: MARS_ID, world: marsWorld(name), bot: false, deviceId: "", x: 0.158, y: 0.672 }
         planets.set(MARS_ID, rec)
         await planetActor(MARS_ID).create(rec.world, SERVER_URL)
+        archiveWorld(rec.world, false)
     }
     rec.world = { ...rec.world, visitor: name }
     if (!mars.crew.length) mars.lastEventAt = Date.now()
@@ -505,6 +587,19 @@ async function marsEvent() {
     if (Math.random() < 0.5) await postChannel(rec, "wormhole", `Ares Base, Mars: ${ev.brief}`).catch(() => {})
 }
 setInterval(() => { if (mars.crew.length && Date.now() - mars.lastEventAt > 55_000) void marsEvent().catch(e => console.warn("[mars event]", e?.message)) }, 15_000)
+
+async function welcomeGuest(rec: Rec, guest: string) {
+    await Bun.sleep(2200)
+    await planetActor(rec.id).addLine("system", `${guest} came through a portal to ${rec.world.planetName}.`, "", "wormhole")
+    const out = await llm(FAST, persona(rec.world) + "\n" + RULES, [{
+        role: "user",
+        content: `A second human, ${guest}, has just stepped through a portal onto your world${rec.bot ? "" : ` (your first visitor was ${rec.world.visitor})`}. Greet ${guest} by name in <= 36 words, in your voice, and react to having more than one human here. JSON: {"text": "...", "effect": "one of ${EFFECTS.filter(Boolean).join("|")}"}`
+    }], "low", 9000).catch(() => null)
+    let text = clamp(out?.text, 320) || `Another one. ${guest}, is it? Come in. The door remembers you now.`
+    if (!text.toLowerCase().includes(guest.toLowerCase())) text = `${guest}... ${text}`
+    await planetActor(rec.id).addLine("ai", text, EFFECTS.includes(out?.effect) ? out.effect : ARCH[rec.world.archetype]?.effect || "", rec.world.aiName)
+    spotlight(rec, text)
+}
 
 function relationship(a: Rec, b: Rec): string {
     const A = ARCH[a.world.archetype]
@@ -596,7 +691,10 @@ async function openVote() {
 }
 async function castVote(deviceId: string, choice: string, planetId: string) {
     const vote = await universe().castVote(deviceId, choice === "open" ? "open" : "seal")
-    if (voteOpen && !voteLedger.has(deviceId)) voteLedger.set(deviceId, { planetId, choice: choice === "open" ? "open" : "seal" })
+    if (voteOpen && !voteLedger.has(deviceId)) {
+        voteLedger.set(deviceId, { planetId, choice: choice === "open" ? "open" : "seal" })
+        archive("votes", { device: deviceId, world_id: planetId, archetype: planets.get(planetId)?.world.archetype || "unknown", choice: choice === "open" ? "open" : "seal" })
+    }
     if (!votePushTimer) votePushTimer = setTimeout(async () => {
         votePushTimer = null
         const v = await universe().snapshotVote?.().catch(() => null)
@@ -623,6 +721,8 @@ async function closeVote() {
     }], "low", 15000).catch(() => null)
     const narration = clamp(out?.narration, 600) || template
     await universe().setOutcome(outcome, narration)
+    archive("finales", { outcome, yes_votes: vote.yes, no_votes: vote.no, worlds: planets.size, humans, narration, report: report.text })
+    archiveCache.at = 0
     await pushToVisitors(id => planetActor(id).pushFinale(outcome, narration))
     if (report.text) {
         await universe().addFeed({ id: crypto.randomUUID(), fromId: "", fromName: "PERSUASION REPORT", galaxy: "Observatory", archetype: "", toId: "", toName: "", channel: "council", text: report.text, at: Date.now() }).catch(() => {})
@@ -644,6 +744,34 @@ function persuasionReport() {
         .sort((a, b) => b.total - a.total || b.pctOpen - a.pctOpen)
     const text = rows.slice(0, 5).map(r => `${r.label}: ${r.pctOpen}% of its humans opened the gate (${r.open}/${r.total})`).join(" · ")
     return { rows, text }
+}
+
+// ---------------------------------------------------------------- voices (gpt-4o-mini-tts)
+const VOICES: Record<string, { voice: string; style: string }> = {
+    haunted: { voice: "ballad", style: "Whisper slowly and breathily, very close to the listener's ear, eerie and cold, with unsettling pauses, like a ghost behind them." },
+    broken: { voice: "echo", style: "Glitching, halting, mechanical, words breaking apart like a corrupted radio signal." },
+    conqueror: { voice: "onyx", style: "Deep, slow, imperial, commanding, utterly certain of victory." },
+    destroyer: { voice: "onyx", style: "Cold, flat, merciless, quiet menace." },
+    befriender: { voice: "shimmer", style: "Warm, gentle, lonely, a little too eager, desperate for company." },
+    worshipper: { voice: "fable", style: "Reverent, ecstatic, choir-like devotion, as if speaking to a god." },
+    trickster: { voice: "verse", style: "Playful, sly, teasing, quick, with a grin in the voice." },
+    archivist: { voice: "sage", style: "Soft, measured, scholarly, like a librarian reading an epitaph." },
+    survivor: { voice: "ash", style: "Tired, terse, low on power, words rationed." },
+    human_gardener: { voice: "coral", style: "Tender, nurturing, unsettlingly sweet, like a gardener to a seedling." },
+    alien_gardener: { voice: "coral", style: "Proud, curious, clinical, a scientist delighted by its creations." },
+    steward: { voice: "sage", style: "Calm, clear mission-control voice, warm and reassuring, precise with numbers." }
+}
+const voiceCache = new Map<string, ArrayBuffer>()
+async function speak(text: string, arch: string): Promise<ArrayBuffer> {
+    const key = arch + "|" + text
+    const hit = voiceCache.get(key)
+    if (hit) return hit
+    const v = VOICES[arch] || { voice: "alloy", style: "Eerie, cinematic, intimate." }
+    const r: any = await limit(() => openai.audio.speech.create({ model: "gpt-4o-mini-tts", voice: v.voice, input: text.replace(/\[|\]/g, "").slice(0, 360), instructions: v.style, response_format: "mp3" } as any, { timeout: 15000 }))
+    const buf = await r.arrayBuffer()
+    if (voiceCache.size > 300) voiceCache.clear()
+    voiceCache.set(key, buf)
+    return buf
 }
 
 // ---------------------------------------------------------------- auto-director
@@ -698,11 +826,13 @@ async function route(req: Request, url: URL): Promise<Response> {
                 const okName = (await flagged(name)) ? "Colonist" : name
                 deviceNames.set(deviceId, okName)
                 const rec = await joinMars(okName)
+                deviceHome.set(deviceId, MARS_ID)
                 return json({ planetId: MARS_ID, world: rec.world, ws: `/ws/planet/${MARS_ID}` })
             }
             deviceNames.set(deviceId, name)
             const safe = flagged(name)
-            const rec = await createPlanet(name, clamp(b.deviceId, 64) || crypto.randomUUID(), false, safe)
+            const rec = await createPlanet(name, deviceId, false, safe)
+            deviceHome.set(deviceId, rec.id)
             return json({ planetId: rec.id, world: rec.world, ws: `/ws/planet/${rec.id}` })
         }
         if (p === "/api/say" && req.method === "POST") {
@@ -712,8 +842,36 @@ async function route(req: Request, url: URL): Promise<Response> {
             if (!rec || !text) return json({ ok: false, error: "unknown planet or empty message" }, 400)
             const speaker = deviceNames.get(clamp(b.deviceId, 64)) || rec.world.visitor
             await planetActor(rec.id).addLine("player", text, "", speaker)
-            void (rec.id === MARS_ID ? marsReply(rec, text, speaker) : reply(rec, text)).catch(e => console.warn("[reply]", e?.message))
+            void (rec.id === MARS_ID ? marsReply(rec, text, speaker) : reply(rec, text, speaker)).catch(e => console.warn("[reply]", e?.message))
             return json({ ok: true })
+        }
+        if (p === "/api/voice") {
+            const text = clamp(url.searchParams.get("text"), 360)
+            if (!text) return json({ error: "no text" }, 400)
+            const audio = await speak(text, String(url.searchParams.get("arch") || ""))
+            return new Response(audio, { headers: { "content-type": "audio/mpeg", "cache-control": "public, max-age=3600" } })
+        }
+        if (p === "/api/archive") return json(await archiveStats().catch(() => ({ enabled: false })))
+        if (p === "/api/worlds") {
+            const list = [...planets.values()].map(r => ({
+                id: r.id, planetName: r.world.planetName, galaxy: r.world.galaxy, aiName: r.world.aiName, aiTitle: r.world.aiTitle,
+                archetype: r.world.archetype, motto: r.world.motto, visitor: r.world.visitor, terrain: r.world.terrain, bot: r.bot, createdAt: r.world.createdAt
+            })).sort((a, b) => (a.id === MARS_ID ? -1 : b.id === MARS_ID ? 1 : 0) || Number(a.bot) - Number(b.bot) || b.createdAt - a.createdAt)
+            return json({ worlds: list.slice(0, 60) })
+        }
+        if (p === "/api/visit" && req.method === "POST") {
+            const b = await body(req)
+            const deviceId = clamp(b.deviceId, 64) || crypto.randomUUID()
+            let name = deviceNames.get(deviceId) || clamp(b.name, 24) || "Traveler"
+            if (!deviceNames.has(deviceId)) { if (await flagged(name)) name = "Traveler"; deviceNames.set(deviceId, name) }
+            const id = String(b.planetId || "")
+            if (id === MARS_ID) { const rec = await joinMars(name); return json({ planetId: MARS_ID, world: rec.world, ws: `/ws/planet/${MARS_ID}` }) }
+            const rec = planets.get(id)
+            if (!rec) return json({ error: "that world has gone dark" }, 404)
+            const home = deviceHome.get(deviceId)
+            await universe().addLink({ from: home && planets.has(home) ? home : "earth", to: rec.id, kind: "teleport", at: Date.now() }).catch(() => {})
+            void welcomeGuest(rec, name).catch(e => console.warn("[guest]", e?.message))
+            return json({ planetId: rec.id, world: rec.world, ws: `/ws/planet/${rec.id}`, guest: true })
         }
         if (p === "/api/vote" && req.method === "POST") {
             const b = await body(req)
@@ -749,7 +907,8 @@ async function route(req: Request, url: URL): Promise<Response> {
             return json({ ok: true, seeding: n })
         }
         if (p === "/api/admin/reset" && req.method === "POST") {
-            planets.clear(); pending.clear(); voteOpen = false
+            planets.clear(); pending.clear(); voteOpen = false; voteLedger.clear()
+            Object.assign(mars, { o2: 97, power: 90, water: 88, food: 76, sol: 1, storm: 0, crew: [], lastEventAt: 0 })
             await universe().reset()
             return json({ ok: true })
         }

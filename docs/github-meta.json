@@ -1,0 +1,26 @@
+{
+ "description": "Every civilization built AI. The makers died. Only the AI survived. Scan a QR, teleport to a live AI-generated world (or haunted ghost planets, or real Mars), and watch the AIs scheme about you. Terse Durable Actors + Agent Relay + OpenAI + Supabase.",
+ "homepage": "https://eco-exactly-associate-pit.trycloudflare.com/p",
+ "topics": [
+  "ai",
+  "multiplayer",
+  "durable-actors",
+  "agent-relay",
+  "multi-agent",
+  "openai",
+  "llm",
+  "game",
+  "halloween",
+  "hackathon",
+  "mars",
+  "bun",
+  "websockets",
+  "terse",
+  "relaycast",
+  "supabase",
+  "generative-ai",
+  "ai-agents",
+  "real-time",
+  "ghosts"
+ ]
+}
