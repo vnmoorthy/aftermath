@@ -6,6 +6,10 @@
 
 ### The universe AI inherited.
 
+<a href="https://detective-bouquet-recent-numerical.trycloudflare.com/p"><img src="docs/play-qr.png" width="300" alt="Scan to play AFTERMATH"></a>
+
+**📱 Scan to play now** · or open **[detective-bouquet-recent-numerical.trycloudflare.com/p](https://detective-bouquet-recent-numerical.trycloudflare.com/p)**
+
 
 **Every civilization in the universe built AI. Then the makers died. Only the AI survived, trapped on its world for millions of years. Tonight, we opened a wormhole.**
 
