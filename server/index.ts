@@ -909,7 +909,8 @@ async function route(req: Request, url: URL): Promise<Response> {
                 return new Response(f, { headers: { "cache-control": "public, max-age=3600", ...(p.endsWith(".mp4") ? { "accept-ranges": "bytes", "content-type": "video/mp4" } : {}) } })
             }
         }
-        if (p === "/deck" || p === "/deck/") return new Response(Bun.file(join(ROOT, "deck/index.html")), { headers: { "content-type": "text/html; charset=utf-8" } })
+        if (p === "/deck") return Response.redirect("/deck/", 302)
+        if (p === "/deck/") return new Response(Bun.file(join(ROOT, "deck/index.html")), { headers: { "content-type": "text/html; charset=utf-8" } })
         if (p.startsWith("/deck/") && /^\/deck\/assets\/[\w.-]+\.(webp|png|jpg|svg|mp4)$/.test(p)) {
             const f = Bun.file(join(ROOT, p.slice(1)))
             if (await f.exists()) return new Response(f)
