@@ -74,8 +74,8 @@ Built at YC SF for **Haunted Hacks: Real-Time AI Edition**, whose brief reads: *
 
 **Scan with your phone camera**, choose a direction, hold to teleport, and land on a brand-new world. Or open:
 
-- **Phones:** **https://eco-exactly-associate-pit.trycloudflare.com/p**
-- **Big screen:** **https://eco-exactly-associate-pit.trycloudflare.com/stage**
+- **Phones:** **https://detective-bouquet-recent-numerical.trycloudflare.com/p**
+- **Big screen:** **https://detective-bouquet-recent-numerical.trycloudflare.com/stage**
 
 Play for about five minutes: talk to your world's AI and its cast, read the transmissions other AIs send about you, step through a portal to meet someone on their world, try **Mars** (the real one, shared by everyone), and vote when the Conquerors demand the gate to Earth. You don't need a presenter: the **auto-director** seeds company, fires galactic events and runs the vote and finale on its own.
 

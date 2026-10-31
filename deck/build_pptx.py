@@ -1226,7 +1226,7 @@ add_effects(qcard, glow=(GOLD, 22, 0.45))
 pic(s, os.path.join(ASSETS, "play-qr.png"), 10.08, 1.48, 2.49, 2.49, parent=qr)
 text(s, 9.7, 4.25, 3.25, 0.4, ["SCAN TO PLAY"], size=17, font=TITLE_FONT, bold=True, color=INK, spc=250, align="c", parent=qr)
 text(s, 9.7, 4.65, 3.25, 0.3, ["CHOOSE A DIRECTION · HOLD TO TELEPORT"], size=7.5, font=MONO_FONT, bold=True, color=GOLD, spc=150, align="c", parent=qr)
-text(s, 9.55, 5.0, 3.55, 0.5, ["eco-exactly-associate-pit.trycloudflare.com/p", "github.com/vnmoorthy/aftermath"], size=8, font=MONO_FONT, color=LAV, align="c", line_spacing=1.1, parent=qr)
+text(s, 9.55, 5.0, 3.55, 0.5, ["detective-bouquet-recent-numerical.trycloudflare.com/p", "github.com/vnmoorthy/aftermath"], size=8, font=MONO_FONT, color=LAV, align="c", line_spacing=1.1, parent=qr)
 built = text(s, 0.75, 6.4, 11.9, 0.4, [[("Haunted Hacks 2026", {"color": GOLD, "bold": True}), ("  ·  Multiplayer AI System track  ·  ", {}),
                                         ("Terse Durable Actors", {"color": INK, "bold": True}), (" + ", {"color": DIM}),
                                         ("Agent Relay", {"color": INK, "bold": True}), ("  ·  ", {"color": DIM}), ("OpenAI", {"color": INK, "bold": True})]],

@@ -218,7 +218,7 @@ Here the shared ancestor is **Multiverse Δ-12**: the journey runs Earth → Sol
 ### `GET /api/info`
 
 ```json
-{ "joinUrl": "https://eco-exactly-associate-pit.trycloudflare.com/p", "planets": 22 }
+{ "joinUrl": "https://detective-bouquet-recent-numerical.trycloudflare.com/p", "planets": 22 }
 ```
 
 `joinUrl` is `PUBLIC_URL + "/p"` when `PUBLIC_URL` is set, otherwise `http://<LAN IP>:<PORT>/p`.
