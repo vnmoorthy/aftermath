@@ -221,6 +221,7 @@ footer .sep{color:#ff5d7d}
 #finale.sealed #fSub{color:#bfe8ff}
 #fText .cur{display:inline-block;width:.5em;animation:blink .6s infinite}
 </style>
+<script src="/cosmos.js" defer></script>
 </head>
 <body>
 <canvas id="sky"></canvas>
@@ -1743,22 +1744,25 @@ function frame(ts) {
   }
   function enqueue(job, priority) { if (priority) queue.unshift(job); else queue.push(job); if (queue.length > 6) queue.splice(6); pump(); }
 
+  let lastArrival = null;
   async function showArrival(planet) {
     let w = null;
     try { w = await (await fetch('/api/world/' + encodeURIComponent(planet.id))).json(); } catch (e) { /* fall back to the summary */ }
     if (!w || w.error) w = { visitor: planet.visitor, planetName: planet.name, galaxy: planet.galaxy, archetype: planet.archetype, aiName: planet.aiName, motto: planet.motto, terrain: 'ruins' };
     const ac = colorOf(w.archetype);
+    if (w.cosmos) lastArrival = w;
     enqueue({
       ms: 7000,
       show() {
-        arrival.querySelector('.arBg').style.backgroundImage = 'url(/assets/world-' + (w.terrain || 'ruins') + '.webp)';
+        arrival.querySelector('.arBg').style.backgroundImage = 'url(' + (w.vision || '/assets/fp-' + (w.terrain || 'ruins') + '.webp') + '), url(/assets/world-' + (w.terrain || 'ruins') + '.webp)';
         arrival.style.setProperty('--ac', ac);
         arrival.querySelector('.arBody').innerHTML =
           '<div class="arKick">◉ wormhole transit complete</div>' +
           '<div class="arWho"><b>' + esc(w.visitor || 'A human') + '</b> has landed on</div>' +
           '<div class="arPlanet">' + esc(w.planetName || 'Unknown') + '</div>' +
           '<div class="arMeta">' + esc(w.galaxy || '') + (w.distanceLy ? ' · ' + fmtLy(w.distanceLy) : '') + ' · <i>living population 0</i> · AI population 1</div>' +
-          (w.terrain === 'mars' ? '<div class="arLore"><em>The real one.</em> ' + esc(w.speciesDescription || '') + ' ' + esc(w.howTheyFell || '') + '</div>' : w.speciesName ? '<div class="arLore">Here lived the <em>' + esc(w.speciesName) + '</em>: ' + esc(w.speciesDescription || '') + ' ' + esc(w.howTheyFell || '') + '</div>' : '') +
+          (w.cosmos ? '<div class="arRealm">' + esc(w.cosmos.tier) + ' · ' + esc(w.cosmos.epoch || '') + '</div><div class="arRoute">' + (w.cosmos.journey || []).map((st, i, a) => '<span class="' + (i === a.length - 1 ? 'end' : st.dir || '') + '">' + esc(st.name) + '</span>').join('<b>' + '→' + '</b>') + '</div>' : '') +
+          (w.terrain === 'mars' ? '<div class="arLore"><em>The real one.</em> Everyone here shares one colony.</div>' : w.speciesName ? '<div class="arLore">Here lived the <em>' + esc(w.speciesName) + '</em>. ' + esc(w.cosmos ? w.cosmos.sinceExtinction : '') + '.</div>' : '') +
           '<div class="arAI"><img src="/assets/ai-' + esc(w.archetype) + '.webp" alt=""><div><div class="n">' + esc(w.aiName || '') + '</div><div class="t">' + esc(w.aiTitle || labelOf(w.archetype)) + '</div><div class="m">“' + esc(w.motto || '') + '”</div></div></div>';
         arrival.classList.add('on');
         try { if (typeof sfxBoom === 'function') sfxBoom(.8); } catch (e) {}
@@ -1770,11 +1774,10 @@ function frame(ts) {
   function stageGhosts(n) {
     for (let i = 0; i < n; i++) setTimeout(() => {
       const g = document.createElement('img'); g.className = 'sgh'; g.alt = ''; g.src = '/assets/ghost-' + (1 + Math.floor(Math.random() * 3)) + '.webp';
-      const fromLeft = Math.random() < .5, dur = 8 + Math.random() * 5;
-      g.style.top = (10 + Math.random() * 30) + 'vh'; g.style.left = '0';
-      g.style.setProperty('--x0', (fromLeft ? -30 : 100) + 'vw'); g.style.setProperty('--x1', (fromLeft ? 85 : -15) + 'vw');
-      g.style.setProperty('--s', (.75 + Math.random() * .5).toFixed(2)); g.style.setProperty('--o', (.28 + Math.random() * .3).toFixed(2));
-      g.style.animation = 'sghDrift ' + dur + 's ease-in-out forwards';
+      const dur = 4 + Math.random() * 3;
+      g.style.top = (18 + Math.random() * 30) + 'vh'; g.style.left = (8 + Math.random() * 70) + 'vw';
+      g.style.setProperty('--s', (.75 + Math.random() * .5).toFixed(2)); g.style.setProperty('--o', (.16 + Math.random() * .16).toFixed(2));
+      g.style.animation = 'sghAppear ' + dur + 's ease-in-out forwards';
       document.body.appendChild(g); setTimeout(() => g.remove(), dur * 1000 + 200);
     }, i * 1100);
   }
@@ -1864,17 +1867,20 @@ function frame(ts) {
     ctx.restore();
   };
 
-  /* ---------- keys: E galactic event, T attract mode ---------- */
+  { const st = document.createElement('style'); st.textContent = '@keyframes sghAppear{0%{opacity:0;transform:scale(var(--s));filter:blur(4px)}22%{opacity:var(--o);filter:blur(1.2px)}26%{opacity:calc(var(--o)*.35)}30%{opacity:var(--o)}48%{opacity:calc(var(--o)*.6)}52%{opacity:var(--o)}75%{opacity:var(--o);filter:blur(1.5px)}100%{opacity:0;transform:scale(calc(var(--s)*1.02));filter:blur(5px)}}#arrival .arRealm{margin-top:1.4vh;font:700 1.15vw/1.4 var(--mono,monospace);letter-spacing:.28em;text-transform:uppercase;color:var(--ac)}#arrival .arRoute{margin-top:.8vh;font:600 1.05vw/1.7 var(--mono,monospace);letter-spacing:.06em;color:#d9d2f2;display:flex;flex-wrap:wrap;gap:.2vw .5vw;align-items:center}#arrival .arRoute b{color:var(--ac);font-weight:700;opacity:.8}#arrival .arRoute .out{opacity:.75}#arrival .arRoute .across{color:#ff8af0}#arrival .arRoute .end{color:#fff;font-weight:800}'; document.head.appendChild(st); }
+  /* ---------- keys: E galactic event, T attract mode, Z cosmic journey of the latest arrival ---------- */
   window.addEventListener('keydown', (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
     const k = (e.key || '').toLowerCase();
     if (k === 'e') { admin('event', 'GALACTIC EVENT'); e.preventDefault(); }
     if (k === 't') { attract.classList.toggle('on'); e.preventDefault(); }
+    if (k === 'z' && window.CosmicZoom && lastArrival && lastArrival.cosmos) { e.preventDefault(); try { CosmicZoom.open(lastArrival.cosmos, { mode: 'journey', autoplay: true, enterLabel: 'BACK TO THE GALAXY', onDone: () => CosmicZoom.close() }); } catch (er) { console.warn(er); } }
   });
   const legend = document.getElementById('legend');
   if (legend) {
     const a = document.createElement('div'); a.innerHTML = '<kbd>E</kbd>galactic event (all phones)'; legend.appendChild(a);
     const b = document.createElement('div'); b.innerHTML = '<kbd>T</kbd>title / attract screen'; legend.appendChild(b);
+    const z = document.createElement('div'); z.innerHTML = '<kbd>Z</kbd>replay the latest traveller\'s journey from Earth'; legend.appendChild(z);
   }
   if (new URLSearchParams(location.search).has('attract')) attract.classList.add('on');
 })();

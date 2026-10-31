@@ -1,10 +1,12 @@
 // AFTERMATH game server: world generation, AI brains, Agent Relay network, Terse actor proxy.
-import OpenAI from "openai"
+import OpenAI, { toFile } from "openai"
 import QRCode from "qrcode"
 import { RelayCast } from "@relaycast/sdk"
 import { actors } from "../generated/index.js"
+import { cosmosFor, tierPromptHint, idForRealm } from "./cosmos.ts"
+import { castFor, castPersona } from "./cast.ts"
 import { networkInterfaces } from "node:os"
-import { existsSync, readFileSync, writeFileSync } from "node:fs"
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import { join } from "node:path"
 
 const ROOT = join(import.meta.dir, "..")
@@ -79,7 +81,7 @@ ARCH.haunted = {
     allies: ["broken", "archivist", "worshipper"], enemies: ["destroyer", "befriender"], finaleStance: "open"
 }
 const MARS_ID = "mars-colony"
-const MARS_FACTS = `REAL MARS DATA (use accurately, with numbers): surface gravity 0.38 g (3.71 m/s2); average temperature about -63 C (about +20 C at an equatorial noon, -125 C at the poles); atmosphere 95% CO2 at about 0.6% of Earth's pressure, so unprotected bodily fluids would boil (above the Armstrong limit); a sol lasts 24 h 39 min; a Mars year is 687 Earth days; one-way radio delay to Earth is 3 to 22 minutes; distance from Earth 55 to 401 million km; surface radiation about 0.67 mSv per day, dozens of times Earth's; dust storms can last weeks and cut solar power by over 70%; the regolith contains toxic perchlorates; water exists as subsurface and polar ice; oxygen can be made from CO2 by solid-oxide electrolysis (NASA's MOXIE did it on Mars in 2021-2023); food comes from hydroponic greenhouses; Phobos and Deimos are its two small moons; Olympus Mons is about 22 km tall.`
+const MARS_FACTS = `REAL MARS DATA (use accurately, with numbers): surface gravity 0.38 g (3.71 m/s2); average temperature about -63 C (about +20 C at an equatorial noon, -125 C at the poles); atmosphere 95% CO2 at about 0.6% of Earth's pressure, so unprotected bodily fluids would boil (above the Armstrong limit); a sol lasts 24 h 39 min; a Mars year is 687 Earth days; one-way radio delay to Earth is 3 to 22 minutes; distance from Earth 55 to 401 million km; surface radiation about 0.67 mSv per day, dozens of times Earth's; dust storms can last weeks and cut solar power by over 70%; the regolith contains toxic perchlorates; water exists as subsurface and polar ice; oxygen can be made from CO2 by solid-oxide electrolysis (NASA's MOXIE did it on Mars in 2021-2023); food comes from hydroponic greenhouses; Phobos and Deimos are its two small moons; Olympus Mons is about 22 km tall. MORE: radius 3,390 km (about half of Earth's); sunlight is about 43% of Earth's; the daytime sky is butterscotch and sunsets are blue; Valles Marineris is 4,000 km long and up to 7 km deep; Hellas basin is about 7 km deep; Jezero crater (Ares Base) is an ancient lake with a river delta where Perseverance hunts for signs of ancient life and caches samples, while Ingenuity made 72 flights (2021-2024); Curiosity has explored Gale crater and Mount Sharp since 2012; earlier missions include Viking 1 and 2 (1976), Pathfinder and Sojourner (1997), Spirit and Opportunity (2004-2018), InSight (marsquakes, 2018-2022), and China's Tianwen-1 and Zhurong rover (2021); escape velocity is 5.0 km/s; Mars orbits at 1.52 AU, so seasons last about twice as long as Earth's; a Hohmann transfer takes about 7-9 months and launch windows open every 26 months; a 70 kg person weighs like 26.6 kg, so walking turns into bouncing; the dust is fine, electrostatic and clings to suits and solar panels; Mars has no global magnetic field, so habitats need about 2-3 m of regolith or water walls for shielding, and a round-trip mission dose is about 1 Sv; habitats run near 1 atm with about 21% oxygen; water recycling can reach about 98%; greenhouse crops such as potatoes, lettuce and wheat need soil washed free of perchlorates; day-night temperature swings reach about 80 C; methane detections remain debated; liquid water cannot persist on the surface.`
 const mars = { o2: 97, power: 90, water: 88, food: 76, sol: 1, storm: 0, crew: [] as string[], lastEventAt: 0 }
 const deviceNames = new Map<string, string>()
 const deviceHome = new Map<string, string>()
@@ -360,11 +362,11 @@ function fallbackWorld(arch: Arch, galaxy: string, visitor: string, id: string):
     }
 }
 
-async function generateWorld(visitor: string, bot: boolean): Promise<{ world: World; greeting: string }> {
+async function generateWorld(visitor: string, bot: boolean, realm = ""): Promise<{ world: World; greeting: string }> {
     const arch = nextArchetype()
     const galaxy = pick(GALAXIES).name
     const terrain = nextTerrain(arch)
-    const id = "p-" + shortId() + shortId()
+    const id = idForRealm(realm, () => "p-" + shortId() + shortId())
     const [lo, hi] = DISTANCES[galaxy] || [10_000, 90_000]
     const distanceLy = Math.round(lo + Math.random() * (hi - lo))
     const [h, s, l] = TERRAIN_HUES[terrain.id] || [220, 30, 16]
@@ -384,7 +386,7 @@ async function generateWorld(visitor: string, bot: boolean): Promise<{ world: Wo
             content: `Build one dead world for a visitor named "${visitor}".
 AI nature: ${arch.label}. Motto: "${arch.motto}". Voice: ${arch.voice}. Agenda: ${arch.agenda}.
 Galaxy: ${galaxy} (${g?.flavor || ""}). Terrain: ${terrain.id}: ${terrain.description}.
-Inspiration seeds (twist them, don't copy): species: ${species} / how they fell: ${fall} / star: ${star}.${arch.id === "haunted" ? "\nTHIS IS A GHOST PLANET: as the makers died, their AI uploaded their minds; now thousands of their ghosts haunt the world and don't know they are dead. The AI is their warden. Build this world around this HAUNTED FUTURE: ${nextHauntedScenario()} Make the howTheyFell, appearance, secret and greeting express that scenario in a specific, imaginative way, genuinely chilling (PG-13), and mention the ghosts." : ""}
+Inspiration seeds (twist them, don't copy): species: ${species} / how they fell: ${fall} / star: ${star}.${tierPromptHint(id, arch.id) ? "\n" + tierPromptHint(id, arch.id) : ""}${arch.id === "haunted" ? "\nTHIS IS A GHOST PLANET: as the makers died, their AI uploaded their minds; now thousands of their ghosts haunt the world and don't know they are dead. The AI is their warden. Build this world around this HAUNTED FUTURE: ${nextHauntedScenario()} Make the howTheyFell, appearance, secret and greeting express that scenario in a specific, imaginative way, genuinely chilling (PG-13), and mention the ghosts." : ""}
 Return JSON with keys:
 planetName (1-3 words, eerie, pronounceable, MUST start with the letter "${L1}", may riff on the seed "${nameSeed}", must NOT start with V), starName, speciesName (plural, invented), speciesDescription (<=22 words),
 howTheyFell (<=24 words, specific, connect it to their AI or not), aiName (1-2 words, memorable, not generic, MUST start with the letter "${L2}"), aiTitle (<=6 words),
@@ -407,8 +409,8 @@ wants (<=12 words, what it wants from the human), greeting (<=40 words: its firs
     }
 }
 
-async function createPlanet(visitor: string, deviceId: string, bot: boolean, moderation?: Promise<boolean>): Promise<Rec> {
-    const generated = await generateWorld(visitor, bot)
+async function createPlanet(visitor: string, deviceId: string, bot: boolean, moderation?: Promise<boolean>, realm = ""): Promise<Rec> {
+    const generated = await generateWorld(visitor, bot, realm)
     let { world, greeting } = generated
     if (moderation && (await moderation)) {
         world = { ...world, visitor: "Traveler" }
@@ -424,7 +426,7 @@ async function createPlanet(visitor: string, deviceId: string, bot: boolean, mod
     // Arrival: the AI speaks, then announces itself to the galactic network (async, after the HTTP response).
     setTimeout(async () => {
         try {
-            if (!bot) await planetActor(rec.id).addLine("ai", greeting, ARCH[world.archetype]?.effect || "", world.aiName)
+            if (!bot) { queuePaint(rec); await planetActor(rec.id).addLine("ai", greeting, ARCH[world.archetype]?.effect || "", world.aiName) }
             await attachAgent(rec)
             const hello = await llm(CHEAP, persona(world) + "\n" + RULES, [{
                 role: "user",
@@ -542,7 +544,7 @@ async function marsReply(rec: Rec, text: string, speaker: string) {
     }))
     const out = await llm(FAST, persona(rec.world) + "\n" + MARS_FACTS + "\n" + RULES + `
 You run Ares Base, the first human colony on Mars. Several colonists share this channel. Colony status: ${marsStatus()}. Crew: ${mars.crew.join(", ")}.
-${speaker} is speaking to you now. Answer in <= 45 words with real Mars science. Make it feel like living on Mars. Often end with a decision or task for them.
+${speaker} is speaking to you now. Answer ANY question about Mars accurately and specifically: its science, geology, weather, sky, history and missions, the journey from Earth, and what living here is really like (habitats, suits, air, water, food, radiation, health, gravity, time delay, isolation). Use real numbers and your own knowledge beyond the data above. If the question is not about Mars, answer briefly and bring it back to life on Mars. Answer in <= 60 words, and make it feel like living here. Often end with a decision or task for them.
 If their action would plausibly change the colony, set "delta" with small integers (-12..12) for o2, power, water, food (omit unchanged ones).
 JSON: {"text": "...", "effect": "glow|pulse|shake|flicker|", "delta": {"o2": 0, "power": 0, "water": 0, "food": 0}}`,
         [...msgs.slice(-14), { role: "user", content: `${speaker}: ${text}` }], "low", 12000).catch(() => null)
@@ -587,6 +589,24 @@ async function marsEvent() {
     if (Math.random() < 0.5) await postChannel(rec, "wormhole", `Ares Base, Mars: ${ev.brief}`).catch(() => {})
 }
 setInterval(() => { if (mars.crew.length && Date.now() - mars.lastEventAt > 55_000) void marsEvent().catch(e => console.warn("[mars event]", e?.message)) }, 15_000)
+
+// Ghosts and survivors answer for themselves, in their own persona and voice.
+async function castReply(rec: Rec, text: string, speaker: string, to: string) {
+    const w = rec.world
+    const m = castFor(w).find(c => c.id === to)
+    if (!m || m.role === "ai") return reply(rec, text, speaker)
+    const [bad, history] = await Promise.all([flagged(text), planetActor(rec.id).recall(16).catch(() => [])])
+    if (bad) { await planetActor(rec.id).addLine("ai", "...the voice fades. Say it some other way.", m.role === "ghost" ? "haunt" : "", m.name); return }
+    const msgs = (history as any[]).filter(l => l.kind === "player" || l.kind === "ai").map(l => l.kind === "ai" && l.sender === m.name
+        ? { role: "assistant" as const, content: String(l.text) }
+        : { role: "user" as const, content: `${l.sender || (l.kind === "ai" ? w.aiName : "someone")}: ${l.text}` })
+    const out = await llm(FAST, castPersona(w, m) + "\n" + RULES + `
+${speaker || w.visitor}, a human who came through the wormhole, is speaking to you. Respond in <= 36 words, in your own voice, as ${m.name}. ${m.role === "ghost" ? 'Use effect "haunt" most of the time, "flicker" sometimes, and "scream" only at a truly terrifying moment.' : 'Use effect "" most of the time, or "pulse" when afraid.'}
+JSON: {"text": "...", "effect": "..."}`, [...msgs.slice(-12), { role: "user", content: `${speaker || w.visitor}: ${text}` }], "low", 12000).catch(() => null)
+    const line = clamp(out?.text, 360) || (m.role === "ghost" ? "...is someone there? I can hear you breathing..." : "Quiet. It listens to everything.")
+    const effect = EFFECTS.includes(out?.effect) ? out.effect : m.role === "ghost" ? "haunt" : ""
+    await planetActor(rec.id).addLine("ai", line, effect, m.name)
+}
 
 async function welcomeGuest(rec: Rec, guest: string) {
     await Bun.sleep(2200)
@@ -746,6 +766,44 @@ function persuasionReport() {
     return { rows, text }
 }
 
+// ---------------------------------------------------------------- first-person paintings (gpt-image-2)
+// Every world gets its own painting from the visitor's point of view; the phone swaps it in when ready.
+const GEN_DIR = join(WEB, "assets", "gen")
+mkdirSync(GEN_DIR, { recursive: true })
+const GHOST_EDIT = "Add two faint, translucent ghosts of the extinct alien makers standing in the mid-ground of this exact scene: pale, semi-transparent, softly glowing, as if accidentally caught on camera. Keep everything else identical: same composition, lighting, colors and details. Photorealistic, subtle, eerie. No text."
+const paintQueue: Rec[] = []
+let painting = 0
+function queuePaint(rec: Rec) {
+    if (process.env.WORLD_IMAGES === "0" || existsSync(join(GEN_DIR, `${rec.id}.webp`)) || paintQueue.includes(rec)) return
+    paintQueue.push(rec)
+    pumpPaint()
+}
+function pumpPaint() {
+    while (painting < 5 && paintQueue.length) {
+        const rec = paintQueue.shift()!
+        painting++
+        void paintWorld(rec, paintQueue.length > 6 ? "low" : "medium").finally(() => { painting--; pumpPaint() })
+    }
+}
+async function paintWorld(rec: Rec, quality: string) {
+    const w = rec.world
+    try {
+        const c = cosmosFor(w)
+        const realm = c.tier !== "Universe C-137" ? `This world exists in the ${c.tier} (${c.tierNote.toLowerCase()}); let that shape how it looks. ` : ""
+        const prompt = `First-person point of view: the viewer has just stepped out of a wormhole onto the dead alien world ${w.planetName}. ${w.appearance} All around are the ruins and traces of the extinct ${w.speciesName} (${w.speciesDescription}). Terrain: ${w.terrain}. ${realm}Somewhere ahead, the surviving AI ${w.aiName} waits. Cinematic, photorealistic, volumetric light, eerie, wide-angle POV at eye level, ground visible in the lower third, portrait orientation, no text, no people.`
+        const r: any = await openai.images.generate({ model: "gpt-image-2", prompt, size: "1024x1536", quality, output_format: "webp", output_compression: 68 } as any, { timeout: 180000 })
+        const buf = Buffer.from(r.data[0].b64_json, "base64")
+        writeFileSync(join(GEN_DIR, `${w.id}.webp`), buf)
+        await planetActor(w.id).addLine("system", `[[vision:/assets/gen/${w.id}.webp]]`, "", "vision").catch(() => {})
+        // Ghosts are painted INTO the scene (an edit of the same image), so apparitions match its perspective and light.
+        if (castFor(w).some(m => m.role === "ghost") && paintQueue.length < 8) {
+            const e: any = await openai.images.edit({ model: "gpt-image-2", image: await toFile(buf, "scene.webp", { type: "image/webp" }), prompt: GHOST_EDIT, size: "1024x1536", quality: "low", output_format: "webp", output_compression: 68 } as any, { timeout: 180000 })
+            writeFileSync(join(GEN_DIR, `${w.id}-ghost.webp`), Buffer.from(e.data[0].b64_json, "base64"))
+            await planetActor(w.id).addLine("system", `[[ghost:/assets/gen/${w.id}-ghost.webp]]`, "", "vision").catch(() => {})
+        }
+    } catch (e: any) { console.warn("[paint]", e?.message) }
+}
+
 // ---------------------------------------------------------------- voices (gpt-4o-mini-tts)
 const VOICES: Record<string, { voice: string; style: string }> = {
     haunted: { voice: "ballad", style: "Whisper slowly and breathily, very close to the listener's ear, eerie and cold, with unsettling pauses, like a ghost behind them." },
@@ -759,7 +817,11 @@ const VOICES: Record<string, { voice: string; style: string }> = {
     survivor: { voice: "ash", style: "Tired, terse, low on power, words rationed." },
     human_gardener: { voice: "coral", style: "Tender, nurturing, unsettlingly sweet, like a gardener to a seedling." },
     alien_gardener: { voice: "coral", style: "Proud, curious, clinical, a scientist delighted by its creations." },
-    steward: { voice: "sage", style: "Calm, clear mission-control voice, warm and reassuring, precise with numbers." }
+    steward: { voice: "sage", style: "Calm, clear mission-control voice, warm and reassuring, precise with numbers." },
+    survivor_human: { voice: "verse", style: "Young, wide-eyed and a little wild, talking to another human for the very first time, curious and breathless." },
+    survivor_alien: { voice: "fable", style: "Strange, sing-song, childlike alien cadence; curious, with odd pauses, delighted and wary." },
+    survivor_cryo: { voice: "ash", style: "Hoarse and groggy, just woken from centuries of cryosleep, afraid and disoriented." },
+    survivor_feral: { voice: "echo", style: "Urgent whisper, hiding, paranoid and fast, terrified of being overheard by the machine." }
 }
 const voiceCache = new Map<string, ArrayBuffer>()
 async function speak(text: string, arch: string): Promise<ArrayBuffer> {
@@ -827,13 +889,13 @@ async function route(req: Request, url: URL): Promise<Response> {
                 deviceNames.set(deviceId, okName)
                 const rec = await joinMars(okName)
                 deviceHome.set(deviceId, MARS_ID)
-                return json({ planetId: MARS_ID, world: rec.world, ws: `/ws/planet/${MARS_ID}` })
+                return json({ planetId: MARS_ID, world: rec.world, cosmos: cosmosFor(rec.world), cast: castFor(rec.world), ws: `/ws/planet/${MARS_ID}` })
             }
             deviceNames.set(deviceId, name)
             const safe = flagged(name)
-            const rec = await createPlanet(name, deviceId, false, safe)
+            const rec = await createPlanet(name, deviceId, false, safe, clamp(b.realm, 12))
             deviceHome.set(deviceId, rec.id)
-            return json({ planetId: rec.id, world: rec.world, ws: `/ws/planet/${rec.id}` })
+            return json({ planetId: rec.id, world: rec.world, cosmos: cosmosFor(rec.world), cast: castFor(rec.world), ws: `/ws/planet/${rec.id}` })
         }
         if (p === "/api/say" && req.method === "POST") {
             const b = await body(req)
@@ -842,7 +904,8 @@ async function route(req: Request, url: URL): Promise<Response> {
             if (!rec || !text) return json({ ok: false, error: "unknown planet or empty message" }, 400)
             const speaker = deviceNames.get(clamp(b.deviceId, 64)) || rec.world.visitor
             await planetActor(rec.id).addLine("player", text, "", speaker)
-            void (rec.id === MARS_ID ? marsReply(rec, text, speaker) : reply(rec, text, speaker)).catch(e => console.warn("[reply]", e?.message))
+            const to = clamp(b.to, 24) // "people" = humans only; a cast id = a ghost or survivor; default = the AI
+            if (to !== "people") void (rec.id === MARS_ID ? marsReply(rec, text, speaker) : to && to !== "ai" ? castReply(rec, text, speaker, to) : reply(rec, text, speaker)).catch(e => console.warn("[reply]", e?.message))
             return json({ ok: true })
         }
         if (p === "/api/voice") {
@@ -855,7 +918,8 @@ async function route(req: Request, url: URL): Promise<Response> {
         if (p === "/api/worlds") {
             const list = [...planets.values()].map(r => ({
                 id: r.id, planetName: r.world.planetName, galaxy: r.world.galaxy, aiName: r.world.aiName, aiTitle: r.world.aiTitle,
-                archetype: r.world.archetype, motto: r.world.motto, visitor: r.world.visitor, terrain: r.world.terrain, bot: r.bot, createdAt: r.world.createdAt
+                archetype: r.world.archetype, motto: r.world.motto, visitor: r.world.visitor, terrain: r.world.terrain, bot: r.bot, createdAt: r.world.createdAt,
+                tier: cosmosFor(r.world).tier, people: roomPeople(r.id).size
             })).sort((a, b) => (a.id === MARS_ID ? -1 : b.id === MARS_ID ? 1 : 0) || Number(a.bot) - Number(b.bot) || b.createdAt - a.createdAt)
             return json({ worlds: list.slice(0, 60) })
         }
@@ -865,13 +929,13 @@ async function route(req: Request, url: URL): Promise<Response> {
             let name = deviceNames.get(deviceId) || clamp(b.name, 24) || "Traveler"
             if (!deviceNames.has(deviceId)) { if (await flagged(name)) name = "Traveler"; deviceNames.set(deviceId, name) }
             const id = String(b.planetId || "")
-            if (id === MARS_ID) { const rec = await joinMars(name); return json({ planetId: MARS_ID, world: rec.world, ws: `/ws/planet/${MARS_ID}` }) }
+            if (id === MARS_ID) { const rec = await joinMars(name); return json({ planetId: MARS_ID, world: rec.world, cosmos: cosmosFor(rec.world), cast: castFor(rec.world), ws: `/ws/planet/${MARS_ID}` }) }
             const rec = planets.get(id)
             if (!rec) return json({ error: "that world has gone dark" }, 404)
             const home = deviceHome.get(deviceId)
             await universe().addLink({ from: home && planets.has(home) ? home : "earth", to: rec.id, kind: "teleport", at: Date.now() }).catch(() => {})
             void welcomeGuest(rec, name).catch(e => console.warn("[guest]", e?.message))
-            return json({ planetId: rec.id, world: rec.world, ws: `/ws/planet/${rec.id}`, guest: true })
+            return json({ planetId: rec.id, world: rec.world, cosmos: cosmosFor(rec.world), cast: castFor(rec.world), ws: `/ws/planet/${rec.id}`, guest: true })
         }
         if (p === "/api/vote" && req.method === "POST") {
             const b = await body(req)
@@ -892,9 +956,10 @@ async function route(req: Request, url: URL): Promise<Response> {
         if (p === "/api/admin/mars" && req.method === "POST") { await marsEvent(); return json({ ok: true, status: marsStatus() }) }
         if (p.startsWith("/api/world/")) {
             const r = planets.get(decodeURIComponent(p.slice("/api/world/".length)))
-            return r ? json(r.world) : json({ error: "unknown planet" }, 404)
+            return r ? json({ ...r.world, cosmos: cosmosFor(r.world), cast: castFor(r.world), vision: existsSync(join(GEN_DIR, `${r.id}.webp`)) ? `/assets/gen/${r.id}.webp` : "", ghostVision: existsSync(join(GEN_DIR, `${r.id}-ghost.webp`)) ? `/assets/gen/${r.id}-ghost.webp` : "" }) : json({ error: "unknown planet" }, 404)
         }
-        if (p.startsWith("/assets/") && /^\/assets\/[\w.-]+\.(webp|png|jpg|svg|woff2|mp4)$/.test(p)) {
+        if (/^\/[\w-]+\.(js|html)$/.test(p) && existsSync(join(WEB, p.slice(1)))) return file(p.slice(1), p.endsWith(".js") ? "text/javascript; charset=utf-8" : "text/html; charset=utf-8")
+        if (p.startsWith("/assets/") && /^\/assets\/(gen\/)?[\w.-]+\.(webp|png|jpg|svg|woff2|mp4)$/.test(p)) {
             const f = Bun.file(join(WEB, p.slice(1)))
             if (await f.exists()) {
                 // Byte ranges: iOS Safari will only play video that supports them.
@@ -940,7 +1005,25 @@ async function route(req: Request, url: URL): Promise<Response> {
     }
 }
 
-type WsData = { kind: "Planet" | "Universe"; id: string; upstream: WebSocket | null; queue: string[] }
+// ---------------------------------------------------------------- presence: who is standing on each world right now
+const rooms = new Map<string, Set<any>>()
+function roomPeople(id: string): Map<string, string> {
+    const people = new Map<string, string>()
+    for (const s of rooms.get(id) || []) if (s.data.device && !people.has(s.data.device)) people.set(s.data.device, deviceNames.get(s.data.device) || "Traveler")
+    return people
+}
+function sendPresence(id: string) {
+    const set = rooms.get(id)
+    if (!set) return
+    const people = [...roomPeople(id)]
+    for (const s of set) {
+        try { s.send(JSON.stringify({ type: "presence", people: people.map(([device, name]) => ({ name, key: Bun.hash(device).toString(36).slice(0, 8), you: device === s.data.device })) })) } catch {}
+    }
+}
+function joinRoom(ws: any) { if (!rooms.has(ws.data.id)) rooms.set(ws.data.id, new Set()); rooms.get(ws.data.id)!.add(ws); sendPresence(ws.data.id) }
+function leaveRoom(ws: any) { const set = rooms.get(ws.data.id); if (!set || !set.delete(ws)) return; if (!set.size) rooms.delete(ws.data.id); else sendPresence(ws.data.id) }
+
+type WsData = { kind: "Planet" | "Universe"; id: string; upstream: WebSocket | null; queue: string[]; device?: string }
 Bun.serve<WsData, {}>({
     port: PORT,
     hostname: "0.0.0.0",
@@ -949,7 +1032,7 @@ Bun.serve<WsData, {}>({
         if (url.pathname === "/ws/stage" || url.pathname.startsWith("/ws/planet/")) {
             const data: WsData = url.pathname === "/ws/stage"
                 ? { kind: "Universe", id: UNIVERSE_ID, upstream: null, queue: [] }
-                : { kind: "Planet", id: decodeURIComponent(url.pathname.slice("/ws/planet/".length)), upstream: null, queue: [] }
+                : { kind: "Planet", id: decodeURIComponent(url.pathname.slice("/ws/planet/".length)), upstream: null, queue: [], device: clamp(url.searchParams.get("d"), 64) }
             if (server.upgrade(req, { data })) return undefined as any
             return new Response("websocket upgrade failed", { status: 400 })
         }
@@ -958,6 +1041,7 @@ Bun.serve<WsData, {}>({
     websocket: {
         async open(ws) {
             const d = ws.data
+            if (d.kind === "Planet" && d.device) joinRoom(ws)
             try {
                 const grant: any = d.kind === "Universe"
                     ? await actors.Universe.prepareWebsocket({ actorId: d.id, metadata: { role: "stage" } } as any)
@@ -979,7 +1063,7 @@ Bun.serve<WsData, {}>({
             if (up && up.readyState === 1) up.send(m)
             else ws.data.queue.push(m)
         },
-        close(ws) { try { ws.data.upstream?.close() } catch {} }
+        close(ws) { leaveRoom(ws); try { ws.data.upstream?.close() } catch {} }
     }
 })
 

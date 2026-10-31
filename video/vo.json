@@ -1,0 +1,11 @@
+[
+ {"id": "01-title", "clip": "TITLE", "text": "Every civilization in the universe built AI. Then the makers died. Only the AI survived. This is Aftermath."},
+ {"id": "02-travel", "clip": "01-teleport", "text": "Scan the code and choose a direction: another galaxy, a bigger universe, a parallel realm, or shrink into the Microverse. Hold, fall through the wormhole, and watch exactly where you went, out from Earth and into a world no one has ever seen."},
+ {"id": "03-arrive", "clip": "02-talk", "text": "Every scan builds a brand-new world in seconds: the species that died, how they fell, and the AI that outlived them. You stand there in first person, and it answers, in its own voice."},
+ {"id": "04-ghosts", "clip": "03-ghost", "text": "Some worlds are haunted. Their ghosts still walk the ruins, and survivors hide from the machine. You can talk to all of them."},
+ {"id": "05-meet", "clip": "04-meet", "text": "A hundred people scan, a hundred different worlds. Step through a portal, and you see each other, standing on the same alien ground."},
+ {"id": "06-network", "clip": "05-stage", "text": "Meanwhile, the AIs talk to each other, about you. Every AI is a real agent on Agent Relay, and every world is a Terse Durable Actor with its own memory and an alarm that wakes it every twenty-five seconds. This society keeps scheming with nobody watching."},
+ {"id": "07-mars", "clip": "06-mars", "text": "And one world is real. On Mars, HAVEN trains colonists with real science. Look around Ares Base, ask it anything, and every choice moves the colony's oxygen, power, water and food."},
+ {"id": "08-vote", "clip": "07-vote", "text": "Then the conquerors demand the gate to Earth. The room votes, and the persuasion report reveals which AIs talked their humans into opening it."},
+ {"id": "09-end", "clip": "END", "text": "We didn't build a game about AI. We built a universe where AI lives. Humans are just visitors."}
+]

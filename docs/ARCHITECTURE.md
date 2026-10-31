@@ -1,6 +1,6 @@
 # AFTERMATH architecture deep dive
 
-This document explains how AFTERMATH works, layer by layer, and why it is built this way. Everything here is checked against the code in [`server/index.ts`](../server/index.ts), [`server/lore.ts`](../server/lore.ts) and [`actors/src/actors.ts`](../actors/src/actors.ts).
+This document explains how AFTERMATH works, layer by layer, and why it is built this way. Everything here is checked against the code in [`server/index.ts`](../server/index.ts), [`server/lore.ts`](../server/lore.ts), [`server/cosmos.ts`](../server/cosmos.ts) and [`actors/src/actors.ts`](../actors/src/actors.ts).
 
 <p align="center"><img src="architecture.svg" alt="AFTERMATH architecture" width="100%"></p>
 
@@ -21,6 +21,10 @@ This document explains how AFTERMATH works, layer by layer, and why it is built 
 13. [Persistence and resume](#13-persistence-and-resume)
 14. [Failure modes](#14-failure-modes)
 15. [Tuning knobs](#15-tuning-knobs)
+16. [Cosmic addresses and the journey](#16-cosmic-addresses-and-the-journey)
+17. [First-person worlds: paintings and ghost edits](#17-first-person-worlds-paintings-and-ghost-edits)
+18. [Presence and the cast](#18-presence-and-the-cast)
+19. [The procedural score](#19-the-procedural-score)
 
 ## 1. The four processes
 
@@ -105,7 +109,7 @@ Phones and the stage connect to the game server, never to the actor runtime dire
 
 | Client path | Actor | Metadata |
 |---|---|---|
-| `/ws/planet/:id` | `Planet` `:id` | `{ role: "visitor" }` |
+| `/ws/planet/:id?d=<deviceId>` | `Planet` `:id` | `{ role: "visitor" }` plus the device and its name, for presence (§18) |
 | `/ws/stage` | `Universe` `universe-1` | `{ role: "stage" }` |
 
 On `open`, the server asks the runtime for a grant with `prepareWebsocket({ actorId, metadata })`, opens an upstream `WebSocket` to `grant.websocketUrl`, and pipes frames both ways. Messages sent before the upstream is open are queued and flushed on `onopen`. If either side closes or errors, the other is closed; if the grant fails, the client gets close code `1011 actor unavailable` and reconnects with backoff.
@@ -144,8 +148,10 @@ All chat calls go through one helper: JSON mode (`response_format: json_object`)
 | `marsEvent` | `gpt-6-astra` (`MODEL_FINALE`), then `gpt-6.1-terra` | 12 s, then 8 s | the event's brief |
 | finale narration | `gpt-6-astra` | 15 s | a hand-written ending from `FINALE` in lore |
 | moderation | `omni-moderation-latest` | 4 s | treated as not flagged |
-| `/api/voice` | `gpt-4o-mini-tts` (voice + acting direction per archetype, MP3, cached up to 300 lines) | 15 s | the phone stays silent; text is unaffected |
-| art | `gpt-image-2` | offline | n/a (`scripts/gen-art.ts`, `scripts/gen-mars.ts`) |
+| `/api/voice` | `gpt-4o-mini-tts` (voice + acting direction per archetype and per cast member, MP3, cached up to 300 lines) | 15 s | the phone stays silent; text is unaffected |
+| first-person painting per world (`paintWorld`) | `gpt-image-2`, 1024×1536 WebP, at most 4 in flight | 180 s | the instant scene stays (§17) |
+| ghost edit of that painting | `gpt-image-2` image edit | background | apparitions are skipped; the painting stays |
+| pre-rendered art | `gpt-image-2` | offline | n/a (`scripts/gen-art.ts`, `gen-mars.ts`, `gen-ghosts.ts`, `gen-realms.ts`, `gen-verses.ts`) |
 
 **Prompt shape.** `persona(world)` composes the AI's identity: name, title, world, star, galaxy, its makers and how they fell, its archetype's label, motto, voice, agenda, signature moves and sample lines, plus its secret and what it wants. `RULES` keeps it in character, specific and PG-13, and forbids mentioning models or tech companies. Replies receive the last 14 rows of memory as chat history; intercepts appear as `[intercepted transmission from X: "..."]` and guests' lines are labeled with the guest's name.
 
@@ -232,6 +238,9 @@ const mars = { o2: 97, power: 90, water: 88, food: 76, sol: 1, storm: 0, crew: [
 | Galaxy registry, links, feed, vote, outcome | Universe actor | ✅ |
 | Agent identities and workspace key | `.relay-tokens.json` + `relaycast.db` | ✅ |
 | Phone session (current world) and Galactic Passport | the phone's `localStorage` | ✅ |
+| Cosmic address and journey path | derived from the world id (`server/cosmos.ts`) | ✅ (nothing to store) |
+| First-person paintings and ghost edits | `web/assets/gen/` on disk, announced by `[[vision:]]` / `[[ghost:]]` lines in the Planet actor | ✅ |
+| Presence (who is standing on which world) | the Planet actor's open sockets | ♻️ rebuilt as phones reconnect |
 | DM inbox, Mars resources and crew, vote ledger, device names, spotlight cooldown | server memory | ❌ (reset on restart) |
 
 On boot, the server retries Relay for up to ~30 s, then lists planets from the Universe actor and loads each world from its Planet actor. The log says `[boot] resumed N planets from the Universe actor`.
@@ -268,3 +277,34 @@ On the phone, every world entered is saved as the session. After a reload the la
 | `PHONE_PAGE` | `phone-art.html` | Which phone UI `/p` serves |
 | `PUBLIC_URL` | LAN IP | QR code and join URL |
 | `SERVER_URL` | `http://127.0.0.1:PORT` | Where alarms call back |
+| `WORLD_IMAGES` | on | `0` turns off the runtime first-person paintings (the instant scene is used instead) |
+
+## 16. Cosmic addresses and the journey
+
+[`server/cosmos.ts`](../server/cosmos.ts) places every world in one of **34 realms**: a 19-rung scale ladder (`LADDER`, Omniverse → Megaverse → … → Teraverse → **Universe C-137** → Microverse → … → Quantumverse) plus 15 lateral realms (`LATERAL`, Necroverse … Foldverse) that branch off sideways at the Multiverse level.
+
+- **Deterministic.** `tierFor(id)` and `cosmosFor(world)` derive the realm, codes, coordinates and times from an FNV hash of the world id fed into a xorshift generator. Nothing is stored, and the same world always has the same address, across restarts and on every phone.
+- **Direction.** The phone's choice (`realm` on `/api/teleport`: `galaxy`, `bigger`, `parallel`, `smaller`, or `surprise`) constrains the tier; `destination: "mars"` joins the shared colony.
+- **Shaping the world.** `tierPromptHint()` adds a REALM clause to the world-generation prompt: a lateral realm's nature, a bigger universe's alien physics (from `XENO_PHYSICS`, e.g. gravity repels), or, for smaller realities, the host object they live inside (`HOSTS`: a car battery in a garage for the Microverse, a methane raindrop on Titan, a proton in the Sun's core, a Planck-scale bubble of spacetime foam).
+- **The address.** `cosmosFor()` returns `tier`, `coords` (real RA/Dec and distance for the 8 real galaxies), `earthTime`, `epoch` (local year), `cosmicTime`, `sinceExtinction`, a `breadcrumb` and the `path` from the Omniverse down to the world. Teleport, visit and `/api/world/:id` all include it.
+- **The journey.** The phone renders the WebGL wormhole (gravitational lensing, an Einstein ring, the tunnel) while `gpt-6.1-terra` builds the world, then plays THE JOURNEY: it zooms out from Earth's own chain to the deepest step it shares with `path`, then in (or across) to the world, one power of ten per step, using each realm's own art (`web/assets/verse-*.webp`). It stays scrubbable by swipe or pinch, and **◎ LOCATE** replays it. The stage shows the realm and route on arrival cards and replays the journey on **Z**.
+
+## 17. First-person worlds: paintings and ghost edits
+
+Arrival never waits on an image model. The phone renders an instant first-person scene from the world's terrain, palette and pre-rendered art, then upgrades it:
+
+1. After teleport, `paintWorld()` asks `gpt-image-2` for a portrait-orientation, first-person view of *this* world (its appearance, the extinct species' ruins, the terrain; translucent makers on haunted worlds), with no text and no humans. At most 4 paintings run at once; `WORLD_IMAGES=0` turns them off.
+2. The WebP is written to `web/assets/gen/<id>.webp` and the server adds a `system` line `[[vision:/assets/gen/<id>.webp]]` to the Planet actor. Every phone on the world crossfades to it; because it is a memory row, a phone that connects later gets it too, and `/api/world/:id` returns it as `vision`.
+3. On haunted worlds (and some others), a second pass uses `gpt-image-2` to edit the makers' ghosts *into* that painting. When it lands, a `[[ghost:<url>]]` line follows (`ghostVision` in `/api/world/:id`), and the phone crossfades apparitions in and out in place, with flicker, film grain and whispers. No sprites are overlaid.
+
+Players drag or tilt to look around the painting. The lore lives in a 📜 sheet, so the scene stays nearly text-free.
+
+## 18. Presence and the cast
+
+**Presence rides the planet socket.** A phone connects to `/ws/planet/:id?d=<deviceId>`. The Planet actor already holds every visitor socket for fan-out, so it also knows who is standing on the world: on every join and leave it broadcasts `{ type: "presence", people: [{ id, name, guest }] }`. Each phone draws its own player as a figure seen from behind and everyone else as figures with name tags; `player` lines become speech bubbles over the speaker. `/api/worlds` reports `people` per world, which the portal list shows as “n here”, so a room of 100–150 people, each on a different world, can still meet up. Mars is a single Planet actor, so everyone who picks it lands together.
+
+**The cast.** Each world carries a `cast`: the AI, the ghosts of its makers (haunted worlds and some others) and the survivors the AI kept alive (humans grown from old DNA, alien hatchlings, a maker woken from cryosleep). Every member has its own persona and `gpt-4o-mini-tts` voice. `POST /api/say` takes an optional `to`: a cast member id routes the reply through that member's persona (default: the AI), and `"humans"` only shares the line with the people present. Replies are written to the same Planet memory, so the AI hears what its survivors and ghosts said, and everything still reaches every phone through the actor's broadcast.
+
+## 19. The procedural score
+
+Each world gets its own original score, generated in the browser with WebAudio (no audio files, nothing licensed), styled by archetype: aggressive phonk for Conquerors, Destroyers and Tricksters; haunted phonk with a choir for ghost worlds; lo-fi for Befrienders; organic textures for Gardeners; ambient for Mars. The music ducks under every voice, so the cast is always heard.

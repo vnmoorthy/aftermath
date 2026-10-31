@@ -9,3 +9,10 @@ generated/
 relaycast.db*
 .relay-tokens.json
 .DS_Store
+web/assets/gen/
+
+video/build/
+video/raw/
+video/*.mp4
+renders/
+*.log

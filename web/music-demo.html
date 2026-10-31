@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AFTERMATH Score</title>
+<style>
+  :root { --bg: #07060d; --panel: #13111f; --line: #2a2640; --ink: #ece8ff; --dim: #9a93b8; --acc: #b388ff; --hot: #ff3b6d; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 20px; letter-spacing: .14em; margin: 0 0 4px; }
+  p.sub { color: var(--dim); margin: 0 0 20px; }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
+  h2 { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--dim); margin: 0 0 10px; font-weight: 600; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  button, select, input[type=text] { font: inherit; color: var(--ink); background: #1d1a2e; border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+  button { cursor: pointer; }
+  button:hover { border-color: var(--acc); }
+  button.on { background: var(--acc); color: #120d22; border-color: var(--acc); }
+  button.hot { border-color: var(--hot); }
+  input[type=text] { flex: 1; min-width: 160px; }
+  label.tog { display: inline-flex; gap: 8px; align-items: center; padding: 10px 4px; cursor: pointer; }
+  pre { margin: 0; white-space: pre-wrap; word-break: break-word; font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--dim); }
+</style>
+</head>
+<body>
+<main>
+  <h1>AFTERMATH · SCORE</h1>
+  <p class="sub">Procedural world music (WebAudio, no samples). Audio starts on your first click.</p>
+
+  <section>
+    <h2>World seed</h2>
+    <div class="row">
+      <input type="text" id="seed" value="world-1" aria-label="Seed (world id)">
+      <button id="rnd">Random seed</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Styles</h2>
+    <div class="row" id="styles"></div>
+  </section>
+
+  <section>
+    <h2>By archetype</h2>
+    <div class="row">
+      <select id="arch" aria-label="Archetype">
+        <option>conqueror</option><option>destroyer</option><option>trickster</option>
+        <option>haunted</option><option>broken</option>
+        <option>befriender</option><option>worshipper</option><option>archivist</option>
+        <option>human_gardener</option><option>alien_gardener</option>
+        <option>steward</option><option>mars-colony</option><option>survivor</option><option>unknown_thing</option>
+      </select>
+      <button id="playArch">Play archetype</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Controls</h2>
+    <div class="row">
+      <button id="duck">Duck: off</button>
+      <button id="warp" class="hot">Warp</button>
+      <button id="impact" class="hot">Impact</button>
+      <button id="teleport" class="hot">Teleport sequence</button>
+      <button id="stop">Stop</button>
+      <label class="tog"><input type="checkbox" id="enabled"> Music enabled</label>
+    </div>
+  </section>
+
+  <section>
+    <h2>Status</h2>
+    <pre id="status">AudioContext not created yet. Click any button.</pre>
+  </section>
+</main>
+<script src="/music.js"></script>
+<script>
+'use strict';
+(function () {
+  var AC = null, ducked = false;
+  var $ = function (id) { return document.getElementById(id); };
+
+  // The AudioContext is created (and resumed) on the first click, then handed to Score.
+  function audio() {
+    try {
+      if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+      if (AC.state !== 'running') AC.resume();
+      Score.init(AC);
+    } catch (e) { console.warn(e); }
+    return AC;
+  }
+  function seed() { return $('seed').value.trim() || 'world-1'; }
+  function mark(name) {
+    Array.prototype.forEach.call(document.querySelectorAll('#styles button'), function (b) { b.classList.toggle('on', b.dataset.style === name); });
+  }
+
+  (Score.styles || ['phonk', 'haunted', 'dreamy', 'organic', 'ambient', 'minimal']).forEach(function (name) {
+    var b = document.createElement('button');
+    b.textContent = name; b.dataset.style = name;
+    b.addEventListener('click', function () { audio(); Score.play(name, { seed: seed() }); mark(name); });
+    $('styles').appendChild(b);
+  });
+
+  $('rnd').addEventListener('click', function () {
+    $('seed').value = 'world-' + Math.random().toString(36).slice(2, 8);
+    var s = Score.style; if (s) { audio(); Score.play(s, { seed: seed() }); }
+  });
+  $('playArch').addEventListener('click', function () {
+    audio(); var st = Score.styleFor($('arch').value); Score.play(st, { seed: seed() }); mark(st);
+  });
+  $('duck').addEventListener('click', function () {
+    audio(); ducked = !ducked; Score.duck(ducked);
+    $('duck').textContent = 'Duck: ' + (ducked ? 'on' : 'off'); $('duck').classList.toggle('on', ducked);
+  });
+  $('warp').addEventListener('click', function () { audio(); Score.warp(); });
+  $('impact').addEventListener('click', function () { audio(); Score.impact(); });
+  $('stop').addEventListener('click', function () { audio(); Score.stop(1); mark(null); });
+  // Intended phone flow: fade the old world, wormhole riser, then arrival boom + the new world's score.
+  $('teleport').addEventListener('click', function () {
+    audio(); Score.stop(0.6); Score.warp(); mark(null);
+    var names = Score.styles, next = names[Math.floor(Math.random() * names.length)], s = 'world-' + Math.random().toString(36).slice(2, 8);
+    setTimeout(function () { Score.impact(); Score.play(next, { seed: s }); $('seed').value = s; mark(next); }, 3000);
+  });
+  $('enabled').checked = Score.enabled;
+  $('enabled').addEventListener('change', function () { audio(); Score.setEnabled($('enabled').checked); });
+
+  setInterval(function () {
+    if (!AC) return;
+    $('status').textContent = JSON.stringify(Score.stats(), null, 2);
+  }, 300);
+})();
+</script>
+</body>
+</html>

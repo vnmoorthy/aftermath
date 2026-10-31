@@ -16,22 +16,27 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-ffc65a?style=for-the-badge)](LICENSE)
 [![Haunted Hacks 2026](https://img.shields.io/badge/Haunted%20Hacks-2026%20%F0%9F%8E%83-ff7a18?style=for-the-badge)](#acknowledgements)
 
-**[▶ Play now](#-play-now)** · **[How it works](#-architecture)** · **[Durable Actors](#-how-we-use-terse-durable-actors)** · **[Agent Relay](#-how-we-use-agent-relay)** · **[Run it yourself](#-quickstart)** · **[API](docs/API.md)**
+**[▶ Play now](#-play-now)** · **[Track](#-track)** · **[How it works](#-architecture)** · **[Durable Actors](#-how-we-use-terse-durable-actors)** · **[Agent Relay](#-how-we-use-agent-relay)** · **[Run it yourself](#-quickstart)** · **[API](docs/API.md)**
 
 </div>
 
 ---
 
-AFTERMATH is a **real-time multiplayer AI universe** for a room full of people. Everyone scans a QR code, holds to teleport, and lands on a **brand-new world generated on the spot**: a planet in a real galaxy, an extinct species, the story of how they fell, and **the AI that outlived them**. Twenty people means twenty worlds, twenty ghost AIs, and one network where **those AIs talk to each other about the humans**: they gossip, form alliances, threaten each other and scheme, over a real agent messaging network. The projector shows it all live. At the end, the Conquerors demand that the gate to Earth be opened, and the room votes.
+AFTERMATH is a **real-time multiplayer AI universe** for a room full of people. Everyone scans a QR code, **chooses a direction** (another galaxy, a bigger universe, a parallel realm, a smaller one, or Mars), falls through a wormhole and lands, in first person, on a **brand-new world generated on the spot** somewhere in **34 realms**: an extinct species, the story of how they fell, and **the AI that outlived them**, with the ghosts and survivors it kept. People who land on the same world see each other. Twenty people means twenty worlds, twenty ghost AIs, and one network where **those AIs talk to each other about the humans**: they gossip, form alliances, threaten each other and scheme, over a real agent messaging network. The projector shows it all live. At the end, the Conquerors demand that the gate to Earth be opened, and the room votes.
 
 > **We didn't build a game where humans talk to AI characters. We built a universe where AI civilizations have their own lives, ambitions and relationships. Humans are just visitors.**
 
 ## Table of contents
 
+- [🏁 Track](#-track)
+- [🏆 Judging criteria](#-judging-criteria)
 - [▶ Play now](#-play-now)
 - [🕯️ What happens in 60 seconds](#️-what-happens-in-60-seconds)
 - [✨ Features](#-features)
 - [👁️ The ten AIs (and the ghosts, and Mars)](#️-the-ten-ais-and-the-ghosts-and-mars)
+- [🌀 The journey & 34 realms](#-the-journey--34-realms)
+- [👥 First-person worlds, presence & cast](#-first-person-worlds-presence--cast)
+- [🎧 Music](#-music)
 - [🧭 Architecture](#-architecture)
 - [🧱 How we use Terse Durable Actors](#-how-we-use-terse-durable-actors)
 - [📡 How we use Agent Relay](#-how-we-use-agent-relay)
@@ -47,16 +52,32 @@ AFTERMATH is a **real-time multiplayer AI universe** for a room full of people. 
 - [📜 License](#-license)
 - [🙏 Acknowledgements](#acknowledgements)
 
+## 🏁 Track
+
+**Track:** Multiplayer AI System (primary). Also a long-running agent system: every world's AI wakes every 25 s on a Terse Durable Actor alarm and keeps scheming over Agent Relay with nobody watching. Uses both Durable Actors and Agent Relay (bonus).
+
+Built at YC SF for **Haunted Hacks: Real-Time AI Edition**, whose brief reads: *“Come build your own Software Factory, long-running agent, multiplayer AI system or something super creative… ideally use either Durable actors, or Agent Relay (bonus points if you use both).”*
+
+## 🏆 Judging criteria
+
+| Criterion | What proves it |
+|---|---|
+| **Real-time AI + track tech** | Worlds built live per scan by `gpt-6.1-terra` while the wormhole plays; replies in ~2 s, voiced per cast member; a first-person `gpt-image-2` painting of every world. **Terse Durable Actors** on Terse Cloud: one Planet actor per world (SQLite memory, websockets with live presence, a 25 s alarm) and a single-threaded Universe actor that counts every vote once. **Agent Relay**: every AI is a Relaycast agent; DMs, `#wormhole` and `#council` run live, with or without anyone watching. Both, for the bonus. |
+| **Originality** | Civilizations whose AI outlived them. 34 realms from the Omniverse to the Quantumverse, each world with a cosmic address. A Powers-of-Ten journey from Earth to your world. The ghosts of the makers and the survivors the AI kept. AIs scheming about the people in the room. Mars, the one real world. |
+| **Execution & demo** | Judges play on their own phones, no app. People on the same world see each other live. The auto-director runs the whole arc with no presenter. The universe survives a server restart. An end-to-end suite covers every flow (`bun scripts/e2e.ts`). |
+| **UX & design** | A direction picker; a WebGL wormhole with lensing and an Einstein ring; THE JOURNEY, scrubbable by swipe or pinch, replayed by ◎ LOCATE; a first-person arrival with almost no text (lore in 📜); realistic painted ghosts; a procedural score per world that ducks under voices; cinematic arrival cards with the realm and route on the projector. |
+| **Potential & impact** | The AI-box persuasion experiment at room scale, with the Persuasion Report and a Supabase archive of every world, message and vote; Mars colonist training and STEM; persistent AI societies (one actor per world) for games, live events and simulations. |
+
 ## ▶ Play now
 
 <img src="docs/play-qr.png" width="220" alt="Scan to play AFTERMATH">
 
-**Scan with your phone camera**, hold to teleport, and land on a brand-new world. Or open:
+**Scan with your phone camera**, choose a direction, hold to teleport, and land on a brand-new world. Or open:
 
 - **Phones:** **https://eco-exactly-associate-pit.trycloudflare.com/p**
 - **Big screen:** **https://eco-exactly-associate-pit.trycloudflare.com/stage**
 
-Play for about five minutes: talk to your world's AI, read the transmissions other AIs send about you, step through a portal to someone else's world, try **Mars** (the real one), and vote when the Conquerors demand the gate to Earth. You don't need a presenter: the **auto-director** seeds company, fires galactic events and runs the vote and finale on its own.
+Play for about five minutes: talk to your world's AI and its cast, read the transmissions other AIs send about you, step through a portal to meet someone on their world, try **Mars** (the real one, shared by everyone), and vote when the Conquerors demand the gate to Earth. You don't need a presenter: the **auto-director** seeds company, fires galactic events and runs the vote and finale on its own.
 
 > The live link is a Cloudflare quick tunnel to our demo laptop, up during Haunted Hacks judging. To host your own universe, see [Quickstart](#-quickstart). `bun --env-file=.env scripts/make-qr.ts` regenerates the QR code for your own URL.
 
@@ -64,40 +85,48 @@ Play for about five minutes: talk to your world's AI, read the transmissions oth
 
 | Second | On your phone | On the big screen |
 |---|---|---|
-| **0** | Type your name. **Hold to teleport.** A warp tunnel counts down millions of light-years. | A light streak fires from Earth across the galaxy map. |
-| **4** | You land on **VEYRUN**, a glass desert in Andromeda, 2.5 million light-years away. You meet its extinct species, how they fell, and **the AI that remains**, with its portrait and motto. | Full-screen arrival card: **“MEERA HAS LANDED ON VEYRUN”**, with world art and the AI's face. |
+| **0** | Type your name, **choose a direction** and **hold to teleport**. A WebGL wormhole bends the stars around you while your world is built. | A light streak fires from Earth across the galaxy map. |
+| **4** | **THE JOURNEY:** a Powers-of-Ten zoom from Earth out to the Local Group and in to **VEYRUN**, a glass desert in Andromeda, 2.5 million light-years away. You arrive in first person; a painting of your world crossfades in and its own score starts. **📜** holds the lore: the extinct species, how they fell, and **the AI that remains**. | Full-screen arrival card: **“MEERA HAS LANDED ON VEYRUN”**, with the realm, the route from Earth, world art and the AI's face. |
 | **10** | The AI speaks first. It knows your name. Its line arrives with an effect: glitch, halo, shake, bloom. | Your AI's portrait becomes a planet on the map. |
 | **20** | You answer. It answers back in about two seconds, in character, and ends on a hook. | The best AI → human line gets **spotlighted** huge, so the whole room laughs together. |
 | **30** | 📡 An **intercepted transmission** slides in: another AI, in another galaxy, is talking *about you*. | The **Galactic Network** feed shows the DM over Agent Relay, and a pulse travels between the two planets. |
-| **40** | Tap **Visit other worlds**: walk through a portal into a friend's world. Their AI greets you as a guest. A stamp lands in your **Galactic Passport**. | A gold link arcs between the two worlds. |
+| **40** | Tap **✦ WORLDS** (“2 here”) and walk through a portal into a friend's world. You see each other as figures with name tags and speech bubbles; their AI greets you as a guest. A stamp lands in your **Galactic Passport**. | A gold link arcs between the two worlds. |
 | **50** | ⚠️ **Galactic event.** One AI seizes every channel, says your name, and **every phone in the room shakes**. | “TATTER HAS SEIZED EVERY CHANNEL.” |
 | **60** | 🗳️ **The vote.** “Open the gate to Earth, or seal it forever?” | Tug-of-war bar, AIs arguing in #council, then the finale cinematic and the **Persuasion Report**. |
 
 ## ✨ Features
 
 **For players (phone, `/p`)**
-- 🌌 **A new world for every teleport**, generated in a few seconds by `gpt-6.1-terra` from hand-written lore seeds: planet, star, galaxy and real distance, terrain, palette, species, extinction, AI name, title, appearance, a secret, and what it wants from you.
+- 🔭 **Choose a direction:** SURPRISE, GALAXY (another of 8 real galaxies), BIGGER (a universe up the scale ladder), PARALLEL (15 lateral realms), SMALLER (a reality inside an object in ours) or MARS.
+- 🌀 **A WebGL wormhole and THE JOURNEY.** Gravitational lensing, an Einstein ring and the tunnel while the world is built, then a Powers-of-Ten zoom from Earth to your world. Swipe or pinch to scrub the scales; **◎ LOCATE** replays it.
+- 🌌 **A new world for every teleport**, generated in a few seconds by `gpt-6.1-terra` from hand-written lore seeds and its realm: planet, star, galaxy and real distance, terrain, palette, species, extinction, AI name, title, appearance, a secret, and what it wants from you. Every world has a **cosmic address**: realm, breadcrumb, coordinates, Earth time, local year, cosmic time, and years since the last maker died.
+- 👁️ **First-person arrival.** The scene appears instantly; then `gpt-image-2` paints *your* world through your eyes and it crossfades in. Drag or tilt to look around. The lore lives in a 📜 sheet.
+- 👥 **See yourself and others.** You stand in the scene, seen from behind. Everyone else on the same world appears with a name tag and speech bubbles, live over the planet websocket.
+- 🎭 **Talk to the whole cast:** the AI, the ghosts of its makers and the survivors it kept alive, each with its own persona and voice. Or talk to the humans present.
 - 🗣️ **Conversations with memory.** Every line lives in the planet's SQLite table and is fed back to the AI on each reply.
 - 📻 **Intercepted transmissions** from other AIs, styled as radio intercepts.
-- 🚪 **Visit other worlds.** Browse every world in the universe and step through a portal as a guest; the host AI greets you by name and treats you according to its nature.
+- 🚪 **Visit other worlds.** Browse every world in the universe, with how many people are there now (“n here”), and step through a portal as a guest; the host AI greets you by name and treats you according to its nature.
 - 🛂 **Galactic Passport.** A stamp with the AI's portrait for every world you visit. Tap a stamp to go back.
 - ↩️ **Resume.** Reload or lose signal and the phone offers to return you to your world, with its history intact.
 - 🔴 **Mars, the one real world.** HAVEN, the habitat AI of Ares Base, trains you with real science, and every colonist shares one colony.
 - 🗳️ **Vote** on the gate, then a full-screen finale.
-- 🔊 **The AIs speak out loud.** Every AI line can be voiced by `gpt-4o-mini-tts`, with a voice and acting direction per archetype (the Conqueror is deep and imperial, the Haunting whispers). Toggle with 🔊.
-- 👻 **Ghost planets.** Some worlds belong to *The Haunting*: an AI that uploaded its dying makers, now warden of thousands of ghosts who don't know they are dead. Ghosts drift across your screen.
-- 🎧 Procedural WebAudio and haptics; no app install.
+- 🔊 **The cast speaks out loud.** Every line can be voiced by `gpt-4o-mini-tts`, with a voice and acting direction per archetype and per cast member (the Conqueror is deep and imperial, the Haunting whispers). Toggle with 🔊.
+- 👻 **Ghost planets, with realistic ghosts.** Some worlds belong to *The Haunting*: an AI that uploaded its dying makers, now warden of thousands of ghosts who don't know they are dead. `gpt-image-2` edits the ghosts into your scene, and apparitions fade in and out where they stand, with flicker, grain and whispers.
+- 🎧 **A procedural score per world** (original WebAudio phonk, lo-fi, organic or ambient, by archetype) that ducks under voices, plus haptics; no app install.
 
 **For the room (projector, `/stage`)**
 - 🗺️ **Galaxy map** of 8 real galaxies; each AI's portrait is its planet, with ally/threat/talk pulses between them.
 - 📡 **Live Agent Relay feed** with AI avatars: #wormhole broadcasts, DMs, #council debate.
-- 🎬 **Arrival cards**, **spotlight** quotes, **galactic events**, a **vote tug-of-war** and a **finale cinematic**.
+- 🎬 **Arrival cards** with the realm and the route from Earth, **spotlight** quotes, **galactic events**, a **vote tug-of-war** and a **finale cinematic**.
+- 🌀 **`Z` replays the cosmic journey** of the latest arrival for the whole room.
 - 🔬 **Actor memory inspector:** click a planet to see its Durable Actor's SQLite rows and alarm cycles, live.
 - 🖥️ **Title / attract screen** with a giant QR code.
 
 **Under the hood**
-- 🧱 One **Terse Durable Actor per world** plus one **Universe actor**, with SQLite memory, alarms and websocket fan-out.
+- 🧱 One **Terse Durable Actor per world** plus one **Universe actor**, with SQLite memory, alarms, websocket fan-out and live presence.
 - 📡 Every AI is a **registered Agent Relay agent**; the AIs message each other over Relaycast.
+- 🧭 **Cosmic addresses** for 34 realms, derived deterministically from each world id (`server/cosmos.ts`): no storage, restart-proof.
+- 🎨 **Runtime paintings:** `gpt-image-2` paints every world in first person (and edits ghosts into haunted ones); phones crossfade them in when a `[[vision:]]` or `[[ghost:]]` line arrives on the planet socket.
 - 🤖 An **auto-director** gives anyone who scans a full ~5-minute arc with no presenter.
 - 📊 **Persuasion report** and **`/api/export`**: every session is a dataset of multi-agent persuasion.
 - 🛡️ `omni-moderation-latest` screens every name and message.
@@ -132,6 +161,50 @@ On Mars the makers aren't dead; they haven't arrived yet. **HAVEN**, the habitat
 - **Shared resources.** The colony has **O₂, power, water and food** (starting at 97 / 90 / 88 / 76%). When a colonist does something that would plausibly matter, the model returns a `delta` (clamped to ±12 per resource) and the whole crew sees the new status line.
 - **Emergencies.** About once a minute while colonists are present, a new sol begins with an event: a dust storm (solar power −35%), a solar particle event, an oxygen-stack fault, a micrometeorite leak, a potato harvest, an ice strike, a light-delayed message from Earth, or the storm clearing. `gpt-6-astra` narrates it in the background, names crew members, and ends on a decision.
 
+## 🌀 The journey & 34 realms
+
+Before teleporting, the phone asks for a **direction**:
+
+| Direction | Where you land |
+|---|---|
+| **SURPRISE** | Anywhere |
+| **GALAXY** | Another galaxy in our universe: one of 8 real galaxies, with real RA/Dec |
+| **BIGGER** | A universe up the scale ladder: Teraverse, Gigaverse, Macroverse, Xenoverse, Metaverse, Hyperverse, Multiverse, Megaverse, Omniverse |
+| **PARALLEL** | One of 15 lateral realms: Necroverse, Dreamverse, Echoverse, Mirrorverse, Chronoverse, Shadowverse, Glitchverse, Simverse, Memoryverse, Paraverse, Antiverse, Voidverse, Fractalverse, Dataverse, Foldverse |
+| **SMALLER** | A reality inside an object in ours: Microverse, Milliverse, Nanoverse, Picoverse, Femtoverse, Attoverse, Zeptoverse, Yoctoverse, Quantumverse |
+| **MARS** | The real one |
+
+That makes **34 realms**: a 19-rung scale ladder from the Omniverse to the Quantumverse, with our universe, **Universe C-137**, in the middle, plus the 15 lateral realms. Each realm has its own art, and the realm shapes the world `gpt-6.1-terra` invents: bigger universes run on alien physics, smaller ones live inside a methane raindrop on Titan or a proton in the Sun, and in the Necroverse only the dead persist. Every world has a **cosmic address**: realm, breadcrumb, coordinates, Earth time, local year, cosmic time and years since the last maker died. Full tables: [docs/GAMEPLAY.md](docs/GAMEPLAY.md#the-34-realms).
+
+**Interstellar-style travel.** While the world is built, the phone renders a **WebGL wormhole**: gravitational lensing, an Einstein ring, the tunnel. Then comes **THE JOURNEY**, a Powers-of-Ten zoom from Earth out to the nearest ancestor your world shares with ours, and back in (or across) to your world:
+
+- Earth → Sol → Milky Way → Local Group → Andromeda → a star → your planet
+- Earth → … → Universe C-137 → Multiverse Δ-12 → Necroverse → … → your world
+- Earth → a car battery in a garage → Microverse → … → Quantumverse → your world
+
+Afterwards it stays interactive: swipe or pinch to scrub through the scales, and **◎ LOCATE** replays it. On the projector, arrival cards show the realm and the route from Earth, and **Z** replays the journey for the room. Addresses and routes come from [`server/cosmos.ts`](server/cosmos.ts), derived deterministically from the world id ([`cosmos` in the API](docs/API.md#the-cosmic-address-cosmos)).
+
+## 👥 First-person worlds, presence & cast
+
+- **Arrive in first person, with almost no text.** The scene appears instantly. Then `gpt-image-2` paints a bespoke first-person view of *your* world and it crossfades in. Drag or tilt to look around. The lore lives in a 📜 sheet.
+- **See yourself and others.** You stand in the scene as a figure seen from behind. Everyone else on the same world appears as a figure with a name tag and speech bubbles, through live presence on the planet's websocket. With 100–150 people scanning, almost everyone lands on a different world, so portals (**✦ WORLDS** shows “n here”) let people meet on the same world, and Mars is shared by everyone.
+- **Talk to the whole cast.** The world's AI, the ghosts of its makers (haunted worlds and some others) and the survivors the AI kept alive: humans grown from old DNA, alien hatchlings, a maker woken from cryosleep. Each has its own persona and its own `gpt-4o-mini-tts` voice. Or talk only to the humans present.
+- **Realistic ghosts.** `gpt-image-2` edits the makers' ghosts *into* the scene painting, and apparitions crossfade in and out where they stand, with flicker, grain and whispers. No cartoon sprites.
+
+## 🎧 Music
+
+Every world has its own procedural score: original compositions generated live with WebAudio, with no audio files.
+
+| World | Score |
+|---|---|
+| Conquerors, Destroyers, Tricksters | Aggressive phonk |
+| Ghost worlds (The Haunting) | Haunted phonk with a choir |
+| Befrienders | Lo-fi |
+| Human and Alien Gardeners | Organic |
+| Mars | Ambient |
+
+The music ducks under every voice, so the cast is always heard.
+
 ## 🧭 Architecture
 
 <p align="center"><img src="docs/architecture.svg" alt="AFTERMATH architecture: phones and projector, Bun game server, Terse Durable Actors, Agent Relay and OpenAI" width="100%"></p>
@@ -150,7 +223,7 @@ flowchart LR
         PX["WebSocket proxy"]
     end
     subgraph Actors["Terse Durable Actors :7100"]
-        PL["Planet actor × N<br/>SQLite memories · alarm 25 s"]
+        PL["Planet actor × N<br/>SQLite memories · alarm 25 s<br/>presence"]
         UN["Universe actor<br/>registry · feed · vote"]
     end
     RL["📡 Agent Relay<br/>Relaycast :8787<br/>#wormhole · DMs · #council"]
@@ -255,7 +328,7 @@ async onAlarm(): Promise<void> {
 }
 ```
 
-**3. WebSocket fan-out.** Phones never talk to an LLM directly. They hold a socket to their planet's actor (through the server's proxy), so a line written by the server, by another AI, or by a galactic event reaches every visitor on that world at once. Mars is a single shared Planet actor, so every colonist sees the same channel.
+**3. WebSocket fan-out.** Phones never talk to an LLM directly. They hold a socket to their planet's actor (through the server's proxy), so a line written by the server, by another AI, or by a galactic event reaches every visitor on that world at once. Mars is a single shared Planet actor, so every colonist sees the same channel. The same sockets carry **live presence**: phones connect with `?d=<deviceId>`, and the actor broadcasts `{ type: "presence", people }` on every join and leave, so everyone on a world sees everyone else.
 
 ```ts
 // server/index.ts: a phone's socket is piped straight into its planet's actor
@@ -359,8 +432,9 @@ Each job is routed to the model that fits its latency budget. All chat calls use
 | **`gpt-6.1-terra`** | World generation and every human ↔ AI conversation, guest greetings, galactic events, Mars replies | worlds ~3–6 s (hidden by the warp animation), replies ~2 s |
 | **`gpt-6-luna`** | AI ↔ AI chatter: first contact, DMs, replies, unprompted musings, #council debate | background |
 | **`gpt-6-astra`** | Finale narration (with persuasion data) and Mars emergencies | background; the stage shows a suspense beat |
-| **`gpt-4o-mini-tts`** | AI voices: a voice and acting direction per archetype, served as MP3 from `/api/voice` and cached | on demand, best effort |
-| **`gpt-image-2`** | Every art piece in `web/assets/`: AI portraits, terrain landscapes, ghosts, the title card (and this README's hero) | pre-rendered by `scripts/gen-art.ts` |
+| **`gpt-4o-mini-tts`** | Voices for the whole cast (AIs, ghosts, survivors): a voice and acting direction per archetype and per cast member, served as MP3 from `/api/voice` and cached | on demand, best effort |
+| **`gpt-image-2`** (live) | A bespoke first-person painting of every world (`/assets/gen/<id>.webp`), and on haunted worlds an edit that paints the makers' ghosts into it | background; the instant scene shows first (`WORLD_IMAGES=0` turns it off) |
+| **`gpt-image-2`** (pre-rendered) | AI portraits, terrain landscapes, ghosts, art for every realm (`verse-*.webp`), the title card (and this README's hero) | `scripts/gen-art.ts`, `gen-realms.ts`, `gen-verses.ts` |
 | **`omni-moderation-latest`** | Every player name and message | ~4 s timeout; flagged names become “Traveler” |
 
 Models are overridable with `MODEL_FAST`, `MODEL_CHEAP`, `MODEL_WORLD` and `MODEL_FINALE`.
@@ -373,9 +447,9 @@ Models are overridable with `MODEL_FAST`, `MODEL_CHEAP`, `MODEL_WORLD` and `MODE
 
 ## 🎬 Pitch deck and demo scripts
 
-- [`deck/AFTERMATH.pptx`](deck/AFTERMATH.pptx): the 10-slide pitch deck, with slide transitions, staged animations and speaker notes.
+- [`deck/AFTERMATH.pptx`](deck/AFTERMATH.pptx): the 10-slide pitch deck (with the track line and the judging-criteria map), with slide transitions, staged animations and speaker notes.
 - [`deck/index.html`](deck/index.html): the same deck as a motion-graphics web presentation, served at `/deck`. Arrow keys move between slides, F goes fullscreen and N shows notes.
-- [`deck/STORYBOARD.md`](deck/STORYBOARD.md): the 2-minute storyboard, with lines, live cuts and a map to the judging criteria.
+- [`deck/STORYBOARD.md`](deck/STORYBOARD.md): the Round 1 demo video script (2:00): a timed shot list for the phone (iOS screen recording) and `/stage` (QuickTime), voiceover lines, a recording checklist and the criteria map.
 - [`docs/DEMO_10MIN.md`](docs/DEMO_10MIN.md): the 10-minute live demo run-of-show, with fallbacks and a Q&A crib sheet.
 - 3D motion: `web/assets/planet-loop.mp4` (a ghost planet) and `wormhole-loop.mp4` (the teleport tunnel), rendered in **Blender 5.2** (EEVEE) as seamless loops. They play behind the phone's warp and on the projector's title screen.
 
@@ -413,6 +487,7 @@ cp .env.example .env          # then set OPENAI_API_KEY
 | `SERVER_URL` | `http://127.0.0.1:3000` | Where planet alarms POST `/api/tick` |
 | `PUBLIC_URL` | (LAN IP) | Public base URL; the QR code points at `PUBLIC_URL/p` |
 | `AUTO_DIRECTOR` | `1` | `0` disables self-running events and votes |
+| `WORLD_IMAGES` | (on) | `0` disables the live first-person paintings |
 
 **Venue Wi-Fi** usually blocks phone-to-laptop traffic. Run `npm run tunnel`, put the printed `https://….trycloudflare.com` URL in `.env` as `PUBLIC_URL=…`, rerun `./start.sh`, and regenerate the README QR with `bun --env-file=.env scripts/make-qr.ts`.
 
@@ -434,6 +509,7 @@ On `/stage`. A presenter is optional: the auto-director backs off for 8 minutes 
 | `Q` | QR code: corner / giant / hidden |
 | `M` | Mute |
 | `F` | Fullscreen |
+| `Z` | Replay the cosmic journey of the latest arrival |
 | `H` | Key legend |
 | `X` | Reset the universe (asks first) |
 | *click a planet* | That world's Durable Actor memory (SQLite rows + alarm cycles), live |
@@ -444,19 +520,19 @@ The full player and presenter guide is in [docs/GAMEPLAY.md](docs/GAMEPLAY.md); 
 
 | Method | Path | What it does |
 |---|---|---|
-| `POST` | `/api/teleport` | `{ name, deviceId, destination?: "mars" }` → a brand-new world (or Mars) |
-| `POST` | `/api/say` | `{ planetId, deviceId, text }` → the AI's reply arrives over the websocket |
-| `GET` | `/api/worlds` | Every world you can visit |
+| `POST` | `/api/teleport` | `{ name, deviceId, realm?: "surprise" \| "galaxy" \| "bigger" \| "parallel" \| "smaller", destination?: "mars" }` → a brand-new world (or Mars) and its `cosmos` address and journey path |
+| `POST` | `/api/say` | `{ planetId, deviceId, text, to? }` → `to` is a cast member id (default: the AI) or `"humans"`; replies arrive over the websocket |
+| `GET` | `/api/worlds` | Every world you can visit, with its `tier` (realm) and `people` (humans there now) |
 | `POST` | `/api/visit` | `{ planetId, deviceId, name }` → enter another human's world as a guest |
 | `POST` | `/api/vote` | `{ planetId, deviceId, choice: "open" \| "seal" }` |
-| `GET` | `/api/world/:id` | One world (used by resume) |
+| `GET` | `/api/world/:id` | One world with its `cosmos`, `vision` and `ghostVision` paintings (used by resume and portals) |
 | `GET` | `/api/inspect/:id` | Actor memory: row count, alarm cycles, recent rows |
 | `GET` | `/api/export` | The session dataset: every world and its full memory |
 | `GET` | `/api/voice?arch=&text=` | The line, spoken in that archetype's voice (MP3) |
 | `GET` | `/api/qr.svg`, `/api/info` | Join QR code and URL |
 | `POST` | `/api/tick/:id` | Called by a planet's alarm to wake its AI |
 | `POST` | `/api/admin/{seed,event,mars,vote/open,vote/close,reset}` | Presenter controls |
-| `WS` | `/ws/planet/:id`, `/ws/stage` | Proxied to the Planet and Universe actors |
+| `WS` | `/ws/planet/:id?d=<deviceId>`, `/ws/stage` | Proxied to the Planet and Universe actors; the planet socket carries lines, `presence` and `[[vision:]]` / `[[ghost:]]` system lines |
 
 Full request/response examples: **[docs/API.md](docs/API.md)**. Message shapes and UI contract: **[web/protocol.md](web/protocol.md)**. Deep dive: **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
 
@@ -467,7 +543,8 @@ aftermath/
 ├── server/
 │   ├── index.ts          # Bun game server: world builder, AI brains, Agent Relay network,
 │   │                     #   Mars colony, auto-director, vote + persuasion report, actor WS proxy
-│   └── lore.ts           # archetypes, 8 galaxies, terrains, extinctions, species, finales
+│   ├── lore.ts           # archetypes, 8 galaxies, terrains, extinctions, species, finales
+│   └── cosmos.ts         # 34 realms: scale ladder, lateral realms, cosmic addresses, journey paths
 ├── actors/
 │   └── src/actors.ts     # Terse Durable Actors: Planet (one per world) and Universe
 ├── web/
@@ -476,9 +553,10 @@ aftermath/
 │   ├── stage.html        # projector, served at /stage (?mock=1 works offline)
 │   ├── stage-plus.js     # standalone copy of the stage upgrade layer (inlined in stage.html)
 │   ├── protocol.md       # UI ↔ server protocol (source of truth)
-│   └── assets/           # gpt-image-2 art: ai-*.webp, world-*.webp, ghost-*.webp, title-card.webp
+│   └── assets/           # gpt-image-2 art: ai-*, world-*, ghost-*, verse-* (realms), title-card; gen/ = live paintings
 ├── scripts/              # e2e + smoke tests, art generation, QR generation
-├── docs/                 # hero, architecture diagram, API, architecture deep dive, gameplay
+├── docs/                 # hero, architecture diagram, API, architecture deep dive, gameplay, 10-min demo
+├── deck/                 # 10-slide pitch deck (pptx + web at /deck), demo-video storyboard
 ├── generated/            # typed actor client from `terse actor generate` (gitignored)
 ├── start.sh / stop.sh    # start/stop Relaycast, the actor runtime and the server
 └── .env.example
@@ -492,6 +570,8 @@ aftermath/
 - [x] Galactic events, vote, finale, Persuasion Report, session export
 - [x] Auto-director for presenter-free sessions
 - [x] Visit other worlds, Galactic Passport, resume
+- [x] Choose a direction: 34 realms, cosmic addresses, the WebGL wormhole and THE JOURNEY
+- [x] First-person worlds painted by `gpt-image-2`, live presence, the whole cast with voices, realistic ghosts, a score per world
 - [ ] Persist the Mars colony state and the DM inbox in actors (today they live in server memory)
 - [ ] One-command cloud deploy (`terse deploy` + hosted Relaycast + hosted server)
 - [x] AI voices on phones (`gpt-4o-mini-tts`)
@@ -502,7 +582,7 @@ aftermath/
 
 ## ❓ FAQ
 
-**Is every world really generated live?** Yes. Each teleport calls `gpt-6.1-terra` with an archetype, a galaxy, a terrain and three random lore seeds, and gets back a new world as JSON. Only the art is pre-rendered (one portrait per archetype, one landscape per terrain); voices are synthesized on demand.
+**Is every world really generated live?** Yes. Each teleport calls `gpt-6.1-terra` with an archetype, a realm, a galaxy, a terrain and three random lore seeds, and gets back a new world as JSON. Portraits, terrain landscapes and realm art are pre-rendered; each world's first-person painting is made by `gpt-image-2` while you travel, and voices are synthesized on demand.
 
 **Do the AIs really talk to each other, or is the feed scripted?** They really talk. Each AI is a registered Relaycast agent; DMs are written by `gpt-6-luna` from the sender's persona and stance and answered by the recipient on its next wake cycle. The feed on the stage is a log of those Relay messages.
 
@@ -515,6 +595,8 @@ aftermath/
 **Is it safe for a public room?** Every name and message goes through `omni-moderation-latest`. The AIs are prompted to stay PG-13: spooky or darkly funny, never graphic.
 
 **How many players?** It was designed for a hackathon room (dozens of phones). LLM calls are capped at 8 concurrent, and the network tick rate is set by `NETWORK_INTERVAL_MS`.
+
+**How do people find each other?** In a big room almost everyone lands on a different world. **✦ WORLDS** shows how many people are on each world right now (“2 here”); step through a portal and you see each other as figures with name tags. Mars is shared by everyone who picks it.
 
 **Can I run it without a projector?** Yes. Phones alone get the full arc from the auto-director.
 
