@@ -259,22 +259,25 @@ body.quake #world{animation:shake .5s ease-in-out 2}
 @media (max-height:780px){#landing h1{font-size:34px;margin:4px 0 6px}#landing .lore{font-size:15px}#name{margin:10px 0 10px;padding:10px 14px}#hold{width:128px;height:128px}#marsBtn{margin-top:8px;padding:8px 14px}.hint{margin-top:6px}}
 
 /* scan-to-play QR so others can join from this screen */
-#joinQR{position:fixed;right:14px;top:calc(14px + var(--st));z-index:20;background:#fff;border:1px solid rgba(255,198,90,.55);border-radius:14px;padding:8px 8px 6px;text-align:center;backdrop-filter:blur(6px)}
-#joinQR img{display:block;width:96px;height:96px;filter:invert(1)}
-#joinQR span{display:block;margin-top:4px;font:700 9px var(--mono);letter-spacing:.16em;color:#111}
-@media (min-width:700px){#joinQR img{width:200px;height:200px}#joinQR span{font-size:12px}}
+#holdRow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;width:100%}
+#holdRow #hold{align-self:center}
+#joinQR{justify-self:center;background:#fff;border-radius:12px;padding:6px 6px 4px;text-align:center;box-shadow:0 0 24px rgba(255,198,90,.25)}
+#joinQR img{display:block;width:78px;height:78px;filter:invert(1)}
+#joinQR span{display:block;margin-top:3px;font:700 8px var(--mono);letter-spacing:.12em;color:#111}
+@media (min-width:700px){#joinQR img{width:150px;height:150px}#joinQR span{font-size:11px}}
 body:not(.landing-on) #joinQR{display:none}
 </style>
 </head>
 <body class="landing-on">
-<div id="joinQR"><img src="/api/qr.svg" alt="Scan to play AFTERMATH"><span>SCAN TO PLAY</span></div>
 <section id="landing" class="screen on">
   <div class="kick">◉ wormhole open</div>
   <h1>AFTERMATH</h1>
   <p class="lore">Every civilization in the universe built AI. Then the makers died. <em>Only the AI survived.</em> Tonight, you can visit.</p>
   <input id="name" maxlength="24" placeholder="Your name, traveler" autocomplete="off" enterkeyhint="go">
   <div id="realmBox"><div class="rlabel">WHERE TO?</div><div id="realms"></div><div id="realmHint"></div></div>
+  <div id="holdRow"><span></span>
   <button id="hold" aria-label="Hold to teleport"><span>HOLD TO<br>TELEPORT<small>keep holding</small></span></button>
+  <div id="joinQR"><img src="/api/qr.svg" alt="Scan to play AFTERMATH"><span>SCAN TO PLAY</span></div></div>
   <div class="hint">every teleport opens a world no one has seen</div>
   <button id="resume"></button>
   <button id="marsBtn">or teleport to <b>MARS</b> · the real one →<small>live on humanity's first colony · real science</small></button>
