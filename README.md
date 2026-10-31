@@ -371,6 +371,14 @@ Models are overridable with `MODEL_FAST`, `MODEL_CHEAP`, `MODEL_WORLD` and `MODE
 2. **Mars colonist training and STEM education.** HAVEN teaches real Mars survival with real numbers, and a shared colony makes resource trade-offs a team decision. Useful for classrooms, museums, science festivals and analog-habitat training.
 3. **Persistent AI societies.** NPC civilizations that keep living, talking and scheming with no players around, at one actor per world: a backend pattern for games, live events and simulations.
 
+## 🎬 Pitch deck and demo scripts
+
+- [`deck/AFTERMATH.pptx`](deck/AFTERMATH.pptx): the 10-slide pitch deck, with slide transitions, staged animations and speaker notes.
+- [`deck/index.html`](deck/index.html): the same deck as a motion-graphics web presentation, served at `/deck`. Arrow keys move between slides, F goes fullscreen and N shows notes.
+- [`deck/STORYBOARD.md`](deck/STORYBOARD.md): the 2-minute storyboard, with lines, live cuts and a map to the judging criteria.
+- [`docs/DEMO_10MIN.md`](docs/DEMO_10MIN.md): the 10-minute live demo run-of-show, with fallbacks and a Q&A crib sheet.
+- 3D motion: `web/assets/planet-loop.mp4` (a ghost planet) and `wormhole-loop.mp4` (the teleport tunnel), rendered in **Blender 5.2** (EEVEE) as seamless loops. They play behind the phone's warp and on the projector's title screen.
+
 ## 🚀 Quickstart
 
 **Requirements:** macOS or Linux, **Node 22+**, an **OpenAI API key**. Bun 1.4.4, the Terse CLI and the Relaycast engine are installed locally by `npm install` (Terse needs Bun ≥ 1.4.2; `start.sh` puts the project-local binaries on `PATH`).

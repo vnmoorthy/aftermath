@@ -8,14 +8,14 @@
 <meta name="description" content="AFTERMATH: the universe AI inherited. A 10-slide motion-graphics pitch deck. Arrow keys / space to advance, F fullscreen, N speaker notes.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=JetBrains+Mono:wght@400;600;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Inter+Tight:wght@300;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#05030c;--ink:#f1ebff;--dim:#9a90b8;--lav:#c9b8ec;--gold:#ffc65a;--red:#ff3b3b;--pink:#ff5d7d;--cyan:#5ee6ff;--mars:#ff9a52;--green:#7dff7a;--violet:#b388ff;
+  --bg:#0a0a0b;--ink:#f5f4f0;--dim:#8e8e93;--lav:#c8c6c0;--gold:#b89b5e;--red:#ff3b3b;--pink:#ff5d7d;--cyan:#5ee6ff;--mars:#ff9a52;--green:#7dff7a;--violet:#b388ff;
   --line:rgba(160,140,255,.24);--panel:rgba(14,10,30,.86);
-  --serif:Cinzel,'Trajan Pro',Georgia,'Times New Roman',serif;
+  --serif:'Inter Tight','Helvetica Neue',Helvetica,Arial,sans-serif;
   --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
-  --sans:Rajdhani,'Avenir Next','Segoe UI','Helvetica Neue',Arial,sans-serif;
+  --sans:Inter,'Helvetica Neue',Helvetica,Arial,sans-serif;
   --s:1;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -289,7 +289,6 @@ html.still .slide,html.still .r,html.still .bg,html.still .rule,html.still .fill
 <i>CUE: advance on &quot;inherited&quot;.</i>">
   <div class="bg"></div><div class="worm"></div><div class="shade"></div>
   <h1 class="ttlHidden">AFTERMATH: The universe AI inherited</h1>
-  <div class="q r" style="--d:2">&ldquo;The only limit is your imagination.&rdquo;</div>
   <div class="sub r" style="--d:6">Every civilization built AI. Only the AI survived. Tonight, you can visit.</div>
   <div class="ev r" style="--d:10"><span><b>HAUNTED HACKS</b> · REAL-TIME AI EDITION · YC SAN FRANCISCO · OCT 31 2026</span><span>TERSE DURABLE ACTORS · AGENT RELAY · OPENAI</span></div>
 </section>
@@ -883,5 +882,7 @@ Pause. &quot;Scan it. The universe is still running.&quot; <i>Leave the QR up fo
   go(isNaN(start) ? 0 : start - 1);
 })();
 </script>
+<video class="bgPlanet" src="assets/planet-loop.mp4" poster="assets/planet-poster.png" autoplay muted loop playsinline></video>
+<style>.bgPlanet{position:fixed;right:-8vw;bottom:-14vh;width:58vw;z-index:0;opacity:.32;mix-blend-mode:screen;pointer-events:none;-webkit-mask-image:radial-gradient(circle,#000 40%,transparent 70%);mask-image:radial-gradient(circle,#000 40%,transparent 70%)}</style>
 </body>
 </html>

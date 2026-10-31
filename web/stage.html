@@ -1697,6 +1697,7 @@ function frame(ts) {
   #spot.all .spTxt{font-size:3.4vw}
   #spot.all .spWho{font-size:1.4vw;color:#ff5d6c}
   #attract{z-index:70;background:#000 center/cover no-repeat}
+  #attract .atPlanet{position:absolute;left:24vw;top:22vh;width:46vw;mix-blend-mode:screen;opacity:.95;-webkit-mask-image:radial-gradient(circle at 50% 50%,#000 42%,transparent 70%);mask-image:radial-gradient(circle at 50% 50%,#000 42%,transparent 70%)}
   #attract .atShade{position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,transparent 30%,rgba(0,0,0,.75))}
   #attract .atQR{position:absolute;right:5vw;bottom:8vh;text-align:center;padding:2vh 1.6vw;border-radius:20px;background:rgba(6,4,16,.82);border:1px solid rgba(255,198,90,.6);box-shadow:0 0 60px rgba(255,198,90,.25)}
   #attract .atQR img{width:17vw;height:17vw;display:block}
@@ -1725,7 +1726,7 @@ function frame(ts) {
   const mk = (id, html) => { const el = document.createElement('div'); el.id = id; el.innerHTML = html; document.body.appendChild(el); return el; };
   const arrival = mk('arrival', '<div class="arBg"></div><div class="arShade"></div><div class="arBody"></div>');
   const spot = mk('spot', '<div class="spCard"><img alt=""><div><div class="spWho"></div><div class="spTxt"></div></div></div>');
-  const attract = mk('attract', '<div class="atShade"></div><div class="atLine">Every civilization in the universe built AI. Then the makers died. <em>Only the AI survived.</em><br>Tonight, we opened a wormhole.</div><div class="atQR"><b>SCAN TO TELEPORT</b><img alt="QR code"><span></span></div>');
+  const attract = mk('attract', '<video class="atPlanet" src="/assets/planet-loop.mp4" autoplay muted loop playsinline></video><div class="atShade"></div><div class="atLine">Every civilization in the universe built AI. Then the makers died. <em>Only the AI survived.</em><br>Tonight, we opened a wormhole.</div><div class="atQR"><b>SCAN TO TELEPORT</b><img alt="QR code"><span></span></div>');
   attract.style.backgroundImage = 'url(/assets/title-card.webp)';
   attract.querySelector('.atQR img').src = '/api/qr.svg';
   fetch('/api/info').then((r) => r.json()).then((i) => { attract.querySelector('.atQR span').textContent = String(i.joinUrl || '').replace(/^https?:\/\//, ''); }).catch(() => {});

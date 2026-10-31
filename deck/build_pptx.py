@@ -22,15 +22,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(HERE, "assets")
 OUT = os.path.join(HERE, "AFTERMATH.pptx")
 
-TITLE_FONT = os.environ.get("AFTERMATH_TITLE_FONT", "Georgia")  # Cinzel-like: caps + wide tracking
-BODY_FONT = "Avenir Next"
+TITLE_FONT = os.environ.get("AFTERMATH_TITLE_FONT", "Helvetica Neue")  # Cinzel-like: caps + wide tracking
+BODY_FONT = "Helvetica Neue"
 MONO_FONT = "Menlo"
 
-BG = "05030C"
-INK = "F1EBFF"
-DIM = "9A90B8"
+BG = "0A0A0B"
+INK = "F5F4F0"
+DIM = "8E8E93"
 LAV = "C9B8EC"
-GOLD = "FFC65A"
+GOLD = "B89B5E"
 RED = "FF3B3B"
 PINK = "FF5D7D"
 CYAN = "5EE6FF"
@@ -633,7 +633,7 @@ def title(s, t, y=0.92, size=34, w=12.1, h=0.75, color=INK, name="!!title"):
 # ============================================================================= 1. TITLE
 s = new_slide()
 bgp = pic(s, BG1, 0, 0, SW, SH, shape_name="!!bgart")
-q = text(s, 1.2, 3.72, 10.93, 0.7, [[("“The only limit is your imagination.”", {})]], size=27, font=TITLE_FONT, italic=True,
+q = text(s, 1.2, 3.72, 10.93, 0.7, [[("A multiplayer universe of AI civilizations.", {})]], size=27, font=TITLE_FONT, italic=True,
          color=GOLD, align="c", shadow=True)
 sub = text(s, 1.2, 4.42, 10.93, 0.4, ["Every civilization built AI. Only the AI survived. Tonight, you can visit."], size=15,
            font=BODY_FONT, color=INK, align="c", shadow=True)

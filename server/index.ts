@@ -894,9 +894,25 @@ async function route(req: Request, url: URL): Promise<Response> {
             const r = planets.get(decodeURIComponent(p.slice("/api/world/".length)))
             return r ? json(r.world) : json({ error: "unknown planet" }, 404)
         }
-        if (p.startsWith("/assets/") && /^\/assets\/[\w.-]+\.(webp|png|jpg|svg|woff2)$/.test(p)) {
+        if (p.startsWith("/assets/") && /^\/assets\/[\w.-]+\.(webp|png|jpg|svg|woff2|mp4)$/.test(p)) {
             const f = Bun.file(join(WEB, p.slice(1)))
-            if (await f.exists()) return new Response(f, { headers: { "cache-control": "public, max-age=3600" } })
+            if (await f.exists()) {
+                // Byte ranges: iOS Safari will only play video that supports them.
+                const range = req.headers.get("range")
+                if (p.endsWith(".mp4") && range) {
+                    const m = /bytes=(\d*)-(\d*)/.exec(range)
+                    const size = f.size
+                    const start = m && m[1] ? Number(m[1]) : 0
+                    const end = m && m[2] ? Math.min(Number(m[2]), size - 1) : size - 1
+                    return new Response(f.slice(start, end + 1), { status: 206, headers: { "content-type": "video/mp4", "content-range": `bytes ${start}-${end}/${size}`, "accept-ranges": "bytes", "content-length": String(end - start + 1), "cache-control": "public, max-age=3600" } })
+                }
+                return new Response(f, { headers: { "cache-control": "public, max-age=3600", ...(p.endsWith(".mp4") ? { "accept-ranges": "bytes", "content-type": "video/mp4" } : {}) } })
+            }
+        }
+        if (p === "/deck" || p === "/deck/") return new Response(Bun.file(join(ROOT, "deck/index.html")), { headers: { "content-type": "text/html; charset=utf-8" } })
+        if (p.startsWith("/deck/") && /^\/deck\/assets\/[\w.-]+\.(webp|png|jpg|svg|mp4)$/.test(p)) {
+            const f = Bun.file(join(ROOT, p.slice(1)))
+            if (await f.exists()) return new Response(f)
         }
         if (p === "/api/admin/vote/open" && req.method === "POST") return json({ vote: await openVote() })
         if (p === "/api/admin/vote/close" && req.method === "POST") return json(await closeVote())
