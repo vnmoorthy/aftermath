@@ -259,9 +259,9 @@ body.quake #world{animation:shake .5s ease-in-out 2}
 @media (max-height:780px){#landing h1{font-size:34px;margin:4px 0 6px}#landing .lore{font-size:15px}#name{margin:10px 0 10px;padding:10px 14px}#hold{width:128px;height:128px}#marsBtn{margin-top:8px;padding:8px 14px}.hint{margin-top:6px}}
 
 /* scan-to-play QR so others can join from this screen */
-#joinQR{position:fixed;right:14px;top:calc(14px + var(--st));z-index:20;background:rgba(5,3,12,.78);border:1px solid rgba(255,198,90,.55);border-radius:14px;padding:8px 8px 6px;text-align:center;backdrop-filter:blur(6px)}
-#joinQR img{display:block;width:96px;height:96px}
-#joinQR span{display:block;margin-top:4px;font:700 9px var(--mono);letter-spacing:.16em;color:var(--gold)}
+#joinQR{position:fixed;right:14px;top:calc(14px + var(--st));z-index:20;background:#fff;border:1px solid rgba(255,198,90,.55);border-radius:14px;padding:8px 8px 6px;text-align:center;backdrop-filter:blur(6px)}
+#joinQR img{display:block;width:96px;height:96px;filter:invert(1)}
+#joinQR span{display:block;margin-top:4px;font:700 9px var(--mono);letter-spacing:.16em;color:#111}
 @media (min-width:700px){#joinQR img{width:200px;height:200px}#joinQR span{font-size:12px}}
 body:not(.landing-on) #joinQR{display:none}
 </style>
