@@ -1,0 +1,11 @@
+node_modules/
+actors/node_modules/
+actors/.durable-actors/
+generated/
+.env
+.env.*
+!.env.example
+*.log
+relaycast.db*
+.relay-tokens.json
+.DS_Store

@@ -1,0 +1,23 @@
+{
+  "name": "aftermath",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "relay": "relaycast-engine --port 8787 --db ./relaycast.db",
+    "actors": "cd actors && PATH=\"$PWD/../node_modules/.bin:$PATH\" terse actor dev",
+    "generate": "PATH=\"$PWD/node_modules/.bin:$PATH\" terse actor generate",
+    "server": "bun --env-file=.env server/index.ts",
+    "tunnel": "cloudflared tunnel --url http://localhost:3000"
+  },
+  "dependencies": {
+    "@relaycast/engine": "^12.3.0",
+    "@relaycast/sdk": "^12.3.0",
+    "bun": "^1.4.4",
+    "durable-actors": "^0.14.6",
+    "openai": "^7.47.0",
+    "qrcode": "^1.5.4",
+    "terse-cli": "^0.14.9",
+    "terse-sdk": "^0.14.9"
+  }
+}

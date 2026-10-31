@@ -1,0 +1,22 @@
+const base = "http://localhost:3000"
+const ws = new WebSocket("ws://localhost:3000/ws/stage")
+ws.onmessage = e => {
+  const m = JSON.parse(String(e.data))
+  if (m.type === "snapshot") console.log("SNAPSHOT planets", m.planets.length, "links", m.links.length, "feed", m.feed.length, m.feed.slice(-3).map((f: any) => `${f.fromName}${f.toName ? " -> " + f.toName : ""} [${f.channel}]: ${f.text}`))
+  else if (m.type === "feed") console.log("FEED", m.item.channel, m.item.fromName, m.item.toName ? "-> " + m.item.toName : "", ":", m.item.text)
+  else if (m.type === "vote") console.log("VOTE", JSON.stringify(m.vote))
+  else if (m.type === "finale") console.log("FINALE", m.outcome, ":", m.narration)
+  else console.log("EVT", m.type)
+}
+await Bun.sleep(1500)
+await fetch(base + "/api/admin/seed?n=3", { method: "POST" })
+await Bun.sleep(9000)
+await fetch(base + "/api/admin/vote/open", { method: "POST" })
+await Bun.sleep(3000)
+for (const [d, c] of [["a", "open"], ["b", "seal"], ["c", "open"], ["a", "seal"]]) await fetch(base + "/api/vote", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ deviceId: d, choice: c }) })
+await Bun.sleep(6000)
+const t = Date.now()
+const r = await (await fetch(base + "/api/admin/vote/close", { method: "POST" })).json()
+console.log("CLOSE took", Date.now() - t, "ms", r?.outcome)
+await Bun.sleep(1000)
+ws.close(); process.exit(0)
