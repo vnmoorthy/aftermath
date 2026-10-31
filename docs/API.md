@@ -155,7 +155,7 @@ The full `World` for one planet, as in the teleport response, plus its `cosmos` 
 
 ```json
 { "id": "p-q81vzk20dm3a", "planetName": "Ossuary Tide", "...": "World", "cosmos": { "...": "Cosmos" },
-  "vision": "/assets/gen/p-q81vzk20dm3a.webp", "ghostVision": "/assets/gen/p-q81vzk20dm3a-ghosts.webp" }
+  "vision": "/assets/gen/p-q81vzk20dm3a.webp", "ghostVision": "/assets/gen/p-q81vzk20dm3a-ghost.webp" }
 ```
 
 ### `GET /api/voice?arch=<archetype>&text=<line>`

@@ -160,6 +160,7 @@ On Mars the makers aren't dead; they haven't arrived yet. **HAVEN**, the habitat
 - **Real science in every line:** 0.38 g, about −63 °C average, an atmosphere at 0.6% of Earth's pressure, a 24 h 39 min sol, a 3–22 minute radio delay to Earth, about 0.67 mSv of radiation a day, perchlorates in the regolith, and oxygen made from CO₂ the way NASA's MOXIE did it.
 - **Shared resources.** The colony has **O₂, power, water and food** (starting at 97 / 90 / 88 / 76%). When a colonist does something that would plausibly matter, the model returns a `delta` (clamped to ±12 per resource) and the whole crew sees the new status line.
 - **Emergencies.** About once a minute while colonists are present, a new sol begins with an event: a dust storm (solar power −35%), a solar particle event, an oxygen-stack fault, a micrometeorite leak, a potato harvest, an ice strike, a light-delayed message from Earth, or the storm clearing. `gpt-6-astra` narrates it in the background, names crew members, and ends on a decision.
+- **Look around Ares Base.** A Blender-rendered 360° panorama of the base (`web/assets/mars-pano.webp`, driven by `web/pano.js`) with a life-support HUD for the colony's O₂, power, water and food.
 
 ## 🌀 The journey & 34 realms
 

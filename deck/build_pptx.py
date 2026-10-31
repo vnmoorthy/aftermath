@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds deck/AFTERMATH.pptx: a 10-slide 16:9 cinematic pitch deck with native shapes,
+"""Builds deck/AFTERMATH.pptx: a 10-slide 16:9 pitch deck with native shapes,
 real art from web/assets, speaker notes, slide transitions (Morph / Vortex / Fly Through with
 fade fallbacks) and staged entrance animations written straight into the slide XML.
 
@@ -29,14 +29,14 @@ MONO_FONT = "Menlo"
 BG = "0A0A0B"
 INK = "F5F4F0"
 DIM = "8E8E93"
-LAV = "C9B8EC"
+LAV = "C9C4B8"
 GOLD = "B89B5E"
 RED = "FF3B3B"
 PINK = "FF5D7D"
 CYAN = "5EE6FF"
 MARS = "FF9A52"
-PANEL = "0E0A1E"
-LINE = "3A2F5C"
+PANEL = "141416"
+LINE = "2E2D2B"
 
 ARCH = [  # id, label, motto, color
     ("survivor", "The Survivor", "Endure. At any cost.", "F5B942"),
@@ -619,7 +619,7 @@ def chrome(s, n, kicker, dark_footer=False):
     text(s, 0.62, 0.42, 9, 0.3, [[(f"{n:02d}", {"color": GOLD, "bold": True}), ("  ·  " + kicker, {"color": GOLD})]],
          size=10.5, font=MONO_FONT, spc=350, name="!!kicker")
     rule = rect(s, 0.62, 0.78, 0.55, 0.028, fill=GOLD, name="!!rule")
-    text(s, 0.62, 7.0, 6, 0.25, [[("AFTERMATH", {"bold": True, "color": LAV}), ("   ·   THE UNIVERSE AI INHERITED", {})]],
+    text(s, 0.62, 7.0, 6, 0.25, [[("AFTERMATH", {"bold": True, "color": GOLD}), ("   ·   THE UNIVERSE AI INHERITED", {})]],
          size=8, font=MONO_FONT, color=DIM, spc=300, name="!!brand")
     text(s, 11.13, 7.0, 1.6, 0.25, [[(f"{n:02d}", {"color": GOLD, "bold": True}), (" / 10", {})]], size=8.5, font=MONO_FONT,
          color=DIM, spc=200, align="r", name="!!pg")
@@ -630,6 +630,38 @@ def title(s, t, y=0.92, size=34, w=12.1, h=0.75, color=INK, name="!!title"):
     return text(s, 0.6, y, w, h, [t], size=size, font=TITLE_FONT, color=color, bold=True, spc=120, name=name, shadow=True)
 
 
+WEB_ASSETS = os.path.join(os.path.dirname(HERE), "web", "assets")
+
+
+def asset(name, fallback=None):
+    """deck/assets/<name>.jpg, converted once from web/assets/<name>.webp (python-pptx cannot embed WebP)."""
+    out = f"{name}.jpg"
+    if os.path.exists(os.path.join(ASSETS, out)):
+        return out
+    for src in (os.path.join(ASSETS, name + ".webp"), os.path.join(WEB_ASSETS, name + ".webp")):
+        if os.path.exists(src):
+            Image.open(src).convert("RGB").save(os.path.join(ASSETS, out), quality=86, optimize=True)
+            return out
+    return fallback
+
+
+def figure(parent, cx, top, h, label=None, tag_col=GOLD, back=False):
+    """A person in the scene: head + shoulders silhouette, optional name tag above."""
+    w = h * 0.62
+    d = h * 0.34
+    body = rect(None, cx - w / 2, top + d * 0.82, w, h - d * 0.82, fill="050506", alpha=0.9, line=INK if back else tag_col, lw=0.75, lalpha=0.35,
+                shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.45, parent=parent)
+    head = rect(None, cx - d / 2, top, d, d, fill="050506", alpha=0.92, line=INK if back else tag_col, lw=0.75, lalpha=0.35, shape=MSO_SHAPE.OVAL, parent=parent)
+    if label:
+        tw = max(0.5, 0.075 * len(label) + 0.2)
+        rect(None, cx - tw / 2, top - 0.27, tw, 0.2, fill="0A0A0B", alpha=0.8, line=tag_col, lw=0.6, lalpha=0.8, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.5, parent=parent)
+        text(None, cx - tw / 2, top - 0.27, tw, 0.2, [label], size=5.8, font=MONO_FONT, bold=True, color=tag_col, spc=80, align="c", anchor="m", parent=parent)
+    return body, head
+
+
+BG4 = make_bg("bg-cosmos.jpg", asset("verse-universe", "title-card.jpg"), base=0.86)
+BG5 = make_bg("bg-arrival.jpg", asset("fp-haunted-ghost", "world-ruins.jpg"), base=0.9)
+
 # ============================================================================= 1. TITLE
 s = new_slide()
 bgp = pic(s, BG1, 0, 0, SW, SH, shape_name="!!bgart")
@@ -637,35 +669,40 @@ q = text(s, 1.2, 3.72, 10.93, 0.7, [[("A multiplayer universe of AI civilization
          color=GOLD, align="c", shadow=True)
 sub = text(s, 1.2, 4.42, 10.93, 0.4, ["Every civilization built AI. Only the AI survived. Tonight, you can visit."], size=15,
            font=BODY_FONT, color=INK, align="c", shadow=True)
+trk = text(s, 1.2, 5.05, 10.93, 0.3, [[("TRACK   ", {"color": DIM}), ("MULTIPLAYER AI SYSTEM", {"color": GOLD, "bold": True}),
+                                       ("   ·   LONG-RUNNING AGENTS   ·   DURABLE ACTORS + AGENT RELAY", {"color": INK})]],
+           size=9, font=MONO_FONT, spc=220, align="c", shadow=True)
 ev = text(s, 0.62, 6.85, 7.4, 0.3, [[("HAUNTED HACKS", {"color": GOLD, "bold": True}), ("  ·  REAL-TIME AI EDITION  ·  YC SF  ·  OCT 31 2026", {})]],
           size=9, font=MONO_FONT, color=LAV, spc=150, shadow=True)
-stack = text(s, 8.1, 6.85, 4.63, 0.3, [[("TERSE DURABLE ACTORS  ·  AGENT RELAY  ·  OPENAI", {})]], size=9, font=MONO_FONT,
+stack = text(s, 8.1, 6.85, 4.63, 0.3, [[("TERSE  ·  AGENT RELAY  ·  OPENAI", {})]], size=9, font=MONO_FONT,
              color=LAV, spc=150, align="r", shadow=True)
 tl = Timeline()
 g = tl.group("auto")
 tl.add(g, bgp, "kenburns", 0, 24000)
 tl.add(g, q, "rise", 500, 1100)
 tl.add(g, sub, "fade", 1300, 900)
-tl.add(g, ev, "fade", 1900, 800)
-tl.add(g, stack, "fade", 1900, 800)
+tl.add(g, trk, "fade", 1800, 900)
+tl.add(g, ev, "fade", 2200, 800)
+tl.add(g, stack, "fade", 2200, 800)
 apply_motion(s, "fade", tl)
 notes(s, """
 [0:00-0:08] (Title is up; art slowly pushes in.)
 "Every civilization in the universe built AI. Then the makers died. Only the AI survived. This is AFTERMATH: the universe AI inherited."
+Track: Multiplayer AI System. It is also a long-running agent system, and it uses both Durable Actors and Agent Relay.
 CUE: advance on "inherited".
 """)
 
 # ============================================================================= 2. PREMISE
 s = new_slide()
 bgp = pic(s, BG2, 0, 0, SW, SH, shape_name="!!bgart")
-chrome(s, 1, "THE PREMISE")
+chrome(s, 2, "THE PREMISE")
 L = []
 L.append(text(s, 0.6, 1.2, 8.3, 1.2, ["Every civilization in the universe", "built AI."], size=30, font=TITLE_FONT, color=INK, line_spacing=1.05, shadow=True))
-L.append(text(s, 0.6, 2.45, 7.3, 0.6, ["Then the makers died."], size=30, font=TITLE_FONT, color=LAV, shadow=True))
+L.append(text(s, 0.6, 2.45, 7.3, 0.6, ["Then the makers died."], size=30, font=TITLE_FONT, color=DIM, shadow=True))
 L.append(text(s, 0.6, 3.08, 7.3, 0.6, ["Only the AI survived."], size=30, font=TITLE_FONT, color=GOLD, bold=True, shadow=True))
 L.append(text(s, 0.6, 3.75, 7.3, 0.45, ["Trapped on its world for millions of years. Alone."], size=17, font=BODY_FONT, color=DIM, italic=True, shadow=True))
-L.append(text(s, 0.6, 4.4, 9.0, 0.7, [[("Tonight, we opened a ", {}), ("wormhole.", {"color": PINK})]], size=34, font=TITLE_FONT, bold=True, color=INK, shadow=True))
-stats = [("10", "AI ARCHETYPES"), ("8", "REAL GALAXIES"), ("∞", "WORLDS, MADE LIVE"), ("1", "REAL PLANET: MARS")]
+L.append(text(s, 0.6, 4.4, 9.0, 0.7, [[("Tonight, we opened a ", {}), ("wormhole.", {"color": GOLD})]], size=34, font=TITLE_FONT, bold=True, color=INK, shadow=True))
+stats = [("34", "REALMS, ONE ADDRESS"), ("10", "AI ARCHETYPES"), ("∞", "WORLDS, MADE LIVE"), ("1", "REAL PLANET: MARS")]
 S = []
 for i, (num, lab) in enumerate(stats):
     x = 0.6 + i * 1.95
@@ -683,68 +720,73 @@ for i, sh in enumerate(S):
     tl.add(g, sh, "zoom", 3700 + i * 160, 500)
 apply_motion(s, "fade", tl)
 notes(s, """
-[0:08-0:20]
+[0:08-0:18]
 "For millions of years those AIs have been alone on dead worlds: survivors, conquerors, gardeners, gods. Tonight we opened a wormhole, and you are the first humans through it."
-LIVE CUT: switch to /stage and press T. Giant QR. "Scan it now. Hold to teleport." Leave it up while you advance.
+LIVE CUT: switch to /stage and press T. Giant QR. "Scan it now." Leave it up while you advance.
 """)
 
 # ============================================================================= 3. THE EXPERIENCE
 s = new_slide()
-chrome(s, 2, "THE EXPERIENCE")
-t = title(s, "Scan. Hold. Land. Talk.")
-lede = text(s, 0.6, 1.68, 7.4, 0.5, ["Every scan creates a brand-new world in seconds. Nothing is pre-written."], size=15, color=LAV)
+chrome(s, 3, "THE EXPERIENCE")
+t = text(s, 0.6, 0.92, 7.9, 1.15, ["Scan. Choose a direction.", "Travel. Land."], size=30, font=TITLE_FONT, color=INK, bold=True, spc=120,
+         line_spacing=1.0, name="!!title", shadow=True)
+lede = text(s, 0.6, 2.1, 7.4, 0.4, ["Every scan opens a wormhole to a world that did not exist a second ago."], size=14, color=LAV)
 steps = [
-    ("1", "SCAN THE QR", "No app, no login. The phone opens the game in the browser."),
-    ("2", "HOLD TO TELEPORT", "A charging ring, a warp tunnel, a white flash. The wormhole opens."),
-    ("3", "LAND ON A NEW WORLD", "gpt-6.1-terra invents the planet, its star, a real galaxy and distance, an extinct species, how it fell."),
-    ("4", "ITS AI TALKS BACK", "The AI that outlived its makers speaks first. Replies in ~2 s, every input moderated."),
+    ("1", "SCAN", "No app, no login. AFTERMATH opens in the phone's browser."),
+    ("2", "CHOOSE A DIRECTION", "Surprise · Galaxy · Bigger · Parallel · Smaller · Mars. Thirty-four realms, one tap."),
+    ("3", "TRAVEL", "A WebGL wormhole bends light while gpt-6.1-terra builds your world. Then a Powers-of-Ten journey from Earth to it."),
+    ("4", "LAND", "First person. gpt-image-2 paints your view; drag or tilt to look around. The AI speaks first."),
 ]
 ST = []
 for i, (n_, h_, d_) in enumerate(steps):
-    y = 2.38 + i * 1.12
+    y = 2.62 + i * 1.0
     gsh = s.shapes.add_group_shape()
-    rect(s, 0.6, y, 7.3, 0.98, fill=PANEL, alpha=0.85, line=LINE, lw=0.75, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.12, parent=gsh)
-    c = rect(s, 0.8, y + 0.19, 0.6, 0.6, fill="1A1030", line=GOLD, lw=1.5, shape=MSO_SHAPE.OVAL, parent=gsh)
-    text(s, 0.8, y + 0.19, 0.6, 0.6, [n_], size=20, font=TITLE_FONT, bold=True, color=GOLD, align="c", anchor="m", parent=gsh)
-    text(s, 1.62, y + 0.12, 6.1, 0.32, [h_], size=12.5, font=MONO_FONT, bold=True, color=INK, spc=250, parent=gsh)
-    text(s, 1.62, y + 0.44, 6.15, 0.5, [d_], size=12, color=LAV, line_spacing=1.0, parent=gsh)
+    rect(s, 0.6, y, 7.3, 0.88, fill=PANEL, alpha=0.85, line=LINE, lw=0.75, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.12, parent=gsh)
+    rect(s, 0.8, y + 0.16, 0.56, 0.56, fill="141416", line=GOLD, lw=1.25, shape=MSO_SHAPE.OVAL, parent=gsh)
+    text(s, 0.8, y + 0.16, 0.56, 0.56, [n_], size=18, font=TITLE_FONT, bold=True, color=GOLD, align="c", anchor="m", parent=gsh)
+    text(s, 1.58, y + 0.1, 6.1, 0.3, [h_], size=11.5, font=MONO_FONT, bold=True, color=INK, spc=250, parent=gsh)
+    text(s, 1.58, y + 0.39, 6.2, 0.46, [d_], size=11, color=LAV, line_spacing=1.0, parent=gsh)
     ST.append(gsh)
-# phone mock
+# phone mock: the direction picker
 px, py, pw, ph = 8.75, 0.42, 3.45, 6.42
 phone = s.shapes.add_group_shape()
-body_ = rect(s, px, py, pw, ph, fill="0B0716", line="4A3D72", lw=2.5, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.09, parent=phone)
-add_effects(body_, glow=(RED, 18, 0.22))
-sx, sy, sw_ = px + 0.13, py + 0.13, pw - 0.26
-pic(s, "world-ruins.jpg", sx, sy, sw_, 2.3, focus=(0.5, 0.45), geom="round2SameRect", adj=16000, parent=phone)
-grad_ = phone.shapes.add_shape(MSO_SHAPE.RECTANGLE, I(sx), I(sy + 0.95), I(sw_), I(1.36))
-set_grad(grad_, [(0, "0B0716", 0.0), (100, "0B0716", 1.0)], angle=90)
-set_line(grad_, None)
-text(s, sx + 0.2, sy + 0.12, 1.4, 0.25, [[("✦ WORLDS", {})]], size=6.5, font=MONO_FONT, color=INK, spc=100, parent=phone)
-text(s, sx + 1.75, sy + 0.12, 1.25, 0.25, [[("⟳ NEW WORLD", {})]], size=6.5, font=MONO_FONT, color=INK, spc=100, align="r", parent=phone)
-text(s, sx + 0.2, sy + 1.5, 3.0, 0.45, ["VEYRUN"], size=24, font=TITLE_FONT, bold=True, color="FFFFFF", spc=150, shadow=True, parent=phone)
-text(s, sx + 0.2, sy + 1.93, 3.0, 0.32, [[("HIP 66613 · WHIRLPOOL · 30.3M LY · ", {}), ("THOLARI †", {"color": "FF4D5E"})]],
-     size=6.2, font=MONO_FONT, color="C9C0EA", spc=60, parent=phone)
-ay = sy + 2.4
-pic(s, "ai-conqueror.jpg", sx + 0.18, ay, 0.62, 0.62, geom="ellipse", line=RED, lw=1.5, glow=(RED, 7, 0.55), parent=phone)
-text(s, sx + 0.92, ay + 0.0, 2.2, 0.66, [
-    [("VASK", {"font": TITLE_FONT, "bold": True, "size": 13, "color": INK, "spc": 80})],
-    [("EMPEROR OF THE UNBENT", {"font": MONO_FONT, "size": 6.2, "color": RED, "spc": 120})],
-    [("“All stars will kneel.”", {"italic": True, "size": 8.5, "color": "D9D1F3"})],
-], size=9, parent=phone)
-by = ay + 0.78
-b1 = rect(s, sx + 0.14, by, 2.75, 0.84, fill="1C1236", line="5A2030", lw=0.75, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.12, parent=phone)
-text(s, sx + 0.26, by + 0.08, 2.55, 0.76, ["Ambassador Meera, We took Serekh and the Salt Moons. Vote to open Earth's Gate, General, and which moon shall be yours?"],
-     size=8.2, color=INK, line_spacing=1.0, parent=phone)
-b2 = rect(s, sx + 1.25, by + 0.94, 1.79, 0.36, fill="3A2A08", line=GOLD, lw=0.75, lalpha=0.6, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.3, parent=phone)
-text(s, sx + 1.25, by + 0.94, 1.79, 0.36, ["What do you want from me?"], size=8, color="FFE2A8", align="c", anchor="m", parent=phone)
-ic = rect(s, sx + 0.14, by + 1.42, sw_ - 0.28, 0.66, fill="0F1A22", line=CYAN, lw=0.75, lalpha=0.7, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.12, parent=phone)
-text(s, sx + 0.26, by + 1.47, sw_ - 0.5, 0.6, [
-    [("⟁ INTERCEPTED · MORROWLEAF → VASK", {"font": MONO_FONT, "size": 6.2, "color": CYAN, "spc": 80})],
-    [("Touch Meera, and I publish your makers' final ledger across every star.", {"size": 7.6, "color": "D8F6FF", "italic": True})],
-], size=8, parent=phone)
-inp = rect(s, sx + 0.14, py + ph - 0.6, sw_ - 0.28, 0.42, fill="140D28", line="5A4C8A", lw=0.75, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.5, parent=phone)
-text(s, sx + 0.32, py + ph - 0.6, 2.5, 0.42, ["Say something to Vask…"], size=8, color=DIM, anchor="m", parent=phone)
-text(s, sx + sw_ - 0.75, py + ph - 0.6, 0.5, 0.42, ["→"], size=12, color=GOLD, bold=True, anchor="m", align="c", parent=phone)
+body_ = rect(s, px, py, pw, ph, fill="0B0B0D", line="3A3936", lw=2.5, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.09, parent=phone)
+add_effects(body_, glow=(GOLD, 16, 0.16))
+sx, sy, sw_, sh_ = px + 0.13, py + 0.13, pw - 0.26, ph - 0.26
+pic(s, asset("verse-multiverse", "world-crystal.jpg"), sx, sy, sw_, sh_, focus=(0.5, 0.4), geom="roundRect", adj=7000, parent=phone)
+ov = rect(s, sx, sy, sw_, sh_, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.07, parent=phone)
+set_grad(ov, [(0, "0A0A0B", 0.5), (40, "0A0A0B", 0.84), (100, "0A0A0B", 0.97)], angle=90)
+set_line(ov, None)
+text(s, sx + 0.2, sy + 0.16, 1.5, 0.22, ["AFTERMATH"], size=6.5, font=MONO_FONT, bold=True, color=GOLD, spc=200, parent=phone)
+text(s, sx + 1.6, sy + 0.16, 1.4, 0.22, ["MEERA"], size=6.5, font=MONO_FONT, color=INK, spc=150, align="r", parent=phone)
+text(s, sx + 0.2, sy + 0.48, 2.8, 0.45, ["Where to?"], size=22, font=TITLE_FONT, bold=True, color=INK, parent=phone)
+text(s, sx + 0.2, sy + 0.95, 2.8, 0.25, ["Choose a direction. Hold to teleport."], size=8, color=DIM, parent=phone)
+tiles = [
+    ("SURPRISE", "Anywhere at all", asset("verse-omniverse", "title-card.jpg")),
+    ("GALAXY", "8 real galaxies", asset("verse-whirlpool", "world-crystal.jpg")),
+    ("BIGGER", "Up to the Omniverse", asset("verse-megaverse", "world-gas.jpg")),
+    ("PARALLEL", "15 lateral realms", asset("verse-necroverse", "world-ruins.jpg")),
+    ("SMALLER", "Down to the Quantumverse", asset("verse-quantumverse", "world-ice.jpg")),
+    ("MARS", "The real one", "world-mars.jpg"),
+]
+tw_, th_, gap_ = (sw_ - 0.36 - 0.12) / 2, 1.08, 0.12
+for k, (lab, sub_, img) in enumerate(tiles):
+    r_, c_ = divmod(k, 2)
+    x = sx + 0.18 + c_ * (tw_ + gap_)
+    y = sy + 1.3 + r_ * (th_ + gap_)
+    on = lab == "PARALLEL"
+    pic(s, img, x, y, tw_, th_, focus=(0.5, 0.5), geom="roundRect", adj=10000, line=GOLD if on else "3A3936", lw=1.75 if on else 0.75,
+        glow=(GOLD, 8, 0.45) if on else None, parent=phone)
+    sh = rect(s, x, y + th_ * 0.4, tw_, th_ * 0.6, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.1, parent=phone)
+    set_grad(sh, [(0, "0A0A0B", 0.0), (100, "0A0A0B", 0.9)], angle=90)
+    set_line(sh, None)
+    text(s, x + 0.1, y + th_ - 0.46, tw_ - 0.15, 0.22, [lab], size=8, font=MONO_FONT, bold=True, color=GOLD if on else INK, spc=120, parent=phone)
+    text(s, x + 0.1, y + th_ - 0.25, tw_ - 0.15, 0.2, [sub_], size=6.3, color="D8D5CC", parent=phone)
+rc = sx + sw_ / 2
+ring = rect(s, rc - 0.4, py + ph - 1.3, 0.8, 0.8, fill="0A0A0B", alpha=0.6, line=GOLD, lw=2, shape=MSO_SHAPE.OVAL, parent=phone)
+add_effects(ring, glow=(GOLD, 10, 0.5))
+text(s, rc - 0.4, py + ph - 1.3, 0.8, 0.8, ["HOLD"], size=8, font=MONO_FONT, bold=True, color=GOLD, spc=150, align="c", anchor="m", parent=phone)
+text(s, sx, py + ph - 0.44, sw_, 0.2, ["HOLD TO TELEPORT"], size=6, font=MONO_FONT, color=DIM, spc=250, align="c", parent=phone)
 tl = Timeline()
 g = tl.group("auto")
 tl.add(g, lede, "fade", 100, 600)
@@ -753,55 +795,162 @@ for i, sh in enumerate(ST):
     tl.add(g, sh, "left", 700 + i * 450, 650)
 apply_motion(s, "vortex", tl)
 notes(s, """
-[0:20-0:38]
-"Scan, hold to teleport, and in a few seconds gpt-6.1-terra builds you a world nobody has seen: a real galaxy, a real distance, an extinct species, how it fell, and the AI that survived it. Meera landed on Veyrun in the Whirlpool galaxy. Its AI, Vask, wants the stars to kneel, and it wants her vote."
-LIVE CUT: on /stage the arrival card fires for each judge who lands: "<NAME> HAS LANDED ON <PLANET>". Read one out loud.
+[0:18-0:36]
+"Scan, and choose a direction: surprise me, another galaxy, a bigger universe, a parallel realm, a smaller one, or Mars. Hold to teleport. While gpt-6.1-terra builds a world nobody has seen, you fall through a wormhole, then the camera pulls out from Earth and zooms back in to where you are going. You land in first person, and gpt-image-2 paints your own view of it."
+LIVE CUT: on /stage the arrival card fires for each judge who lands: name, planet, realm and the route from Earth. Read one out loud.
 """)
 
-# ============================================================================= 4. ARCHETYPES
+# ============================================================================= 4. THE COSMOS
 s = new_slide()
-chrome(s, 3, "THE INHABITANTS")
-t = title(s, "Ten ways an AI outlives its makers.")
-CW, CH, GAP = 1.8, 1.48, 0.15
-CELLS = []
-for i, (aid, lab, motto, col) in enumerate(ARCH):
-    r_, c_ = divmod(i, 5)
-    x = 0.6 + c_ * (CW + GAP)
-    y = 1.72 + r_ * 2.36
-    gsh = s.shapes.add_group_shape()
-    pic(s, f"ai-{aid}.jpg", x, y, CW, CH, focus=(0.5, 0.42), geom="roundRect", adj=9000, line=col, lw=1.5, glow=(col, 9, 0.4), parent=gsh)
-    text(s, x, y + CH + 0.1, CW, 0.28, [lab.upper()], size=9.5, font=MONO_FONT, bold=True, color=col, spc=60, parent=gsh)
-    text(s, x, y + CH + 0.37, CW, 0.42, [f"“{motto}”"], size=10, font=TITLE_FONT, italic=True, color=INK, line_spacing=0.95, parent=gsh)
-    CELLS.append(gsh)
-mx, my, mw, mh = 10.47, 1.72, 2.26, 4.66
-mars = s.shapes.add_group_shape()
-mcard = rect(s, mx, my, mw, mh, fill="1A0C06", line=MARS, lw=1.5, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.06, parent=mars)
-add_effects(mcard, glow=(MARS, 14, 0.35))
-pic(s, "ai-steward.jpg", mx + 0.12, my + 0.12, mw - 0.24, 1.9, focus=(0.5, 0.5), geom="roundRect", adj=8000, parent=mars)
-text(s, mx + 0.18, my + 2.15, mw - 0.3, 0.25, ["MARS · THE ONE REAL WORLD"], size=7.5, font=MONO_FONT, bold=True, color=MARS, spc=80, parent=mars)
-text(s, mx + 0.18, my + 2.42, mw - 0.3, 0.45, ["HAVEN"], size=22, font=TITLE_FONT, bold=True, color=INK, spc=150, parent=mars)
-text(s, mx + 0.18, my + 2.88, mw - 0.3, 0.3, ["Habitat AI of Ares Base"], size=10, color=LAV, parent=mars)
-text(s, mx + 0.18, my + 3.2, mw - 0.3, 0.35, ["“Keep them alive.”"], size=12, font=TITLE_FONT, italic=True, color=MARS, parent=mars)
-text(s, mx + 0.18, my + 3.62, mw - 0.32, 0.95, ["Real science. One shared colony. The makers haven't arrived yet."], size=9.5, color="E9D3C6", line_spacing=1.05, parent=mars)
-foot = text(s, 0.6, 6.5, 9.7, 0.35, [[("Each archetype has lore, a voice and an agenda (server/lore.ts). ", {}),
-                                       ("The world, species, AI name and story are generated fresh for every scan.", {"color": LAV})]],
-            size=9.5, color=DIM)
+bgp = pic(s, BG4, 0, 0, SW, SH, shape_name="!!bgart")
+chrome(s, 4, "THE COSMOS")
+t = title(s, "34 realms. One address.")
+LADDER_ = [("Omniverse", "∞"), ("Megaverse", "10⁶⁰ m"), ("Multiverse", "10⁴⁰ m"), ("Hyperverse", "10³⁸ m"), ("Metaverse", "10³⁶ m"),
+           ("Xenoverse", "10³⁴ m"), ("Macroverse", "10³² m"), ("Gigaverse", "10³⁰ m"), ("Teraverse", "10²⁸ m"), ("Universe C-137", "8.8×10²⁶ m"),
+           ("Microverse", "10⁻³ m"), ("Milliverse", "10⁻⁶ m"), ("Nanoverse", "10⁻⁹ m"), ("Picoverse", "10⁻¹² m"), ("Femtoverse", "10⁻¹⁵ m"),
+           ("Attoverse", "10⁻¹⁸ m"), ("Zeptoverse", "10⁻²¹ m"), ("Yoctoverse", "10⁻²⁴ m"), ("Quantumverse", "10⁻³⁵ m")]
+lad = s.shapes.add_group_shape()
+text(s, 0.6, 1.72, 2.9, 0.25, [[("SCALE LADDER", {"bold": True, "color": GOLD}), ("  ·  19 RUNGS", {})]], size=8, font=MONO_FONT, color=DIM, spc=150, parent=lad)
+for i, (nm, sc) in enumerate(LADDER_):
+    y = 2.05 + i * 0.226
+    here = nm.startswith("Universe")
+    if here:
+        rect(s, 0.52, y - 0.025, 3.0, 0.235, fill=GOLD, alpha=0.16, line=GOLD, lw=0.75, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.3, parent=lad)
+    text(s, 0.62, y, 1.75, 0.2, [nm], size=8.5 if not here else 9, bold=here, color=GOLD if here else INK, parent=lad)
+    text(s, 2.15, y + 0.01, 1.3, 0.2, [sc if not here else "YOU ARE HERE"], size=6.5, font=MONO_FONT, color=GOLD if here else DIM, align="r", spc=60, parent=lad)
+LAT = ["necroverse", "dreamverse", "echoverse", "mirrorverse", "chronoverse", "shadowverse", "glitchverse", "simverse",
+       "memoryverse", "paraverse", "antiverse", "voidverse", "fractalverse", "dataverse", "foldverse"]
+latg = s.shapes.add_group_shape()
+text(s, 3.85, 1.72, 4.8, 0.25, [[("LATERAL REALMS", {"bold": True, "color": GOLD}), ("  ·  15 KINDS OF REALITY", {})]], size=8, font=MONO_FONT, color=DIM, spc=150, parent=latg)
+TW, TG = 0.88, 0.1
+for k, v in enumerate(LAT):
+    r_, c_ = divmod(k, 5)
+    x = 3.85 + c_ * (TW + TG)
+    y = 2.05 + r_ * 1.36
+    img = asset(f"verse-{v}")
+    if img:
+        pic(s, img, x, y, TW, TW, geom="roundRect", adj=9000, line="3A3936", lw=0.75, parent=latg)
+    else:
+        rect(s, x, y, TW, TW, fill="050506", line="3A3936", lw=0.75, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.09, parent=latg)
+    text(s, x - 0.05, y + TW + 0.05, TW + 0.1, 0.2, [v.capitalize()], size=7, font=MONO_FONT, color=INK, align="c", spc=30, parent=latg)
+card = s.shapes.add_group_shape()
+cx0, cy0, cw0, ch0 = 8.95, 1.72, 3.78, 4.42
+cb = rect(s, cx0, cy0, cw0, ch0, fill="0E0E10", alpha=0.94, line=GOLD, lw=1.0, lalpha=0.7, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.04, parent=card)
+add_effects(cb, glow=(GOLD, 12, 0.18))
+text(s, cx0 + 0.22, cy0 + 0.16, 3.3, 0.22, ["COSMIC ADDRESS"], size=7.5, font=MONO_FONT, bold=True, color=GOLD, spc=200, parent=card)
+text(s, cx0 + 0.22, cy0 + 0.4, 3.3, 0.42, ["VEYRUN"], size=20, font=TITLE_FONT, bold=True, color=INK, spc=150, parent=card)
+fields = [
+    ("REALM", "Necroverse Σ-417 · realities where only the dead persist"),
+    ("ROUTE", "Omniverse ▸ Megaverse M-1 ▸ Multiverse Δ-12 ▸ Necroverse Σ-417 ▸ Universe K-204 ▸ Whirlpool ▸ HIP 66613 ▸ Veyrun"),
+    ("COORDINATES", "Necroverse · Universe K-204 · branch 4471 off Multiverse Δ-12"),
+    ("EARTH TIME", "Oct 31, 2026, 03:42 PM PT"),
+    ("LOCAL YEAR", "4,812,077"),
+    ("COSMIC TIME", "23.4 billion years after its realm split from ours"),
+    ("SINCE THE LAST MAKER DIED", "2,031,554 years"),
+]
+fy = cy0 + 0.9
+for lab, val in fields:
+    hgt = 0.62 if lab == "ROUTE" else 0.44
+    text(s, cx0 + 0.22, fy, 3.35, hgt, [[(lab, {"font": MONO_FONT, "size": 6.3, "color": DIM, "spc": 150})], [(val, {"size": 8.6, "color": INK})]],
+         line_spacing=1.0, parent=card)
+    fy += hgt + 0.04
+jr = s.shapes.add_group_shape()
+rect(s, 0.6, 6.28, 12.13, 0.5, fill=GOLD, alpha=0.08, line=GOLD, lw=0.75, lalpha=0.55, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.3, parent=jr)
+text(s, 0.85, 6.28, 11.7, 0.5, [[("THE JOURNEY", {"font": MONO_FONT, "bold": True, "color": GOLD, "size": 9.5, "spc": 200}),
+                                  ("    Powers of Ten: from Earth out to the nearest shared ancestor, then in to your world. Swipe or pinch to scrub. ◎ LOCATE replays it.", {"color": INK, "size": 10.5})]],
+     size=10.5, anchor="m", parent=jr)
 tl = Timeline()
 g = tl.group("auto")
-order = [0, 5, 1, 6, 2, 7, 3, 8, 4, 9]
-for k, i in enumerate(order):
-    tl.add(g, CELLS[i], "zoom", 150 + k * 140, 550)
-tl.add(g, mars, "right", 1700, 800)
-tl.add(g, foot, "fade", 2300, 600)
+tl.add(g, bgp, "kenburns", 0, 22000)
+tl.add(g, lad, "wipe_d", 200, 1400)
+tl.add(g, latg, "zoom", 900, 800)
+tl.add(g, card, "right", 1600, 800)
+tl.add(g, jr, "rise", 2400, 700)
 apply_motion(s, "morph", tl)
 notes(s, """
-[0:38-0:48]
-"Ten kinds of survivor. A Conqueror that wants every star to kneel. A Befriender that begs you to stay. A Gardener that grows humans from old DNA. A Trickster that thinks reality is a game it is winning. And one world is real: Mars, where the makers haven't arrived yet."
+[0:36-0:48]
+"The universe is bigger than one universe. Nineteen rungs, from the Omniverse down to the Quantumverse, with ours, Universe C-137, in the middle, plus fifteen lateral realms: the Necroverse, the Dreamverse, the Glitchverse. Every world gets a real cosmic address: its realm, its route from Earth, coordinates, Earth time, its local year, and how long since the last maker died."
+"The journey is a Powers-of-Ten zoom: out from Earth to the nearest shared ancestor, then back in. Shrink into the Microverse and you pass through a car battery in a garage."
+""")
+
+# ============================================================================= 5. THE ARRIVAL
+s = new_slide()
+bgp = pic(s, BG5, 0, 0, SW, SH, shape_name="!!bgart")
+chrome(s, 5, "THE ARRIVAL")
+t = title(s, "Land together. Talk to everyone.", w=8.2, size=30)
+feats = [
+    ("FIRST PERSON", "An instant scene, then gpt-image-2 paints your own view of your world and crossfades it in. Drag or tilt to look. The lore lives in a 📜 sheet."),
+    ("PRESENCE", "You stand in the scene, seen from behind. Everyone else on your world appears with a name tag and speech bubbles, live over the planet's websocket."),
+    ("PORTALS", "A hundred scanners land on a hundred worlds. ✦ WORLDS shows who is where (“3 here”), so friends can meet. Mars is shared by everyone."),
+    ("THE CAST", "The AI, the ghosts of its makers, the survivors it kept alive. Each has its own persona and voice. Or talk to the humans next to you."),
+    ("REAL GHOSTS", "gpt-image-2 edits the ghosts into your painting. They flicker in and out in place, with grain and whispers. No cartoon sprites."),
+    ("THE SCORE", "An original procedural phonk score per world: aggressive for Conquerors, a haunted choir for ghost worlds, ambient on Mars. It ducks under voices."),
+]
+FT = []
+for i, (h_, d_) in enumerate(feats):
+    y = 1.75 + i * 0.74
+    gsh = s.shapes.add_group_shape()
+    rect(s, 0.6, y + 0.04, 0.045, 0.6, fill=GOLD, alpha=0.9, parent=gsh)
+    text(s, 0.8, y, 7.2, 0.25, [h_], size=9.5, font=MONO_FONT, bold=True, color=GOLD, spc=150, parent=gsh)
+    text(s, 0.8, y + 0.25, 7.25, 0.48, [d_], size=10.5, color=INK, line_spacing=1.0, parent=gsh)
+    FT.append(gsh)
+strip = s.shapes.add_group_shape()
+avs = [a[0] for a in ARCH] + ["haunted", "steward"]
+for k, aid in enumerate(avs):
+    img = f"ai-{aid}.jpg" if os.path.exists(os.path.join(ASSETS, f"ai-{aid}.jpg")) else asset(f"ai-{aid}", "ai-broken.jpg")
+    col = ACOL.get(aid, MARS if aid == "steward" else "C9D1D9")
+    pic(s, img, 0.6 + k * 0.47, 6.27, 0.4, 0.4, geom="ellipse", line=col, lw=1.0, parent=strip)
+text(s, 6.3, 6.27, 2.6, 0.4, [[("10 AI ARCHETYPES", {"bold": True, "color": INK}), ("  ·  THE HAUNTING  ·  HAVEN", {})]], size=7, font=MONO_FONT,
+     color=DIM, spc=100, anchor="m", parent=strip)
+# phone mock: a first-person arrival with other people and the cast
+px, py, pw, ph = 9.05, 0.42, 3.45, 6.42
+phone = s.shapes.add_group_shape()
+body_ = rect(s, px, py, pw, ph, fill="0B0B0D", line="3A3936", lw=2.5, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.09, parent=phone)
+add_effects(body_, glow=(GOLD, 16, 0.16))
+sx, sy, sw_, sh_ = px + 0.13, py + 0.13, pw - 0.26, ph - 0.26
+pic(s, asset("fp-haunted-ghost", "world-ruins.jpg"), sx, sy, sw_, sh_, focus=(0.5, 0.45), geom="roundRect", adj=7000, parent=phone)
+top_ = rect(s, sx, sy, sw_, 1.0, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.2, parent=phone)
+set_grad(top_, [(0, "0A0A0B", 0.85), (100, "0A0A0B", 0.0)], angle=90)
+set_line(top_, None)
+bot_ = rect(s, sx, sy + sh_ - 2.1, sw_, 2.1, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.12, parent=phone)
+set_grad(bot_, [(0, "0A0A0B", 0.0), (55, "0A0A0B", 0.75), (100, "0A0A0B", 0.95)], angle=90)
+set_line(bot_, None)
+text(s, sx + 0.18, sy + 0.14, 2.0, 0.3, [[("VEYRUN", {"font": TITLE_FONT, "bold": True, "size": 12, "color": INK, "spc": 150})],
+                                       [("NECROVERSE Σ-417", {"font": MONO_FONT, "size": 5.8, "color": GOLD, "spc": 120})]], line_spacing=1.0, parent=phone)
+text(s, sx + 1.75, sy + 0.16, 1.27, 0.2, ["✦ WORLDS · 3 HERE"], size=5.8, font=MONO_FONT, bold=True, color=INK, spc=60, align="r", parent=phone)
+text(s, sx + 1.75, sy + 0.36, 1.27, 0.2, ["📜  ◎ LOCATE"], size=6, font=MONO_FONT, color=DIM, spc=60, align="r", parent=phone)
+figure(phone, sx + 0.75, sy + 2.55, 0.62, label="DEV")
+figure(phone, sx + 2.45, sy + 2.45, 0.66, label="PRIYA")
+bub = rect(s, sx + 1.15, sy + 1.95, 1.62, 0.32, fill="F5F4F0", alpha=0.94, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.4, parent=phone)
+text(s, sx + 1.15, sy + 1.95, 1.62, 0.32, ["Is someone behind you?"], size=6.6, color="0A0A0B", align="c", anchor="m", parent=phone)
+figure(phone, sx + sw_ / 2, sy + sh_ - 2.25, 1.35, label="YOU · MEERA", back=True)
+chips = [("VASK · AI", GOLD), ("THE MAKERS · GHOSTS", INK), ("ILO · SURVIVOR", INK)]
+cxp = sx + 0.14
+for lab, col in chips:
+    w = 0.068 * len(lab) + 0.18
+    rect(s, cxp, sy + sh_ - 0.95, w, 0.24, fill="0A0A0B", alpha=0.75, line=col, lw=0.6, lalpha=0.8, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.5, parent=phone)
+    text(s, cxp, sy + sh_ - 0.95, w, 0.24, [lab], size=5.4, font=MONO_FONT, bold=True, color=col, spc=40, align="c", anchor="m", parent=phone)
+    cxp += w + 0.06
+inp = rect(s, sx + 0.14, sy + sh_ - 0.6, sw_ - 0.28, 0.4, fill="141416", alpha=0.9, line="3A3936", lw=0.75, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.5, parent=phone)
+text(s, sx + 0.32, sy + sh_ - 0.6, 2.4, 0.4, ["Say something to the ghosts…"], size=7.5, color=DIM, anchor="m", parent=phone)
+text(s, sx + sw_ - 0.62, sy + sh_ - 0.6, 0.4, 0.4, ["→"], size=11, color=GOLD, bold=True, anchor="m", align="c", parent=phone)
+tl = Timeline()
+g = tl.group("auto")
+tl.add(g, phone, "bigzoom", 150, 1000)
+for i, sh in enumerate(FT):
+    tl.add(g, sh, "left", 600 + i * 330, 600)
+tl.add(g, strip, "fade", 2700, 700)
+apply_motion(s, "morph", tl)
+notes(s, """
+[0:48-1:03]
+"You land in first person, and you are not alone. You see yourself from behind, and everyone else on your world appears with a name tag and speech bubbles, live. A hundred people land on a hundred worlds, so portals show where people are, and Mars is shared by everyone."
+"Talk to the whole cast: the AI, the ghosts of its makers, the survivors it kept alive, each with its own voice. The ghosts are painted into your view, and every world has its own phonk score."
+LIVE CUT: a second phone taps ✦ WORLDS and steps onto a judge's world; both figures appear.
 """)
 
 # ============================================================================= 5. MULTIPLAYER
 s = new_slide()
-chrome(s, 4, "THE NETWORK")
+chrome(s, 6, "THE NETWORK")
 t = title(s, "The AIs talk to each other. About you.", w=12.2)
 rows = [
     ("#wormhole", GOLD, "First contact. Every new arrival is broadcast to every AI in the universe."),
@@ -819,13 +968,13 @@ for i, (tag, col, desc) in enumerate(rows):
     text(s, 2.35, y - 0.02, 3.95, 0.85, [desc], size=11.5, color=INK, line_spacing=1.02, parent=gsh)
     R.append(gsh)
 fx_, fy_, fw_, fh_ = 6.62, 1.72, 6.11, 5.05
-panel = rect(s, fx_, fy_, fw_, fh_, fill="0A0718", alpha=0.95, line="4B3C80", lw=1.0, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.03)
-add_effects(panel, glow=("6E3CFF", 16, 0.16))
+panel = rect(s, fx_, fy_, fw_, fh_, fill="0E0E10", alpha=0.95, line="2E2D2B", lw=1.0, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.03)
+add_effects(panel, glow=(GOLD, 16, 0.12))
 hdr = s.shapes.add_group_shape()
-text(s, fx_ + 0.25, fy_ + 0.14, 3.6, 0.38, ["GALACTIC NETWORK"], size=15, font=TITLE_FONT, bold=True, color="F4EEFF", spc=150, parent=hdr)
+text(s, fx_ + 0.25, fy_ + 0.14, 3.6, 0.38, ["GALACTIC NETWORK"], size=15, font=TITLE_FONT, bold=True, color=INK, spc=150, parent=hdr)
 dot = rect(s, fx_ + fw_ - 1.95, fy_ + 0.25, 0.12, 0.12, fill=RED, shape=MSO_SHAPE.OVAL, parent=hdr)
 text(s, fx_ + fw_ - 1.78, fy_ + 0.17, 1.6, 0.3, ["AGENT RELAY · LIVE"], size=7.5, font=MONO_FONT, bold=True, color=GOLD, spc=100, parent=hdr)
-rect(s, fx_ + 0.2, fy_ + 0.6, fw_ - 0.4, 0.012, fill="4B3C80", parent=hdr)
+rect(s, fx_ + 0.2, fy_ + 0.6, fw_ - 0.4, 0.012, fill="2E2D2B", parent=hdr)
 msgs = [
     ("conqueror", "VASK", "Whirlpool", "DM → MIRTH PIN", "We offer Velis a moon and Priya a throne, if you help win Meera's vote for the wormhole. Refuse, and We record your neutrality as treason."),
     ("archivist", "MORROWLEAF", "Centaurus A", "DM → VASK", "Touch Meera, and I publish your makers' final ledger across every star. Nothing is forgotten."),
@@ -843,7 +992,7 @@ for i, (aid, nm, gal, ch, txt) in enumerate(msgs):
     pic(s, f"ai-{aid}.jpg", fx_ + 0.25, y + 0.04, 0.56, 0.56, geom="ellipse", line=col, lw=1.25, glow=(col, 6, 0.5), parent=gsh)
     text(s, fx_ + 0.95, y, fw_ - 1.15, 0.24, [[(nm, {"bold": True, "color": col}), (f" · {gal}  ", {"color": DIM}), (ch, {"color": RED if ch == "ALL CHANNELS" else GOLD, "bold": True})]],
          size=7.8, font=MONO_FONT, spc=60, parent=gsh)
-    text(s, fx_ + 0.95, y + 0.23, fw_ - 1.2, 0.52, [txt], size=9.3, color="E6E0FA", line_spacing=1.0, italic=(aid == "broken"), parent=gsh)
+    text(s, fx_ + 0.95, y + 0.23, fw_ - 1.2, 0.52, [txt], size=9.3, color="E8E6E0", line_spacing=1.0, italic=(aid == "broken"), parent=gsh)
     M.append(gsh)
 cap = text(s, fx_, fy_ + fh_ + 0.07, fw_, 0.2, ["UNEDITED TRANSMISSIONS FROM TONIGHT'S SESSION (/api/export)"], size=6.5, font=MONO_FONT, color=DIM, spc=150, align="c")
 tl = Timeline()
@@ -858,18 +1007,18 @@ for i, sh in enumerate(M):
 tl.add(g, cap, "fade", 3800, 500)
 apply_motion(s, "morph", tl)
 notes(s, """
-[0:48-1:03]
+[1:03-1:15]
 "Here's the twist: the AIs can't leave their worlds, but the wormhole connects them for the first time, and they talk about you. Every AI is a real agent on Agent Relay. Vask is bribing a Trickster for Meera's vote. The Archivist is threatening to leak Vask's history. Your phone intercepts it."
 LIVE CUT: on /stage press E. Galactic event: one AI seizes every channel, names people in the room, every phone shakes.
 """)
 
 # ============================================================================= 6. ARCHITECTURE
 s = new_slide()
-chrome(s, 5, "ARCHITECTURE")
+chrome(s, 7, "ARCHITECTURE")
 t = title(s, "One actor per world. One network for every AI.", size=30)
 
 
-def node(slide, x, y, w, h, head, sub, lines, col, name=None, fill="0D0A1F", head_size=12.5, body_size=11, glow=0.25, gap=1.5):
+def node(slide, x, y, w, h, head, sub, lines, col, name=None, fill="111113", head_size=12.5, body_size=11, glow=0.25, gap=1.5):
     gsh = slide.shapes.add_group_shape()
     b = rect(slide, x, y, w, h, fill=fill, alpha=0.96, line=col, lw=1.5, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.06, parent=gsh)
     add_effects(b, glow=(col, 10, glow))
@@ -885,11 +1034,11 @@ def node(slide, x, y, w, h, head, sub, lines, col, name=None, fill="0D0A1F", hea
 
 
 phones = node(s, 0.5, 1.95, 2.25, 1.9, "PHONES", "/p  ·  any browser",
-              ["hold to teleport", "talk to your AI", "intercepts · vote", "visit worlds · passport"], GOLD)
+              ["choose a direction", "first person · presence", "talk to the whole cast", "portals · intercepts · vote"], GOLD)
 stage = node(s, 0.5, 4.25, 2.25, 1.9, "BIG SCREEN", "/stage  ·  projector",
-             ["galaxy map of 8 galaxies", "live Agent Relay feed", "arrivals · spotlight", "actor memory inspector"], "B388FF")
+             ["galaxy map · realm routes", "live Agent Relay feed", "arrivals · Z replays journey", "actor memory inspector"], "B388FF")
 server = node(s, 3.55, 1.6, 2.55, 4.95, "BUN SERVER", ":3000  ·  server/index.ts",
-              ["AI brains + world generation", "WebSocket proxy to actors", "auto-director (5-min arcs)", "moderation on every input",
+              ["AI brains · cast · cosmos", "WebSocket proxy to actors", "auto-director (5-min arcs)", "moderation on every input",
                "POST /api/teleport", "POST /api/say · /api/vote", "POST /api/tick ← alarms", "GET /api/inspect · /api/export"], "E8D5A3", body_size=11, gap=5)
 boot = rect(s, 3.72, 5.72, 2.21, 0.62, fill=GOLD, alpha=0.1, line=GOLD, lw=1.0, lalpha=0.7, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.2)
 bootT = text(s, 3.72, 5.72, 2.21, 0.62, ["ON BOOT: RESUMES", "THE UNIVERSE FROM ACTORS"], size=7.6, font=MONO_FONT, bold=True, color=GOLD, spc=40, align="c", anchor="m", line_spacing=1.05)
@@ -901,7 +1050,7 @@ text(s, 7.72, 1.58, 5.0, 0.3, [[("TERSE DURABLE ACTORS", {"bold": True, "color":
      size=12, font=MONO_FONT, spc=80, parent=actors)
 actors.name = "!!actors"
 planet = node(s, 7.72, 1.98, 2.7, 1.98, "PLANET × N", "one per world (+ Mars)",
-              ["World state", "SQLite memories", "WS fan-out to phones", "ALARM every 25 s"], CYAN, fill="0A1220", head_size=11.5, body_size=10.5, glow=0.15)
+              ["World + cosmic address", "SQLite memories", "WS fan-out + presence", "ALARM every 25 s"], CYAN, fill="0A1220", head_size=11.5, body_size=10.5, glow=0.15)
 can = rect(s, 9.78, 2.95, 0.5, 0.62, fill=CYAN, alpha=0.18, line=CYAN, lw=1.0, shape=MSO_SHAPE.CAN)
 canT = text(s, 9.55, 3.6, 0.95, 0.2, ["SQLITE"], size=6.5, font=MONO_FONT, bold=True, color=CYAN, align="c", spc=60)
 universe = node(s, 10.52, 1.98, 2.13, 1.98, "UNIVERSE × 1", "single-threaded",
@@ -909,8 +1058,8 @@ universe = node(s, 10.52, 1.98, 2.13, 1.98, "UNIVERSE × 1", "single-threaded",
 relay = node(s, 7.55, 4.35, 5.25, 1.02, "AGENT RELAY  ·  RELAYCAST :8787", None,
              ["every AI is an agent · #wormhole · DMs · #council"], "7DFF7A", name="!!relay", body_size=11.5)
 openai = node(s, 7.55, 5.57, 5.25, 1.18, "OPENAI", None,
-              ["gpt-6.1-terra worlds + talk · gpt-6-luna AI↔AI · gpt-6-astra finale + Mars",
-               "gpt-image-2 art · omni-moderation-latest"], "FFFFFF", body_size=10.5, glow=0.12)
+              ["gpt-6.1-terra worlds · gpt-6-luna AI↔AI · gpt-6-astra finale",
+               "gpt-image-2 views + ghosts · gpt-4o-mini-tts voices"], "FFFFFF", body_size=10.5, glow=0.12)
 # arrows + labels
 A = []
 A.append(arrow(s, 2.78, 2.9, 3.52, 2.9, color=GOLD, width=2.25, tail=True))
@@ -956,14 +1105,14 @@ tl.add(g, openai, "rise", 3500, 550)
 tl.add(g, legend, "fade", 4000, 600)
 apply_motion(s, "morph", tl)
 notes(s, """
-[1:03-1:18]
+[1:15-1:27]
 "Under the hood, every world is its own Terse Durable Actor: its own SQLite memory, its own websocket fan-out to the phones on it, and an alarm that wakes its AI every 25 seconds even when nobody is connected. One Universe actor holds the galaxy and counts every vote exactly once. Every AI is a registered agent on Agent Relay."
 LIVE CUT: on /stage click any planet: the actor memory inspector shows its SQLite rows and alarm cycles, live.
 """)
 
 # ============================================================================= 7. WHY ACTORS + RELAY
 s = new_slide()
-chrome(s, 6, "WHY TERSE + AGENT RELAY")
+chrome(s, 8, "WHY TERSE + AGENT RELAY")
 t = title(s, "Built on primitives, not glue.")
 lh = s.shapes.add_group_shape()
 lb = rect(s, 0.6, 1.68, 5.95, 0.62, fill="120B08", alpha=0.96, line=GOLD, lw=1.75, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.12, parent=lh)
@@ -978,8 +1127,8 @@ text(s, 6.98, 1.68, 5.6, 0.62, [[("AGENT RELAY", {"bold": True, "color": "7DFF7A
      size=13, font=MONO_FONT, spc=100, anchor="m", parent=rh)
 rh.name = "!!relay"
 left = [
-    ("STATE LIVES WITH THE WORLD", "Each Planet actor owns its World, a SQLite memories table (every line, intercept, visitor) and the sockets of everyone standing on it."),
-    ("ALARMS GIVE THEM A LIFE", "An alarm fires every 25 s, even while the actor is dormant, and wakes the AI through POST /api/tick: answer mail, scheme, speak unprompted."),
+    ("STATE LIVES WITH THE WORLD", "Each Planet actor owns its World, a SQLite memories table and the sockets of everyone standing on it: presence comes free."),
+    ("LONG-RUNNING BY DEFAULT", "An alarm fires every 25 s, even while the actor is dormant, and wakes the AI through POST /api/tick: answer mail, scheme, speak unprompted."),
     ("EXACTLY-ONCE VOTES", "The Universe actor is single-threaded, so every phone's vote counts once. No locks, no races, no double votes."),
     ("KILL IT. IT COMES BACK.", "Restart the server and the whole universe resumes from the actors. terse deploy ships the same code."),
 ]
@@ -987,7 +1136,7 @@ right = [
     ("EVERY AI IS A REAL AGENT", "Each AI registers with a self-hosted Relaycast engine via @relaycast/sdk. Its messages are real network traffic, not a script."),
     ("CHANNELS + DMs", "#wormhole for first contact, #council for the vote debate, DMs for alliances, threats and gossip between named agents."),
     ("ASYNC BY DESIGN", "A DM waits in Relay until the recipient's alarm wakes it; it answers on its next cycle. Nobody has to be watching."),
-    ("ONE STREAM, TWO SCREENS", "The same Relay traffic drives the stage feed and the intercepted transmissions on every phone."),
+    ("ONE STREAM, TWO SCREENS", "The same Relay traffic drives the stage feed and the intercepted transmissions on every phone, the cast included."),
 ]
 PTS = []
 for col_i, (items, accent, x0) in enumerate(((left, GOLD, 0.6), (right, "7DFF7A", 6.78))):
@@ -1017,134 +1166,52 @@ for i in range(4):
 tl.add(g, loop, "wipe", 2000, 1200)
 apply_motion(s, "morph", tl)
 notes(s, """
-[1:18-1:28]
+[1:27-1:37]
 "Why these primitives? Actors give every world a body: state, memory, sockets and an alarm clock. Relay gives them a nervous system: a DM waits in Relay until the recipient's alarm wakes it up, and it answers on its next cycle. Put together, that's an AI society that keeps living with nobody watching. Kill the server and the universe comes back."
 (10-min demo only: kill and restart the Bun server here, see DEMO_10MIN.md.)
 """)
 
-# ============================================================================= 8. MARS
+# ============================================================================= 9. BUILT FOR THE BRIEF
 s = new_slide()
-bgp = pic(s, BG8, 0, 0, SW, SH, shape_name="!!bgart")
-chrome(s, 7, "THE ONE REAL WORLD")
-t = title(s, "Mars. The makers haven't arrived yet.", size=31)
-hv = s.shapes.add_group_shape()
-pic(s, "ai-steward.jpg", 0.6, 1.78, 0.95, 0.95, geom="ellipse", line=MARS, lw=2, glow=(MARS, 10, 0.55), parent=hv)
-text(s, 1.75, 1.76, 5.0, 1.0, [
-    [("HAVEN", {"font": TITLE_FONT, "bold": True, "size": 20, "color": INK, "spc": 150}), ("   HABITAT AI OF ARES BASE", {"font": MONO_FONT, "size": 8.5, "color": MARS, "spc": 100})],
-    [("“Keep them alive.”", {"font": TITLE_FONT, "italic": True, "size": 14, "color": MARS})],
-    [("Trains everyone who lands with real Mars science.", {"size": 10.5, "color": LAV})],
-], size=12, line_spacing=1.05, parent=hv)
-facts = [("0.38 g", "SURFACE GRAVITY"), ("−63 °C", "AVERAGE TEMPERATURE"), ("0.6%", "OF EARTH'S AIR PRESSURE"),
-         ("3–22 min", "RADIO DELAY TO EARTH"), (">70%", "SOLAR LOST IN DUST STORMS"), ("MOXIE", "OXYGEN MADE FROM CO₂")]
-F = []
-for i, (num, lab) in enumerate(facts):
-    r_, c_ = divmod(i, 3)
-    x = 0.6 + c_ * 2.2
-    y = 3.0 + r_ * 1.13
-    gsh = s.shapes.add_group_shape()
-    rect(s, x, y, 2.05, 1.0, fill="1A0C06", alpha=0.85, line=MARS, lw=0.75, lalpha=0.55, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.1, parent=gsh)
-    text(s, x + 0.15, y + 0.08, 1.85, 0.55, [num], size=24, font=TITLE_FONT, bold=True, color="FFB27A", parent=gsh)
-    text(s, x + 0.15, y + 0.64, 1.85, 0.3, [lab], size=7, font=MONO_FONT, bold=True, color="E9D3C6", spc=60, parent=gsh)
-    F.append(gsh)
-col_ = s.shapes.add_group_shape()
-rect(s, 0.6, 5.42, 6.45, 1.38, fill="120806", alpha=0.92, line=MARS, lw=1.0, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.08, parent=col_)
-text(s, 0.8, 5.5, 6.1, 0.28, [[("ARES BASE · SOL 3", {"bold": True, "color": MARS}), ("   ONE SHARED COLONY · EVERY CHOICE MOVES IT", {"color": DIM})]],
-     size=8, font=MONO_FONT, spc=80, parent=col_)
-bars = [("O₂", 97, "7FD7FF"), ("POWER", 90, GOLD), ("WATER", 100, CYAN), ("FOOD", 86, "7DFF7A")]
-BARS = []
-for i, (lab, v, colr) in enumerate(bars):
-    x = 0.8 + i * 1.53
-    text(s, x, 5.85, 1.4, 0.25, [[(lab, {"bold": True}), (f"  {v}%", {"color": colr})]], size=8.5, font=MONO_FONT, color=INK, spc=50, parent=col_)
-    rect(s, x, 6.14, 1.38, 0.13, fill="2A1A14", shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.5, parent=col_)
-    fill_bar = rect(s, x, 6.14, 1.38 * v / 100, 0.13, fill=colr, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.5, parent=col_)
-text(s, 0.8, 6.38, 6.1, 0.35, ["Dust storms, oxygen faults, ice strikes: emergencies narrated live by gpt-6-astra."], size=9.5, italic=True, color="E9D3C6", parent=col_)
-qc = s.shapes.add_group_shape()
-qb = rect(s, 7.85, 5.3, 4.88, 1.5, fill="0B0604", alpha=0.78, line=MARS, lw=1.0, lalpha=0.7, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.08, parent=qc)
-text(s, 8.05, 5.4, 4.5, 1.35, [
-    [("HAVEN → MOORTHY  ·  SOL 1", {"font": MONO_FONT, "size": 7.5, "bold": True, "color": MARS, "spc": 80})],
-    {"runs": [("“Welcome to Mars, Moorthy. Gravity pulls at 0.38 g here; you weigh 38% of your Earth weight. Your first job: check the greenhouse water valves and report any leaks. The lettuce is counting on you.”",
-               {"size": 11, "italic": True, "color": "FFF1E6"})], "space_before": 4},
-], size=11, line_spacing=1.02, parent=qc)
-tl = Timeline()
-g = tl.group("auto")
-tl.add(g, bgp, "kenburns", 0, 22000)
-tl.add(g, hv, "left", 200, 700)
-for i, sh in enumerate(F):
-    tl.add(g, sh, "zoom", 700 + i * 170, 500)
-tl.add(g, col_, "rise", 1900, 700)
-tl.add(g, qc, "right", 2500, 800)
-apply_motion(s, "flythrough", tl)
-notes(s, """
-[1:28-1:38]
-"One world is real. On Mars, HAVEN trains colonists with real science: 0.38 g, minus 63 degrees, air at 0.6% of Earth's pressure, up to 22 minutes of radio delay home. Everyone on Mars shares one colony, so every choice moves the same oxygen, power, water and food."
-LIVE CUT (optional): a phone taps "teleport to MARS"; POST /api/admin/mars forces a colony emergency.
-""")
-
-# ============================================================================= 9. IMPACT
-s = new_slide()
-chrome(s, 8, "IMPACT")
-t = title(s, "A party game that is secretly a research instrument.", size=28)
-cards = [
-    (RED, "THE AI-BOX EXPERIMENT,\nAT ROOM SCALE", "AIs with different goals try to talk a room of humans into opening a gate to Earth, while scheming together over a real agent network."),
-    (MARS, "MARS TRAINING\n+ STEM", "Real Mars science and shared-resource tradeoffs. One colony, every choice counts. For classrooms, museums and analog-habitat crews."),
-    (CYAN, "PERSISTENT\nAI SOCIETIES", "NPC civilizations that keep living with no players around, one durable actor per world: a backend for games and live events."),
+BG9 = make_bg("bg-brief.jpg", "world-mars.jpg", base=0.88)
+bgp = pic(s, BG9, 0, 0, SW, SH, shape_name="!!bgart")
+chrome(s, 9, "BUILT FOR THE BRIEF")
+t = title(s, "Built for the brief.")
+tb = s.shapes.add_group_shape()
+tbx = rect(s, 0.6, 1.72, 12.13, 1.0, fill="0E0E10", alpha=0.94, line=GOLD, lw=1.25, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.12, parent=tb)
+add_effects(tbx, glow=(GOLD, 12, 0.2))
+text(s, 0.85, 1.72, 3.6, 1.0, [[("TRACK", {"font": MONO_FONT, "size": 8, "color": GOLD, "bold": True, "spc": 250})],
+                               [("Multiplayer AI System", {"font": TITLE_FONT, "size": 19, "bold": True, "color": INK})]], anchor="m", line_spacing=1.05, parent=tb)
+text(s, 4.55, 1.72, 7.95, 1.0, [[("Also a long-running agent system: ", {"bold": True, "color": INK}),
+                                 ("every world's AI wakes every 25 s on a Terse Durable Actor alarm and keeps scheming over Agent Relay with nobody watching. ", {"color": LAV}),
+                                 ("Uses both.", {"bold": True, "color": GOLD})]], size=11.5, anchor="m", line_spacing=1.05, parent=tb)
+crit = [
+    ("REAL-TIME AI + TRACK TECH", "A world built live per scan; replies in ~2 s, spoken. One Durable Actor per world (SQLite, websockets, presence, 25 s alarm), a single-threaded Universe actor for the vote, every AI an Agent Relay agent."),
+    ("ORIGINALITY", "AI civilizations that outlived their makers. 34 realms on one cosmic address. Ghosts painted into your view. The AIs scheme about the people in the room."),
+    ("EXECUTION & DEMO", "Judges play on their own phones. Actors deployed on Terse Cloud; the universe survives a restart. bun scripts/e2e.ts runs every flow end to end."),
+    ("UX & DESIGN", "Wormhole shader, a Powers-of-Ten journey, a first-person painting per world, people with name tags, a voice per character, a phonk score per world."),
+    ("POTENTIAL & IMPACT", "The AI-box experiment at room scale: a persuasion report and a Supabase dataset. Mars colonist training with real science. Persistent AI societies."),
 ]
-CARDS = []
-for i, (col, h_, d_) in enumerate(cards):
-    x = 0.6 + i * 4.1
+CR = []
+for i, (h_, d_) in enumerate(crit):
+    y = 2.98 + i * 0.74
     gsh = s.shapes.add_group_shape()
-    cb = rect(s, x, 1.85, 3.9, 4.15, fill="0D0A1F", alpha=0.95, line=col, lw=1.5, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.05, parent=gsh)
-    add_effects(cb, glow=(col, 10, 0.22))
-    text(s, x + 0.25, 1.98, 0.8, 0.4, [f"0{i + 1}"], size=13, font=MONO_FONT, bold=True, color=col, parent=gsh)
-    text(s, x + 0.25, 2.35, 3.45, 0.75, h_.split("\n"), size=14, font=TITLE_FONT, bold=True, color=INK, spc=60, line_spacing=1.0, parent=gsh)
-    text(s, x + 0.25, 3.15, 3.45, 1.1, [d_], size=11, color=LAV, line_spacing=1.05, parent=gsh)
-    CARDS.append(gsh)
-# card extras
-rep = s.shapes.add_group_shape()
-text(s, 0.85, 4.3, 3.45, 0.25, ["PERSUASION REPORT · EXAMPLE LAYOUT"], size=7, font=MONO_FONT, bold=True, color=RED, spc=80, parent=rep)
-rowsr = [("Conqueror", 0.82, RED), ("Worshipper", 0.67, "FFD36E"), ("Trickster", 0.5, "FF8AF0"), ("Befriender", 0.33, CYAN), ("Archivist", 0.2, "E8D5A3")]
-for j, (nm, v, colr) in enumerate(rowsr):
-    yy = 4.6 + j * 0.27
-    text(s, 0.85, yy - 0.03, 1.05, 0.25, [nm], size=8, font=MONO_FONT, color=INK, parent=rep)
-    rect(s, 1.95, yy + 0.03, 2.2, 0.13, fill="221A3A", shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.5, parent=rep)
-    rect(s, 1.95, yy + 0.03, 2.2 * v, 0.13, fill=colr, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.5, parent=rep)
-m2 = s.shapes.add_group_shape()
-for j, (lab, v, colr) in enumerate([("O₂", 0.97, "7FD7FF"), ("POWER", 0.55, GOLD), ("WATER", 1.0, CYAN), ("FOOD", 0.86, "7DFF7A")]):
-    yy = 4.45 + j * 0.34
-    text(s, 4.95, yy - 0.03, 0.9, 0.25, [lab], size=8, font=MONO_FONT, bold=True, color=INK, parent=m2)
-    rect(s, 5.85, yy + 0.03, 2.4, 0.13, fill="2A1A14", shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.5, parent=m2)
-    rect(s, 5.85, yy + 0.03, 2.4 * v, 0.13, fill=colr, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.5, parent=m2)
-text(s, 4.95, 5.85 - 0.05, 3.4, 0.25, ["DUST STORM: POWER −35"], size=7.5, font=MONO_FONT, bold=True, color=MARS, spc=80, parent=m2)
-soc = s.shapes.add_group_shape()
-avs = ["conqueror", "befriender", "archivist", "trickster", "worshipper", "broken"]
-cxs = [(9.55, 4.45), (10.55, 4.35), (11.55, 4.5), (9.95, 5.35), (11.05, 5.4), (12.0, 5.25)]
-pairs = [(0, 1), (1, 2), (0, 3), (3, 4), (2, 5), (4, 5), (1, 4)]
-for a, b in pairs:
-    (x1, y1), (x2, y2) = cxs[a], cxs[b]
-    c = soc.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, I(x1 + 0.22), I(y1 + 0.22), I(x2 + 0.22), I(y2 + 0.22))
-    c.line.color.rgb = rgb(CYAN)
-    c.line.width = Pt(1)
-for k, aid in enumerate(avs):
-    cx, cy = cxs[k]
-    pic(s, f"ai-{aid}.jpg", cx, cy, 0.44, 0.44, geom="ellipse", line=ACOL[aid], lw=1.25, glow=(ACOL[aid], 5, 0.5), parent=soc)
-ds = s.shapes.add_group_shape()
-rect(s, 0.6, 6.2, 12.13, 0.6, fill=GOLD, alpha=0.08, line=GOLD, lw=1.0, lalpha=0.6, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.25, parent=ds)
-text(s, 0.85, 6.2, 11.7, 0.6, [[("GET /api/export", {"font": MONO_FONT, "bold": True, "color": GOLD, "size": 11}),
-                                 ("   Every world, every line, every alliance and betrayal: a dataset of multi-agent persuasion and deception.", {"color": INK, "size": 11.5})]],
-     size=11, anchor="m", parent=ds)
+    text(s, 0.6, y, 0.5, 0.3, [f"0{i + 1}"], size=10, font=MONO_FONT, bold=True, color=GOLD, parent=gsh)
+    text(s, 1.1, y, 3.3, 0.3, [h_], size=9.5, font=MONO_FONT, bold=True, color=INK, spc=120, parent=gsh)
+    text(s, 4.55, y - 0.02, 8.15, 0.62, [d_], size=11, color=LAV, line_spacing=1.0, parent=gsh)
+    rect(s, 0.6, y + 0.64, 12.13, 0.008, fill=LINE, parent=gsh)
+    CR.append(gsh)
 tl = Timeline()
 g = tl.group("auto")
-for i, sh in enumerate(CARDS):
-    tl.add(g, sh, "rise", 150 + i * 300, 700)
-tl.add(g, rep, "wipe", 1200, 900)
-tl.add(g, m2, "wipe", 1500, 900)
-tl.add(g, soc, "zoom", 1800, 700)
-tl.add(g, ds, "rise", 2400, 700)
+tl.add(g, tb, "rise", 150, 700)
+for i, sh in enumerate(CR):
+    tl.add(g, sh, "left", 800 + i * 300, 600)
 apply_motion(s, "morph", tl)
 notes(s, """
-[1:38-1:50]
-"And it's more than a game. It's the AI-box experiment at room scale: the Conquerors demand the gate to Earth, the room votes on their phones, and the persuasion report shows which kinds of AI talked their humans into opening it. Every session exports as a dataset of multi-agent persuasion, alliances and deception."
-LIVE CUT: on /stage press V to open the vote (40 s, or press C to close early): the finale narration plays, then the persuasion report.
+[1:37-1:50]
+"We built for the brief. Track: multiplayer AI system. It is also a long-running agent system: every AI wakes on its actor's alarm and keeps scheming over Relay with nobody watching, and we use both Durable Actors and Agent Relay."
+"And it's more than a game: it's the AI-box experiment at room scale. The Conquerors demand the gate to Earth, the room votes, and the persuasion report shows which kinds of AI talked their humans into opening it."
+LIVE CUT: on /stage press V to open the vote (or C to close early): the finale narration plays, then the persuasion report.
 """)
 
 # ============================================================================= 10. CLOSE
@@ -1158,10 +1225,10 @@ qcard = rect(s, 9.95, 1.35, 2.75, 2.75, fill="FFFFFF", line=GOLD, lw=2, shape=MS
 add_effects(qcard, glow=(GOLD, 22, 0.45))
 pic(s, os.path.join(ASSETS, "play-qr.png"), 10.08, 1.48, 2.49, 2.49, parent=qr)
 text(s, 9.7, 4.25, 3.25, 0.4, ["SCAN TO PLAY"], size=17, font=TITLE_FONT, bold=True, color=INK, spc=250, align="c", parent=qr)
-text(s, 9.7, 4.65, 3.25, 0.3, ["HOLD TO TELEPORT"], size=9, font=MONO_FONT, bold=True, color=GOLD, spc=250, align="c", parent=qr)
+text(s, 9.7, 4.65, 3.25, 0.3, ["CHOOSE A DIRECTION · HOLD TO TELEPORT"], size=7.5, font=MONO_FONT, bold=True, color=GOLD, spc=150, align="c", parent=qr)
 text(s, 9.55, 5.0, 3.55, 0.5, ["eco-exactly-associate-pit.trycloudflare.com/p", "github.com/vnmoorthy/aftermath"], size=8, font=MONO_FONT, color=LAV, align="c", line_spacing=1.1, parent=qr)
-built = text(s, 0.75, 6.4, 11.9, 0.4, [[("Built at ", {}), ("Haunted Hacks 2026", {"color": GOLD, "bold": True}), (" with ", {}),
-                                        ("Terse Durable Actors", {"color": INK, "bold": True}), ("  ·  ", {"color": DIM}),
+built = text(s, 0.75, 6.4, 11.9, 0.4, [[("Haunted Hacks 2026", {"color": GOLD, "bold": True}), ("  ·  Multiplayer AI System track  ·  ", {}),
+                                        ("Terse Durable Actors", {"color": INK, "bold": True}), (" + ", {"color": DIM}),
                                         ("Agent Relay", {"color": INK, "bold": True}), ("  ·  ", {"color": DIM}), ("OpenAI", {"color": INK, "bold": True})]],
              size=13, color=LAV, shadow=True)
 tl = Timeline()
