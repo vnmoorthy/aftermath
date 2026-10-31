@@ -11,15 +11,30 @@ fp = next((f for f in fonts if os.path.exists(f)), None)
 if spec.get("bar"): d.rectangle([0, H - 150, W, H], fill=(0, 0, 0, 140))
 if spec.get("qr") and os.path.exists(spec["qr"]):
     q = Image.open(spec["qr"]).convert("RGBA").resize((300, 300)); im.alpha_composite(q, ((W - 300) // 2, int(H * 0.42)))
+def wrap(text, f, maxw):
+    out = []
+    for para in text.split("\n"):
+        line = ""
+        for w in para.split():
+            t = (line + " " + w).strip()
+            if line and d.textlength(t, font=f) > maxw: out.append(line); line = w
+            else: line = t
+        out.append(line)
+    return out
 for it in spec.get("items", []):
     f = ImageFont.truetype(fp, it["size"]) if fp else ImageFont.load_default()
     col = tuple(int(it.get("color", "FFFFFF")[i:i + 2], 16) for i in (0, 2, 4)) + (255,)
-    y = it["y"]
-    for line in it["text"].split("\n"):
+    lines = wrap(it["text"], f, it["wrap"]) if it.get("wrap") else it["text"].split("\n")
+    step = int(it["size"] * 1.35)
+    y = it["y"] - (step * (len(lines) - 1) if it.get("bottom") else 0)
+    if it.get("box"):   # caption plate behind the text block
+        bw = max(d.textlength(l, font=f) for l in lines) + 56
+        d.rounded_rectangle([(W - bw) / 2, y - 18, (W + bw) / 2, y + step * len(lines) + 4], radius=18, fill=(6, 5, 10, 165))
+    for line in lines:
         tw = d.textlength(line, font=f)
         x = (W - tw) / 2 if it.get("align") == "center" else it["x"]
         sh = Image.new("RGBA", (W, H), (0, 0, 0, 0)); ImageDraw.Draw(sh).text((x + 3, y + 3), line, font=f, fill=(0, 0, 0, 200))
         im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(4)))
         d.text((x, y), line, font=f, fill=col)
-        y += int(it["size"] * 1.35)
+        y += step
 im.save(out)
