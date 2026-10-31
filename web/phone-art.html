@@ -384,7 +384,23 @@ document.addEventListener('error', (e) => {
 
 /* ---------- audio ---------- */
 let AC = null, scoreReady = false;
-function audio() { try { if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) {} initScore(); return AC; }
+function audio() { try { unlockIOS(); if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); if (AC.state !== 'running') AC.resume(); const b = AC.createBuffer(1, 1, 22050), s = AC.createBufferSource(); s.buffer = b; s.connect(AC.destination); s.start(0); } catch (e) {} initScore(); return AC; }
+// iPhones route web audio through the ringer, so the silent switch mutes it. Declaring a playback session
+// (Safari 17+) and keeping a silent <audio> element playing moves the page onto the media channel instead.
+let iosUnlocked = false;
+function unlockIOS() {
+  if (iosUnlocked) return; iosUnlocked = true;
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+  try {
+    const n = 8000, buf = new ArrayBuffer(44 + n), v = new DataView(buf), w = (o, t) => [...t].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+    w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, 'data'); v.setUint32(40, n, true);
+    for (let i = 0; i < n; i++) v.setUint8(44 + i, 128);
+    const el = new Audio(URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }))); el.loop = true; el.setAttribute('playsinline', ''); el.volume = 0.01;
+    el.play().catch(() => { iosUnlocked = false; });
+  } catch (e) {}
+}
+['pointerdown', 'touchend', 'click', 'keydown'].forEach((ev) => document.addEventListener(ev, () => audio(), { capture: true, passive: true }));
 function initScore() {
   if (scoreReady || !AC || !has('Score', 'init')) return;
   try { window.Score.init(AC); scoreReady = true; if (has('Score', 'setEnabled')) window.Score.setEnabled(musicOn); } catch (e) {}
