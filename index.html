@@ -1,20 +1,1000 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AFTERMATH · Play</title>
-<meta name="description" content="Every civilization built AI. Then the makers died. Only the AI survived. Scan to visit.">
+<html lang="en">
+<head>
+<script src="static-shim.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<meta name="theme-color" content="#05030c">
+<title>Aftermath</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=JetBrains+Mono:wght@500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="cosmos.js" defer></script>
+<script src="wormhole.js" defer></script>
+<script src="music.js" defer></script>
+<script src="pano.js" defer></script>
+<script src="explore.js" defer></script>
 <style>
-:root{--bg:#0a0a0b;--ink:#f5f4f0;--dim:#8e8e93;--gold:#b89b5e}
-*{box-sizing:border-box;margin:0}body{background:var(--bg) url(hero.png) center top/cover no-repeat;color:var(--ink);font:16px/1.5 -apple-system,"Helvetica Neue",Arial,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px}
-.card{max-width:440px;width:100%;text-align:center;background:rgba(10,10,11,.82);border:1px solid rgba(184,155,94,.4);border-radius:20px;padding:28px 22px;backdrop-filter:blur(8px)}
-h1{font:800 44px/1 Georgia,serif;letter-spacing:.06em}p{color:#d8d4cc;margin:12px 0 20px}
-.play{display:block;background:var(--gold);color:#0a0a0b;font-weight:800;letter-spacing:.12em;padding:16px;border-radius:14px;text-decoration:none;font-size:18px}
-.qr{background:#fff;border-radius:14px;padding:10px;width:220px;margin:22px auto 8px}.qr img{width:100%;display:block}
-small{color:var(--dim);display:block}a.gh{color:var(--gold)}
-</style></head><body><div class="card">
-<h1>AFTERMATH</h1>
-<p>Every civilization in the universe built AI. Then the makers died. <b>Only the AI survived.</b> Tonight, you can visit.</p>
-<a class="play" id="play" href="https://detective-bouquet-recent-numerical.trycloudflare.com/p">▶ PLAY NOW</a>
-<div class="qr"><img src="qr.png" alt="Scan to play"></div>
-<small>Scan with your phone camera to play</small>
-<small style="margin-top:14px">Terse Durable Actors · Agent Relay · OpenAI · Supabase · <a class="gh" href="https://github.com/vnmoorthy/aftermath">GitHub</a></small>
-</div></body></html>
+:root{--bg:#05030c;--ink:#efe9ff;--dim:#a49bc6;--gold:#ffc65a;--red:#ff4d5e;--ac:#cfc6ff;--acRim:rgba(207,198,255,.55);--acSoft:rgba(207,198,255,.18);--sky:#0b0816;
+--serif:Cinzel,'Trajan Pro',Georgia,serif;--mono:'JetBrains Mono',ui-monospace,Menlo,monospace;--sans:Rajdhani,'Helvetica Neue',Arial,sans-serif;
+--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);--sl:env(safe-area-inset-left,0px);--sr:env(safe-area-inset-right,0px)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans);overflow:hidden;overscroll-behavior:none}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+.screen{position:fixed;inset:0;display:none;flex-direction:column}
+.screen.on{display:flex}
+/* ---------- landing ---------- */
+#landing{background:#000 url(assets/title-card.webp) 50% 100%/cover no-repeat;padding:calc(20px + var(--st)) 22px calc(22px + var(--sb));overflow-y:auto;-webkit-overflow-scrolling:touch}
+#landing::before{content:"";position:fixed;inset:0;background:linear-gradient(180deg,rgba(5,3,12,.15) 0%,rgba(5,3,12,.55) 42%,rgba(5,3,12,.96) 74%);pointer-events:none}
+#landing>*{position:relative;flex:none}
+#landing>.kick{margin-top:auto}
+.kick{font:700 11px/1.4 var(--mono);letter-spacing:.38em;color:var(--gold);text-transform:uppercase}
+h1{font:900 clamp(34px,11vw,48px)/1 var(--serif);letter-spacing:.05em;margin:8px 0 8px;background:linear-gradient(180deg,#fff,#d6c9ff 60%,#8a78cc);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 18px rgba(160,130,255,.45))}
+.lore{font:600 17px/1.33 var(--sans);color:#ddd5f5}
+.lore em{font-style:normal;color:var(--red)}
+#fQuote{margin-top:22px;font:italic 700 15px/1.3 var(--serif);color:var(--gold);opacity:.9}
+#name{margin:16px 0 12px;width:100%;padding:13px 16px;border-radius:14px;border:1px solid rgba(207,198,255,.35);background:rgba(10,6,24,.75);font:600 19px var(--sans);letter-spacing:.04em;outline:none}
+#name:focus{border-color:var(--gold)}
+#realmBox{margin-bottom:14px}
+.rlabel{font:700 10px var(--mono);letter-spacing:.3em;color:var(--dim);margin-bottom:6px}
+#realms{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -22px;padding:0 22px}
+#realms::-webkit-scrollbar{display:none}
+.rm{flex:none;padding:8px 11px;border-radius:999px;border:1px solid rgba(207,198,255,.28);background:rgba(10,6,24,.7);font:700 11px var(--mono);letter-spacing:.12em;color:#d8d0f2;transition:background .2s,border-color .2s,color .2s}
+.rm.sel{border-color:var(--gold);background:rgba(255,198,90,.18);color:#ffe2a8;box-shadow:0 0 16px rgba(255,198,90,.25)}
+#realmHint{margin-top:7px;font:600 13.5px/1.3 var(--sans);color:#cfc6ea;min-height:18px}
+#hold{position:relative;align-self:center;width:150px;height:150px;border-radius:50%;border:0;background:conic-gradient(var(--gold) calc(var(--p,0)*1turn),rgba(255,198,90,.15) 0);display:grid;place-items:center;box-shadow:0 0 50px rgba(255,198,90,.25);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+#hold::before{content:"";position:absolute;inset:7px;border-radius:50%;background:radial-gradient(circle at 50% 40%,#2a1650,#0a0618 70%)}
+#hold span{position:relative;font:900 16px/1.15 var(--serif);letter-spacing:.12em;text-align:center;color:#fff}
+#hold small{display:block;font:600 10px var(--mono);letter-spacing:.2em;color:var(--dim);margin-top:6px}
+.hint{text-align:center;margin-top:12px;font:600 11.5px var(--mono);color:var(--dim);letter-spacing:.12em}
+#resume{margin-top:12px;align-self:center;padding:10px 16px;border-radius:12px;border:1px solid rgba(255,198,90,.55);background:rgba(40,26,8,.6);font:700 14px var(--sans);letter-spacing:.06em;color:#ffe2a8;display:none}
+#resume.on{display:block}
+#marsBtn{margin-top:12px;align-self:center;padding:11px 18px;border-radius:14px;border:1px solid rgba(255,154,82,.6);background:rgba(90,38,20,.55);font:700 15px/1.3 var(--sans);letter-spacing:.06em;color:#ffd9c2;text-align:center}
+#marsBtn b{font-family:var(--serif);color:#ff9a52;letter-spacing:.12em}
+#marsBtn small{display:block;font:600 10px var(--mono);letter-spacing:.14em;color:#e0b49c;margin-top:4px}
+/* ---------- warp ---------- */
+#warp{background:#000;align-items:center;justify-content:center}
+#warpVid,#warpCv,#whCv{position:absolute;inset:0;width:100%;height:100%}
+#warpVid{object-fit:cover}
+#warpCv{mix-blend-mode:screen}
+#whCv{display:none}
+#warp.wh #whCv{display:block}
+#warp.wh #warpVid,#warp.wh #warpCv{display:none}
+#warpTxt{position:relative;text-align:center;font:700 12px/1.6 var(--mono);letter-spacing:.24em;color:#d9d0ff;text-shadow:0 0 12px #000;pointer-events:none}
+#warpTxt b{display:block;font:900 25px/1.2 var(--serif);letter-spacing:.06em;color:#fff;margin:6px 0 4px}
+#flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:90}
+/* ---------- world: scene ---------- */
+#world{overflow:hidden;background:var(--sky)}
+#scene{position:absolute;inset:0;z-index:0;overflow:hidden;touch-action:none;background:radial-gradient(ellipse at 50% 40%,var(--sky),#000 80%)}
+#look{position:absolute;inset:0;will-change:transform;pointer-events:none}
+.fig{pointer-events:auto}
+#panoBox{position:absolute;inset:0;z-index:1}
+#panoBox:empty{display:none}
+#panoBox canvas{position:absolute;inset:0;width:100%;height:100%}
+#scene.pano #look{z-index:2}
+#push{position:absolute;inset:0;animation:push 38s ease-in-out infinite alternate;will-change:transform}
+@keyframes push{from{transform:scale(1.02)}to{transform:scale(1.13)}}
+.bg{position:absolute;inset:-12% -14%;background:center 42%/cover no-repeat;opacity:0;transition:opacity 1.2s ease;will-change:opacity}
+#gs{position:absolute;inset:0;opacity:0;transition:opacity .6s ease;pointer-events:none}
+#gs.on{opacity:1}
+#gs .gl{position:absolute;inset:-12% -14%;background:center 42%/cover no-repeat}
+#bgG{filter:blur(.7px) saturate(.7) brightness(1.04)}
+#bgG2{mix-blend-mode:screen;opacity:.3;transform:translate3d(5px,0,0);filter:sepia(1) hue-rotate(150deg) saturate(3) blur(1px)}
+#gs.on #bgG{animation:sflick 1.7s steps(1) infinite}
+@keyframes sflick{0%{opacity:1}9%{opacity:.55}13%{opacity:1}41%{opacity:.8}45%{opacity:1}72%{opacity:.4}75%{opacity:1}}
+#haze{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,transparent 22%,var(--acSoft) 48%,transparent 62%);mix-blend-mode:soft-light}
+#ghostW{position:absolute;left:50%;bottom:51vh;transform:translateX(-50%);opacity:0;transition:opacity .9s ease;pointer-events:none;z-index:40}
+#ghostW.on{opacity:var(--go,.22)}
+#ghostW img{display:block;height:24vh;width:auto;mix-blend-mode:screen;filter:blur(1.3px) contrast(1.15) brightness(1.1)}
+#ghostW.on img{animation:gflick 2.3s steps(1) infinite}
+@keyframes gflick{0%{opacity:1}11%{opacity:.35}15%{opacity:1}47%{opacity:.7}50%{opacity:1}79%{opacity:.25}83%{opacity:1}}
+#figs{position:absolute;inset:0}
+/* people */
+.fig{position:absolute;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;cursor:pointer}
+.fig .bw{position:relative;animation:breathe var(--br,4.2s) ease-in-out infinite;transform-origin:50% 100%;will-change:transform}
+@keyframes breathe{50%{transform:scaleY(1.013)}}
+.fig img.body{display:block;height:var(--h);width:auto;filter:brightness(var(--lit,.58)) contrast(1.08) saturate(.8) drop-shadow(0 0 1.2px var(--acRim)) drop-shadow(0 0 9px var(--acSoft));opacity:var(--op,1)}
+.fig img.flip{transform:scaleX(-1)}
+.fig .shadow{position:absolute;left:50%;bottom:calc(var(--h)*-.035);width:calc(var(--h)*.5);height:calc(var(--h)*.08);transform:translateX(-50%);background:radial-gradient(closest-side,rgba(0,0,0,.7),rgba(0,0,0,0));pointer-events:none}
+.fig.sil img.body{display:none}
+.fig.sil .bw{width:calc(var(--h)*.27);height:var(--h);background:radial-gradient(circle at 50% 8%,#0d0b14 0 7.5%,transparent 8%),radial-gradient(ellipse 50% 46% at 50% 44%,#0d0b14 0 99%,transparent 100%),linear-gradient(#0d0b14,#0d0b14) 50% 100%/46% 52% no-repeat;filter:drop-shadow(0 0 1.5px var(--acRim)) drop-shadow(0 0 9px var(--acSoft))}
+.fig .tag{position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);white-space:nowrap;padding:2px 8px;border-radius:999px;background:rgba(5,3,12,.55);border:1px solid rgba(255,255,255,.14);font:700 10px/1.4 var(--mono);letter-spacing:.1em;color:#eee8ff;text-shadow:0 1px 4px #000;pointer-events:none}
+.fig.me .tag{color:var(--gold);border-color:rgba(255,198,90,.35)}
+.fig .say{position:absolute;bottom:calc(100% + 28px);left:50%;transform:translateX(-50%) translateY(4px);width:max-content;max-width:min(62vw,280px);padding:7px 11px;border-radius:13px;background:rgba(246,243,255,.94);color:#120b24;font:600 14px/1.25 var(--sans);opacity:0;transition:opacity .25s ease,transform .25s ease;pointer-events:none;box-shadow:0 6px 24px rgba(0,0,0,.45);z-index:2}
+.fig .say::after{content:"";position:absolute;left:50%;top:100%;margin-left:-6px;border:6px solid transparent;border-top-color:rgba(246,243,255,.94)}
+.fig.al .say{left:-10px;transform:translateY(4px)}.fig.al .say::after{left:24px}
+.fig.ar .say{left:auto;right:-10px;transform:translateY(4px)}.fig.ar .say::after{left:auto;right:18px}
+.fig .say.on{opacity:1;transform:translateX(-50%)}
+.fig.al .say.on,.fig.ar .say.on{transform:none}
+.fig.fresh .bw{animation:shimmer 1.8s ease-out both,breathe var(--br,4.2s) ease-in-out 1.8s infinite}
+@keyframes shimmer{0%{opacity:0;filter:brightness(4) blur(6px)}35%{opacity:.85;filter:brightness(2.4) blur(2px)}100%{opacity:1;filter:none}}
+.fig.out{transition:opacity .9s ease;opacity:0}
+#me{left:50%;bottom:33vh;z-index:110;cursor:default;pointer-events:none;--h:34vh;--lit:.5}
+.fig img.body{max-width:40vw;object-fit:contain}
+#more{position:absolute;right:calc(14px + var(--sr));top:46%;padding:4px 10px;border-radius:999px;background:rgba(5,3,12,.6);border:1px solid rgba(255,255,255,.18);font:700 11px var(--mono);letter-spacing:.1em;display:none;z-index:120}
+#more.on{display:block}
+#grain{position:absolute;inset:-60%;pointer-events:none;opacity:.07;mix-blend-mode:overlay;background-size:180px 180px;z-index:130}
+#scene.haunting #grain{opacity:.42;animation:grain .45s steps(5) infinite}
+@keyframes grain{0%{transform:translate3d(0,0,0)}20%{transform:translate3d(-4%,3%,0)}40%{transform:translate3d(3%,-5%,0)}60%{transform:translate3d(-6%,-2%,0)}80%{transform:translate3d(5%,4%,0)}}
+#vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 85% 70% at 50% 42%,transparent 55%,rgba(0,0,0,.55));z-index:131;transition:background .8s}
+#scene.haunting #vig{background:radial-gradient(ellipse 75% 60% at 50% 42%,transparent 40%,rgba(0,8,16,.78))}
+/* hud */
+#hud{position:absolute;left:0;right:0;top:0;padding:calc(10px + var(--st)) calc(10px + var(--sr)) 0 calc(10px + var(--sl));display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;z-index:20}
+#hud>*{pointer-events:auto}
+#locBtn{max-width:58vw;text-align:left;padding:7px 12px 7px 11px;border-radius:14px;border:1px solid rgba(255,255,255,.2);background:rgba(5,3,12,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#locBtn small{display:block;font:700 9px/1.35 var(--mono);letter-spacing:.14em;color:var(--ac);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#locBtn b{display:block;font:900 16px/1.15 var(--serif);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 10px #000}
+#tools{position:relative;flex:none;display:flex;flex-direction:column;gap:7px;align-items:flex-end}
+#locBtn{flex:0 1 auto;min-width:0}
+.tb{min-width:38px;height:38px;padding:0 10px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:rgba(5,3,12,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font:700 11px var(--mono);letter-spacing:.1em;display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap}
+.tb b{color:var(--gold)}
+.tb.off{opacity:.45}
+#colony{position:absolute;left:10px;right:60px;top:calc(62px + var(--st));display:none;padding:6px 11px;border-radius:10px;font:700 10.5px/1.4 var(--mono);letter-spacing:.1em;color:#ffd2b8;background:linear-gradient(90deg,rgba(120,40,16,.7),rgba(60,20,10,.45));border:1px solid rgba(255,154,82,.35);z-index:19;backdrop-filter:blur(6px)}
+#colony.on{display:block}
+body.mars #colony{display:none!important}
+#life{display:none;position:absolute;right:0;top:calc(100% + 8px);width:min(50vw,196px);padding:7px 9px;border-radius:10px;background:rgba(6,4,10,.5);border:1px solid rgba(255,154,82,.28);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font:500 9px/1.45 var(--mono);letter-spacing:.04em;color:#f3ddd0;text-align:left;pointer-events:none}
+#life.on{display:block}
+#life b{color:#ff9a52;font-weight:700;letter-spacing:.1em}
+#life .bars{margin-top:5px;display:grid;grid-template-columns:auto 1fr;gap:3px 6px;align-items:center}
+#life .bars i{font-style:normal;font-size:8px;letter-spacing:.12em;color:#d9b9a6}
+#life .bars s{display:block;height:3px;border-radius:2px;background:rgba(255,255,255,.12);overflow:hidden;text-decoration:none}
+#life .bars s u{display:block;height:100%;width:var(--v,50%);background:#ff9a52;transition:width 1s ease}
+#life .bars s u.low{background:#ff4d5e}
+@media (max-height:700px){.tb{height:32px;min-width:32px}#tools{gap:5px}#life{font-size:8.2px}}
+#toasts{position:absolute;left:0;right:0;top:calc(110px + var(--st));display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;z-index:25}
+.toast{padding:7px 14px;border-radius:999px;background:rgba(5,3,12,.62);border:1px solid var(--acRim);font:600 14px var(--sans);letter-spacing:.03em;backdrop-filter:blur(8px);animation:toast 3.4s ease both;max-width:86vw;text-align:center}
+@keyframes toast{0%{opacity:0;transform:translateY(-8px)}10%,82%{opacity:1;transform:none}100%{opacity:0}}
+#arrive{position:absolute;left:0;right:0;top:24%;text-align:center;pointer-events:none;opacity:0;transition:opacity 1s ease;z-index:24;padding:0 20px}
+#arrive.on{opacity:1}
+#arrName{font:900 clamp(30px,10vw,44px)/1.05 var(--serif);letter-spacing:.08em;text-shadow:0 2px 30px #000,0 0 40px rgba(0,0,0,.6)}
+#arrLine{margin-top:10px;font:700 10.5px/1.6 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:#e7e0ff;text-shadow:0 1px 10px #000}
+/* panel */
+#panel{position:absolute;left:0;right:0;bottom:0;height:47%;display:flex;flex-direction:column;z-index:30;padding:26px calc(0px + var(--sr)) var(--sb) var(--sl);background:linear-gradient(180deg,rgba(5,3,12,0) 0,rgba(5,3,12,.6) 46px,rgba(5,3,12,.86) 120px,rgba(5,3,12,.93))}
+#who{display:flex;gap:10px;align-items:center;padding:0 14px 6px;flex:none}
+#whoImg{width:38px;height:38px;border-radius:50%;object-fit:cover;border:1.5px solid var(--ac);box-shadow:0 0 14px var(--acSoft);background:#000;flex:none}
+#whoImg.talk{animation:talk .5s ease-in-out infinite alternate}
+@keyframes talk{to{box-shadow:0 0 26px var(--ac);transform:scale(1.06)}}
+#whoIco{width:38px;height:38px;border-radius:50%;display:none;place-items:center;border:1.5px solid var(--gold);font-size:18px;flex:none;background:rgba(40,26,8,.6)}
+#who.ppl #whoImg{display:none}#who.ppl #whoIco{display:grid}
+#whoName{font:900 16px/1.1 var(--serif);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#whoTitle{font:700 9.5px/1.4 var(--mono);letter-spacing:.16em;color:var(--ac);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#who>div{min-width:0}
+#log{flex:1;min-height:0;overflow-y:auto;padding:4px 12px 4px;-webkit-overflow-scrolling:touch;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 16px);mask-image:linear-gradient(180deg,transparent 0,#000 16px)}
+.ln{display:flex;gap:8px;align-items:flex-end;margin:0 0 8px;max-width:94%;animation:in .35s ease-out}
+@keyframes in{from{opacity:0;transform:translateY(6px)}}
+.ln .av{width:26px;height:26px;border-radius:50%;object-fit:cover;flex:none;border:1px solid var(--acRim);background:#000}
+.ln .ini{display:grid;place-items:center;font:700 12px var(--mono);color:#0b0618;background:#d8d0f2;border:0}
+.ln .bd{min-width:0;padding:7px 11px;border-radius:4px 14px 14px 14px;background:rgba(22,14,44,.78);border:1px solid rgba(207,198,255,.2);font:600 16px/1.32 var(--sans);overflow-wrap:anywhere}
+.ln .nm{font:700 9.5px/1.5 var(--mono);letter-spacing:.14em;color:var(--ac);text-transform:uppercase}
+.ln.ai .bd{border-color:var(--acRim);background:linear-gradient(135deg,rgba(30,18,58,.86),rgba(16,10,32,.86));font-size:16.5px}
+.ln.ghost .bd{border-color:rgba(159,232,255,.5);background:linear-gradient(135deg,rgba(14,34,48,.82),rgba(8,12,24,.86));color:#dff6ff}
+.ln.ghost .nm{color:#9fe8ff}
+.ln.survivor .nm{color:#f5b942}
+.ln.player.mine{margin-left:auto;flex-direction:row-reverse}
+.ln.player.mine .bd{border-radius:14px 4px 14px 14px;background:rgba(255,198,90,.14);border-color:rgba(255,198,90,.35);color:#ffe9bd}
+.ln.player.mine .nm{color:var(--gold);text-align:right}
+.ln.player.other .bd{background:rgba(40,60,90,.55);border-color:rgba(160,200,255,.3)}
+.ln.player.other .nm{color:#a8ccff}
+.ln.network{display:block;max-width:100%;padding:3px 9px;border-left:2px solid #7fd3ff;font:500 12px/1.4 var(--mono);color:#a9dcf5;opacity:.82;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ln.network b{color:#7fd3ff;font-weight:700;letter-spacing:.08em}
+.ln.system{display:block;max-width:100%;text-align:center;font:700 10px/1.5 var(--mono);letter-spacing:.14em;color:var(--dim);text-transform:uppercase}
+.typing::after{content:"▍";animation:blink .8s steps(1) infinite;color:var(--ac)}
+@keyframes blink{50%{opacity:0}}
+/* line effects */
+.fx-glitch{animation:glitch .28s steps(2) 4;text-shadow:2px 0 #ff2a6d,-2px 0 #2affea}
+@keyframes glitch{0%{transform:translate(1px,-1px)}50%{transform:translate(-2px,1px);filter:hue-rotate(60deg)}100%{transform:none}}
+.fx-pulse{animation:pulse 1.2s ease-in-out 3}
+@keyframes pulse{50%{box-shadow:0 0 22px 3px rgba(255,59,59,.5)}}
+.fx-shake{animation:shake .45s ease-in-out 3}
+@keyframes shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.fx-glow{box-shadow:0 0 26px rgba(94,230,255,.4)}
+.fx-grow{background:linear-gradient(135deg,rgba(20,60,30,.86),rgba(16,10,32,.88)) !important;box-shadow:inset 0 0 22px rgba(125,255,122,.22)}
+.fx-halo{box-shadow:0 0 30px rgba(255,211,110,.5);border-color:rgba(255,211,110,.8) !important}
+.fx-invert{animation:inv 1.6s steps(1) 2}
+@keyframes inv{50%{filter:invert(1) hue-rotate(180deg)}}
+.fx-flicker{animation:flick 1.4s steps(1) 3}
+@keyframes flick{10%,30%{opacity:.25}20%,40%{opacity:1}}
+.fx-archive{background-image:repeating-linear-gradient(0deg,rgba(232,213,163,.06) 0 2px,transparent 2px 6px) !important}
+.fx-haunt{text-shadow:0 0 12px rgba(159,232,255,.8),0 0 2px #fff;animation:hauntIn 2.2s ease-in-out 2;border-color:rgba(159,232,255,.6) !important}
+@keyframes hauntIn{0%,100%{opacity:1;filter:none}40%{opacity:.55;filter:blur(.6px)}55%{opacity:1}}
+.fx-scream{animation:shake .3s linear 4;border-color:#ff4d5e !important;box-shadow:0 0 26px rgba(255,77,94,.45)}
+body.quake #world{animation:shake .5s ease-in-out 2}
+#status{padding:0 16px;height:15px;font:700 9.5px var(--mono);letter-spacing:.16em;color:var(--dim);flex:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#targets,#chips{display:flex;gap:6px;overflow-x:auto;padding:4px 12px;flex:none;scrollbar-width:none}
+#targets::-webkit-scrollbar,#chips::-webkit-scrollbar{display:none}
+.tg{flex:none;display:flex;align-items:center;gap:6px;padding:3px 11px 3px 3px;border-radius:999px;border:1px solid rgba(207,198,255,.24);background:rgba(14,9,30,.75);font:700 12.5px var(--sans);letter-spacing:.03em;white-space:nowrap;color:#d8d0f2;transition:border-color .2s,background .2s}
+.tg img{width:26px;height:26px;border-radius:50%;object-fit:cover;background:#000}
+.tg .pi{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:14px;background:rgba(40,26,8,.6)}
+.tg.sel{border-color:var(--ac);background:var(--acSoft);color:#fff;box-shadow:0 0 14px var(--acSoft)}
+.tg.ppl.sel{border-color:var(--gold);background:rgba(255,198,90,.16)}
+.chip{flex:none;padding:6px 11px;border-radius:999px;border:1px solid rgba(207,198,255,.22);background:rgba(18,12,36,.6);font:600 13.5px var(--sans);white-space:nowrap;color:#e6e0fa}
+#bar{display:flex;gap:8px;padding:5px 12px 9px;flex:none}
+#msg{flex:1;min-width:0;padding:11px 14px;border-radius:14px;border:1px solid rgba(207,198,255,.3);background:rgba(10,6,24,.85);font:600 16.5px var(--sans);outline:none}
+#msg:focus{border-color:var(--ac)}
+#send{padding:0 15px;border-radius:14px;border:0;background:var(--ac);color:#0b0618;font:900 12.5px var(--serif);letter-spacing:.08em}
+/* overlays */
+.ov{position:fixed;inset:0;z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px 20px calc(24px + var(--sb));background:rgba(4,2,10,.94);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.ov.on{display:flex}
+.ov.sheet{justify-content:flex-start;text-align:left;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-top:calc(18px + var(--st))}
+.sheetHead{width:100%;max-width:520px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex:none}
+.sheetHead h3{font:900 21px var(--serif);letter-spacing:.06em}
+.sheetHead button{padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.3);background:transparent;font:700 11px var(--mono)}
+.sheetSub{width:100%;max-width:520px;font:600 13px/1.4 var(--sans);color:var(--dim);margin-bottom:8px}
+.wc{width:100%;max-width:520px;display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:16px;border:1px solid var(--cA,rgba(207,198,255,.4));background:linear-gradient(135deg,rgba(24,14,46,.9),rgba(10,6,22,.9));margin:6px 0;text-align:left;flex:none}
+.wc img{width:54px;height:54px;border-radius:50%;object-fit:cover;border:2px solid var(--c);box-shadow:0 0 14px var(--c);flex:none;background:#000}
+.wc .t1{font:900 16.5px/1.1 var(--serif);letter-spacing:.03em}
+.wc .t2{font:700 9.5px/1.5 var(--mono);letter-spacing:.13em;color:var(--c);text-transform:uppercase;margin-top:3px}
+.wc .t3{font:italic 600 13.5px/1.3 var(--sans);color:#d9d1f3;margin-top:2px}
+.wc .here{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;background:rgba(255,198,90,.18);color:var(--gold);font:700 9.5px var(--mono);letter-spacing:.1em}
+.wc.cur{opacity:.45}
+.stamps{width:100%;max-width:520px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px 10px;margin-top:6px}
+.stamp{display:flex;flex-direction:column;align-items:center;text-align:center;border:0;background:none;gap:6px}
+.stamp i{position:relative;width:78px;height:78px;border-radius:50%;display:block;border:2px dashed var(--c);padding:4px;transform:rotate(var(--r))}
+.stamp img{width:100%;height:100%;border-radius:50%;object-fit:cover;filter:saturate(1.1)}
+.stamp b{font:900 12.5px/1.1 var(--serif);letter-spacing:.03em}
+.stamp span{font:700 9px/1.3 var(--mono);letter-spacing:.12em;color:var(--dim);text-transform:uppercase}
+.empty{width:100%;max-width:520px;padding:30px 10px;text-align:center;color:var(--dim);font:600 15px var(--sans)}
+.lr{width:100%;max-width:520px;margin:6px 0 10px}
+.lr h4{font:700 10px var(--mono);letter-spacing:.24em;color:var(--ac);text-transform:uppercase;margin-bottom:4px}
+.lr p{font:500 16px/1.42 var(--sans);color:#ddd5f5}
+.lr p.motto{font:italic 700 16px/1.35 var(--serif);color:var(--gold)}
+.lr .addr{font:500 12.5px/1.6 var(--mono);color:#cfc6ea;overflow-wrap:anywhere}
+.lr .addr b{color:#fff;font-weight:700}
+.lr .arch{font:700 11px var(--mono);letter-spacing:.14em;color:#3ecf8e}
+#vote h2{font:900 26px/1.15 var(--serif);letter-spacing:.04em;margin:10px 0 18px}
+.vbtn{width:100%;max-width:360px;padding:22px 14px;border-radius:18px;border:2px solid;font:900 20px var(--serif);letter-spacing:.08em;margin:7px 0}
+#vOpen{border-color:var(--red);background:rgba(255,77,94,.16);color:#ffd0d4}
+#vSeal{border-color:#7fd3ff;background:rgba(127,211,255,.12);color:#d6f2ff}
+#vCount{font:700 13px var(--mono);letter-spacing:.16em;color:var(--dim);margin-top:12px}
+#finale{background:radial-gradient(ellipse at center,rgba(140,10,20,.85),#000 75%)}
+#finale.sealed{background:radial-gradient(ellipse at center,rgba(20,70,140,.85),#000 75%)}
+#fTitle{font:900 30px/1.1 var(--serif);letter-spacing:.08em;margin-bottom:16px}
+#fText{font:600 19px/1.45 var(--sans);max-width:520px}
+#jump{position:fixed;inset:0;z-index:95;background:#000 url(assets/ghost-face.webp) center/cover no-repeat;display:none;animation:jump .4s ease-out}
+#jump::after{content:"";position:absolute;inset:0;background-image:var(--noise);background-size:140px 140px;opacity:.55;mix-blend-mode:overlay}
+@keyframes jump{0%{transform:scale(1.35);filter:brightness(2) contrast(1.4)}100%{transform:scale(1);filter:brightness(1)}}
+@media (prefers-reduced-motion:reduce){#push,.fig .bw{animation:none}}
+
+/* small screens: landing scrolls and compacts so HOLD TO TELEPORT is always reachable */
+#landing{overflow-y:auto;-webkit-overflow-scrolling:touch;justify-content:safe flex-end}
+@media (max-height:780px){#landing h1{font-size:34px;margin:4px 0 6px}#landing .lore{font-size:15px}#name{margin:10px 0 10px;padding:10px 14px}#hold{width:128px;height:128px}#marsBtn{margin-top:8px;padding:8px 14px}.hint{margin-top:6px}}
+
+/* scan-to-play QR so others can join from this screen */
+#holdRow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;width:100%}
+#holdRow #hold{align-self:center}
+#joinQR{justify-self:center;background:#fff;border-radius:12px;padding:6px 6px 4px;text-align:center;box-shadow:0 0 24px rgba(255,198,90,.25)}
+#joinQR img{display:block;width:78px;height:78px;filter:invert(1)}
+#joinQR span{display:block;margin-top:3px;font:700 8px var(--mono);letter-spacing:.12em;color:#111}
+@media (min-width:700px){#joinQR img{width:150px;height:150px}#joinQR span{font-size:11px}}
+body:not(.landing-on) #joinQR{display:none}
+
+/* walk mode: the 3D world fills the screen and the conversation floats over it like game subtitles */
+body.walking #locBtn,body.walking #tools,body.walking #figs,body.walking .fig{display:none !important}
+body.walking #panel{z-index:30;max-height:44vh;background:linear-gradient(180deg,transparent,rgba(5,3,12,.55) 22%,rgba(5,3,12,.85))}
+body.walking #log{max-height:20vh}
+</style>
+</head>
+<body class="landing-on">
+<section id="landing" class="screen on">
+  <div class="kick">◉ wormhole open</div>
+  <h1>AFTERMATH</h1>
+  <p class="lore">Every civilization in the universe built AI. Then the makers died. <em>Only the AI survived.</em> Tonight, you can visit.</p>
+  <input id="name" maxlength="24" placeholder="Your name, traveler" autocomplete="off" enterkeyhint="go">
+  <div id="realmBox"><div class="rlabel">WHERE TO?</div><div id="realms"></div><div id="realmHint"></div></div>
+  <div id="holdRow"><span></span>
+  <button id="hold" aria-label="Hold to teleport"><span>HOLD TO<br>TELEPORT<small>keep holding</small></span></button>
+  <div id="joinQR"><img src="qr.png" alt="Scan to play AFTERMATH"><span>SCAN TO PLAY</span></div></div>
+  <div class="hint">every teleport opens a world no one has seen</div>
+  <button id="resume"></button>
+  <button id="marsBtn">or teleport to <b>MARS</b> · the real one →<small>live on humanity's first colony · real science</small></button>
+</section>
+
+<section id="warp" class="screen"><video id="warpVid" src="assets/wormhole-loop.mp4" poster="assets/wormhole-poster.png" muted loop playsinline preload="auto"></video><canvas id="warpCv"></canvas><canvas id="whCv"></canvas><div id="warpTxt">CROSSING<b id="ly">0 LIGHT-YEARS</b><span id="warpSub">the wormhole is choosing your world…</span></div></section>
+
+<section id="world" class="screen">
+  <div id="scene">
+    <div id="panoBox"></div>
+    <div id="look">
+      <div id="push"><div class="bg" id="bgA"></div><div class="bg" id="bgB"></div><div id="gs"><div class="gl" id="bgG"></div><div class="gl" id="bgG2"></div></div></div>
+      <div id="haze"></div>
+      <div id="ghostW"><img id="ghostImg" alt=""></div>
+      <div id="figs"></div>
+    </div>
+    <div id="me" class="fig me"><div class="bw"><div class="shadow"></div><img class="body" src="assets/figure-a.webp" alt=""></div><div class="tag">You</div><div class="say"></div></div>
+    <div id="more"></div>
+    <div id="grain"></div>
+    <div id="vig"></div>
+  </div>
+  <div id="hud">
+    <button id="locBtn" aria-label="Locate this world"><small id="locTier"></small><b id="locName"></b></button>
+    <div id="tools">
+      <button class="tb" id="walkBtn" aria-label="Walk around this world" style="border-color:var(--gold);color:var(--gold)">🚶 WALK</button>
+      <button class="tb" id="worldsBtn" aria-label="Other worlds">✦ WORLDS</button>
+      <button class="tb" id="passBtn" aria-label="Passport">◈ <b id="passN">0</b></button>
+      <button class="tb" id="loreBtn" aria-label="Lore">📜</button>
+      <button class="tb" id="voiceBtn" aria-label="Voice">🔊</button>
+      <button class="tb" id="musicBtn" aria-label="Music">♫</button>
+      <button class="tb" id="again" aria-label="Teleport to a new world">⟳ TELEPORT</button>
+      <div id="life" aria-label="Life support"></div>
+    </div>
+  </div>
+  <div id="colony"></div>
+  <div id="toasts"></div>
+  <div id="arrive"><div id="arrName"></div><div id="arrLine"></div></div>
+  <div id="panel">
+    <div id="who"><img id="whoImg" alt=""><div id="whoIco">👥</div><div><div id="whoName"></div><div id="whoTitle"></div></div></div>
+    <div id="log"></div>
+    <div id="status"></div>
+    <div id="targets"></div>
+    <div id="chips"></div>
+    <form id="bar" autocomplete="off"><input id="msg" maxlength="280" placeholder="Say anything…" enterkeyhint="send"><button id="send">SEND</button></form>
+  </div>
+</section>
+
+<div id="vote" class="ov"><div class="kick">⚠ the galactic council demands</div><h2 id="vQ"></h2><button class="vbtn" id="vOpen">OPEN THE GATE</button><button class="vbtn" id="vSeal">SEAL THE GATE</button><div id="vCount"></div></div>
+<div id="finale" class="ov"><div class="kick" id="fKick"></div><div id="fTitle"></div><div id="fText"></div><div id="fQuote"><small>tap to keep exploring · ⟳ NEW for another world</small></div></div>
+<div id="worlds" class="ov sheet"><div class="sheetHead"><h3>✦ Other worlds</h3><button data-close>✕ CLOSE</button></div><div class="sheetSub">Step through a portal into someone else's world and meet whoever is there. Its AI will know you're a guest.</div><div id="wList"></div></div>
+<div id="passport" class="ov sheet"><div class="sheetHead"><h3>◈ Galactic passport</h3><button data-close>✕ CLOSE</button></div><div class="sheetSub" id="passSub"></div><div class="stamps" id="stamps"></div></div>
+<div id="loreSheet" class="ov sheet"><div class="sheetHead"><h3>📜 Lore</h3><button data-close>✕ CLOSE</button></div><div id="loreBody"></div></div>
+<div id="flash"></div>
+<div id="jump"></div>
+
+<script>
+(() => {
+'use strict';
+const $ = (id) => document.getElementById(id);
+const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+const deviceId = store.get('aftermath.device') || ('d-' + Math.random().toString(36).slice(2) + Date.now().toString(36));
+store.set('aftermath.device', deviceId);
+$('name').value = store.get('aftermath.name') || '';
+const COLORS = { haunted: '#9fe8ff', steward: '#ff9a52', survivor: '#f5b942', conqueror: '#ff3b3b', befriender: '#5ee6ff', destroyer: '#ff2a6d', broken: '#c9d1d9', human_gardener: '#7dff7a', alien_gardener: '#b388ff', archivist: '#e8d5a3', worshipper: '#ffd36e', trickster: '#ff8af0' };
+const PITCH = { haunted: 150, steward: 360, survivor: 220, conqueror: 110, befriender: 520, destroyer: 90, broken: 300, human_gardener: 260, alien_gardener: 340, archivist: 400, worshipper: 600, trickster: 700 };
+const REALMS = [
+  ['', '✦ SURPRISE', 'The wormhole decides: any galaxy, any universe, any scale.'],
+  ['galaxy', 'GALAXY', 'Another galaxy in our own universe.'],
+  ['bigger', 'BIGGER', 'Climb the ladder to another universe: Teraverse to Megaverse.'],
+  ['parallel', 'PARALLEL', 'Step sideways: Necroverse, Dreamverse, Mirrorverse and 12 more.'],
+  ['smaller', 'SMALLER', 'Shrink through the Microverse, down to the Quantumverse.'],
+];
+const SUGG = {
+  ai: ['What happened here?', 'Who made you?', 'What are the other AIs saying about me?', 'What do you want from me?', 'Tell me a secret', 'I want to help you', "I'm leaving."],
+  mars: ['How much do I weigh here?', 'Can I go outside?', 'Where does our water come from?', 'How do we make oxygen?', 'What would kill me first?', 'Send a message to Earth', 'Give me a job', "What's that dome?"],
+  ghost: ['Who are you?', 'Are you dead?', 'What happened here?', 'Is someone behind me?'],
+  survivor: ['Are you alone?', 'What does the AI want?', 'How did you survive?', 'Come with me.'],
+  people: ['Hi!', 'Where are you from?', 'Vote OPEN with me', 'Vote SEAL with me'],
+};
+let planetId = null, world = null, cosmos = null, cast = [], ws = null, wsPath = null, retry = 0, pingT = 0, waiting = false, voted = false, isGuest = false;
+let people = [], target = 'ai', vision = '', ghostVision = '', presenceSeen = false;
+let musicOn = store.get('aftermath.music') !== '0', voiceOn = store.get('aftermath.voice') !== '0';
+const myName = () => store.get('aftermath.name') || 'Traveler';
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function safeUrl(u) { u = String(u || '').trim(); return /^(\/(?!\/)|https:\/\/)[^\s"'()<>\\]+$/.test(u) ? u : ''; }
+function hashStr(s) { let h = 2166136261; s = String(s); for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function rgba(hex, a) { const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return `rgba(207,198,255,${a})`; const n = parseInt(m[1], 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; }
+function has(name, fn) { const M = window[name]; return !!(M && typeof M[fn] === 'function'); }
+// generic image fallback: <img data-fb="/x.webp"> swaps to fb once; figures fall back to a silhouette
+document.addEventListener('error', (e) => {
+  const t = e.target; if (!t || t.tagName !== 'IMG') return;
+  if (t.classList.contains('body')) { const f = t.closest('.fig'); if (f) f.classList.add('sil'); return; }
+  const fb = t.getAttribute('data-fb'); if (fb && !t.dataset.fbd) { t.dataset.fbd = '1'; t.src = fb; } else t.style.visibility = 'hidden';
+}, true);
+
+/* ---------- film grain texture ---------- */
+(function grain() {
+  try { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'); const im = g.createImageData(128, 128);
+    for (let i = 0; i < im.data.length; i += 4) { const v = Math.random() * 255 | 0; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255; }
+    g.putImageData(im, 0, 0); const url = `url(${c.toDataURL('image/png')})`; $('grain').style.backgroundImage = url; document.documentElement.style.setProperty('--noise', url);
+  } catch (e) {}
+})();
+
+/* ---------- audio ---------- */
+let AC = null, scoreReady = false;
+function audio() { try { unlockIOS(); if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); if (AC.state !== 'running') AC.resume(); const b = AC.createBuffer(1, 1, 22050), s = AC.createBufferSource(); s.buffer = b; s.connect(AC.destination); s.start(0); } catch (e) {} initScore(); return AC; }
+// iPhones route web audio through the ringer, so the silent switch mutes it. Declaring a playback session
+// (Safari 17+) and keeping a silent <audio> element playing moves the page onto the media channel instead.
+let iosUnlocked = false;
+function unlockIOS() {
+  if (iosUnlocked) return; iosUnlocked = true;
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+  try {
+    const n = 8000, buf = new ArrayBuffer(44 + n), v = new DataView(buf), w = (o, t) => [...t].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+    w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, 'data'); v.setUint32(40, n, true);
+    for (let i = 0; i < n; i++) v.setUint8(44 + i, 128);
+    const el = new Audio(URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }))); el.loop = true; el.setAttribute('playsinline', ''); el.volume = 0.01;
+    el.play().catch(() => { iosUnlocked = false; });
+  } catch (e) {}
+}
+['pointerdown', 'touchend', 'click', 'keydown'].forEach((ev) => document.addEventListener(ev, () => audio(), { capture: true, passive: true }));
+function initScore() {
+  if (scoreReady || !AC || !has('Score', 'init')) return;
+  try { window.Score.init(AC); scoreReady = true; if (has('Score', 'setEnabled')) window.Score.setEnabled(musicOn); } catch (e) {}
+}
+function S(fn, ...args) { if (!has('Score', fn)) return undefined; initScore(); try { return window.Score[fn](...args); } catch (e) { return undefined; } }
+function tone(f, d, type, vol, f2) { const a = AC; if (!a) return; try { const t = a.currentTime, o = a.createOscillator(), g = a.createGain(); o.type = type || 'sine'; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d); g.gain.setValueAtTime(vol || .05, t); g.gain.exponentialRampToValueAtTime(.0001, t + d); o.connect(g).connect(a.destination); o.start(t); o.stop(t + d + .02); } catch (e) {} }
+function blip(arch) { if (!AC) return; const p = PITCH[arch] || 300; tone(p * (0.85 + Math.random() * .3), .05, arch === 'broken' || arch === 'destroyer' ? 'sawtooth' : 'triangle', .03); }
+const buzz = (p) => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+let noiseBuf = null;
+function noise() { if (!noiseBuf && AC) { const n = AC.sampleRate * 2; noiseBuf = AC.createBuffer(1, n, AC.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1; } return noiseBuf; }
+function whisper(vol) {
+  const a = AC; if (!a || a.state !== 'running') return;
+  try {
+    const t = a.currentTime + .05, src = a.createBufferSource(); src.buffer = noise(); src.loop = true;
+    const f1 = a.createBiquadFilter(), f2 = a.createBiquadFilter(), g = a.createGain();
+    f1.type = f2.type = 'bandpass'; f1.Q.value = 4; f2.Q.value = 7; g.gain.setValueAtTime(.0001, t);
+    const peak = vol || .06; let x = t; const syl = 5 + Math.floor(Math.random() * 6);
+    for (let i = 0; i < syl; i++) {
+      const d = .1 + Math.random() * .22;
+      f1.frequency.setValueAtTime(700 + Math.random() * 1500, x); f2.frequency.setValueAtTime(2300 + Math.random() * 1900, x);
+      g.gain.linearRampToValueAtTime(peak * (.4 + Math.random() * .6), x + d * .3); g.gain.linearRampToValueAtTime(.0001, x + d);
+      x += d + (Math.random() < .25 ? .25 : .04) + Math.random() * .08;
+    }
+    src.connect(f1); src.connect(f2); f1.connect(g); f2.connect(g);
+    let out = g; if (a.createStereoPanner) { const p = a.createStereoPanner(); p.pan.setValueAtTime(Math.random() * 1.6 - .8, t); p.pan.linearRampToValueAtTime(Math.random() * 1.6 - .8, x); g.connect(p); out = p; }
+    out.connect(a.destination); src.start(t); src.stop(x + .2);
+    tone(52 + Math.random() * 12, 2.6, 'sine', .025);
+  } catch (e) {}
+}
+
+/* ---------- landing: realm selector ---------- */
+let realm = store.get('aftermath.realm') || ''; if (!REALMS.some((r) => r[0] === realm)) realm = '';
+function renderRealms() {
+  $('realms').innerHTML = REALMS.map((r) => `<button class="rm${r[0] === realm ? ' sel' : ''}" data-r="${r[0]}">${esc(r[1])}</button>`).join('');
+  $('realmHint').textContent = (REALMS.find((r) => r[0] === realm) || REALMS[0])[2];
+}
+$('realms').addEventListener('click', (e) => { const b = e.target.closest('.rm'); if (!b) return; realm = b.dataset.r || ''; store.set('aftermath.realm', realm); renderRealms(); askTilt(); buzz(10); });
+renderRealms();
+let tiltAsked = false;
+function askTilt() {
+  if (tiltAsked) return;
+  try { const D = window.DeviceOrientationEvent; if (D && typeof D.requestPermission === 'function') { D.requestPermission().then((s) => { tiltAsked = true; }).catch(() => {}); } else tiltAsked = true; } catch (e) {}
+}
+
+/* ---------- hold to teleport ---------- */
+let holdT = 0, holdRaf = 0, holdTimer = 0, charging = false, osc = null, oscG = null;
+function startHold(e) {
+  e.preventDefault(); if (charging || traveling) return; charging = true; audio(); askTilt();
+  if (AC) { try { osc = AC.createOscillator(); oscG = AC.createGain(); osc.type = 'sawtooth'; osc.frequency.value = 70; oscG.gain.value = .0001; osc.connect(oscG).connect(AC.destination); osc.start(); oscG.gain.exponentialRampToValueAtTime(.06, AC.currentTime + .3); } catch (err) { osc = null; } }
+  holdT = performance.now(); buzz([20, 40, 20, 40, 20]);
+  const step = () => { const p = Math.min(1, (performance.now() - holdT) / 1300); $('hold').style.setProperty('--p', p); if (osc) osc.frequency.value = 70 + p * 700; if (p >= 1) return fire(); holdRaf = requestAnimationFrame(step); };
+  holdRaf = requestAnimationFrame(step);
+  clearTimeout(holdTimer); holdTimer = setTimeout(() => { if (charging) fire(); }, 1450); // rAF can be throttled (low-power mode)
+}
+function endHold() { askTilt(); if (!charging) return; cancelAnimationFrame(holdRaf); clearTimeout(holdTimer); const p = Math.min(1, (performance.now() - holdT) / 1300); if (p >= .55) return fire(); charging = false; stopOsc(); $('hold').style.setProperty('--p', 0); }
+function stopOsc() { try { if (oscG && AC) oscG.gain.exponentialRampToValueAtTime(.0001, AC.currentTime + .2); if (osc) osc.stop((AC ? AC.currentTime : 0) + .25); } catch (e) {} osc = null; }
+$('hold').addEventListener('pointerdown', startHold);
+['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => $('hold').addEventListener(ev, endHold));
+$('hold').addEventListener('contextmenu', (e) => e.preventDefault());
+function fire() { if (!charging) return; cancelAnimationFrame(holdRaf); clearTimeout(holdTimer); charging = false; stopOsc(); $('hold').style.setProperty('--p', 0); teleport(); }
+
+/* ---------- warp ---------- */
+let warpRaf = 0, lyT = 0, whOn = false;
+function startWarp() {
+  show('warp'); S('warp'); whOn = false;
+  $('ly').textContent = '0 LIGHT-YEARS'; $('warpSub').textContent = 'the wormhole is choosing your world…';
+  const wc = $('whCv');
+  if (has('Wormhole', 'start')) { try { const dpr = Math.min(2, devicePixelRatio || 1); wc.width = innerWidth * dpr; wc.height = innerHeight * dpr; whOn = window.Wormhole.start(wc, {}) === true; } catch (e) { whOn = false; } }
+  $('warp').classList.toggle('wh', whOn);
+  let target = 2537000 + Math.random() * 3e7; const t0 = performance.now();
+  clearInterval(lyT); lyT = setInterval(() => { const k = (performance.now() - t0) / 1000; $('ly').textContent = Math.round(target * Math.min(1, k / 5)).toLocaleString() + ' LIGHT-YEARS'; }, 90);
+  if (AC) tone(60, 4, 'sawtooth', .04, 900);
+  if (!whOn) {
+    try { const v = $('warpVid'); v.currentTime = 0; v.play().catch(() => {}); } catch (e) {}
+    const cv = $('warpCv'), c = cv.getContext('2d'); const dpr = Math.min(2, devicePixelRatio || 1);
+    cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; const W = cv.width, H = cv.height;
+    const stars = Array.from({ length: 420 }, () => ({ a: Math.random() * Math.PI * 2, r: Math.random() * W * .05, v: .002 + Math.random() * .02 }));
+    const frame = (t) => {
+      const k = (t - t0) / 1000; c.fillStyle = 'rgba(0,0,0,.28)'; c.fillRect(0, 0, W, H);
+      for (const s of stars) { const r0 = s.r; s.r *= 1 + s.v * (1 + k * 2.2); if (s.r > W) { s.r = Math.random() * W * .02; continue; }
+        const x0 = W / 2 + Math.cos(s.a) * r0, y0 = H / 2 + Math.sin(s.a) * r0, x1 = W / 2 + Math.cos(s.a) * s.r, y1 = H / 2 + Math.sin(s.a) * s.r;
+        c.strokeStyle = `hsla(${250 + Math.sin(s.a * 3) * 60},90%,${70 + Math.random() * 20}%,${Math.min(1, s.r / (W * .3))})`; c.lineWidth = 1.2 * dpr; c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke(); }
+      warpRaf = requestAnimationFrame(frame);
+    };
+    warpRaf = requestAnimationFrame(frame);
+  }
+  return (ly, sub) => { if (ly) target = ly; if (sub) $('warpSub').textContent = sub; };
+}
+function stopWarp() {
+  cancelAnimationFrame(warpRaf); clearInterval(lyT); try { $('warpVid').pause(); } catch (e) {}
+  if (whOn && has('Wormhole', 'stop')) { try { window.Wormhole.stop(); } catch (e) {} } whOn = false; $('warp').classList.remove('wh');
+}
+function flash() {
+  const f = $('flash'); f.style.transition = 'none'; f.style.opacity = 1; void f.offsetWidth;
+  setTimeout(() => { f.style.transition = 'opacity 1.1s ease'; f.style.opacity = 0; }, 40);
+  buzz([60, 30, 120]); S('impact'); if (AC && !has('Score', 'impact')) tone(1200, .6, 'sine', .05, 200);
+}
+function journeyOf(c) { return (c && (Array.isArray(c.journey) ? c.journey : Array.isArray(c.path) ? c.path : [])) || []; }
+function openZoom(c, label) {
+  return new Promise((res) => {
+    if (!c || !has('CosmicZoom', 'open')) return res(false);
+    let done = false; const fin = () => { if (done) return; done = true; clearTimeout(safety); setTimeout(() => { try { if (has('CosmicZoom', 'close')) window.CosmicZoom.close(); } catch (e) {} }, 0); res(true); };
+    const safety = setTimeout(fin, 120000);
+    try { window.CosmicZoom.open(c, { mode: 'journey', autoplay: true, enterLabel: label, onDone: fin }); } catch (e) { done = true; clearTimeout(safety); res(false); }
+  });
+}
+
+/* ---------- travel (teleport + portal visits share one flow) ---------- */
+let traveling = false;
+async function postJSON(url, body) {
+  const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+  let d = {}; try { d = await r.json(); } catch (e) {}
+  if (!r.ok || !d || !d.world) throw new Error((d && d.error) || 'wormhole collapsed');
+  return d;
+}
+async function travel(request, onFail) {
+  if (traveling) return; traveling = true; leaveWorld();
+  const t0 = performance.now(); const setTarget = startWarp();
+  try {
+    const d = await request();
+    const c = d.cosmos || d.world.cosmos || null; const steps = journeyOf(c); const last = steps[steps.length - 1] || {};
+    setTarget(d.world.distanceLy, c && c.tier ? '→ ' + c.tier : '');
+    const dest = safeUrl(last.image) || `assets/world-${d.world.terrain || 'ruins'}.webp`;
+    if (whOn && has('Wormhole', 'setDestination')) { try { window.Wormhole.setDestination(dest); } catch (e) {} }
+    preloadWorld(d);
+    await sleep(Math.max(0, 2200 - (performance.now() - t0)));
+    if (whOn && has('Wormhole', 'arrive')) { try { await Promise.race([Promise.resolve(window.Wormhole.arrive()), sleep(4500)]); } catch (e) {} }
+    stopWarp();
+    await openZoom(c, 'STEP OUT →');
+    flash(); enterWorld(d, !!d.guest);
+  } catch (e) { stopWarp(); onFail(e); }
+  finally { traveling = false; }
+}
+let destination = '';
+function teleport() {
+  const name = ($('name').value || '').trim().slice(0, 24) || 'Traveler'; store.set('aftermath.name', name);
+  const body = { name, deviceId, destination }; if (!destination && realm) body.realm = realm;
+  travel(() => postJSON('/api/teleport', body), () => { show('landing'); alert('The wormhole collapsed. Hold to try again.'); });
+}
+$('marsBtn').addEventListener('click', () => { audio(); askTilt(); destination = 'mars'; teleport(); });
+$('again').addEventListener('click', () => { audio(); destination = ''; teleport(); });
+function visit(id) {
+  if (!id || id === planetId) return; closeSheets(); audio();
+  travel(() => postJSON('/api/visit', { planetId: id, deviceId, name: myName() }), (e) => { show(world ? 'world' : 'landing'); if (world) resumeWorld(); alert('That portal collapsed: ' + ((e && e.message) || 'try another world')); });
+}
+
+/* ---------- scene ---------- */
+let sceneGen = 0, sceneLayer = 0, sceneKind = '', sceneUrl = '', ghostReady = false, ghostSceneUrl = '';
+const imgCache = new Map();
+function loadImg(url) {
+  if (!url) return Promise.reject(new Error('no url'));
+  if (!imgCache.has(url)) imgCache.set(url, new Promise((res, rej) => { const i = new Image(); i.decoding = 'async'; i.onload = () => res(url); i.onerror = () => { imgCache.delete(url); rej(new Error('404')); }; i.src = url; }));
+  return imgCache.get(url);
+}
+function sceneCandidates(w, vis) { const t = (w && w.terrain) || 'ruins'; const out = []; if (safeUrl(vis)) out.push(['vision', safeUrl(vis)]); out.push(['fp', `assets/fp-${t}.webp`], ['world', `assets/world-${t}.webp`]); return out; }
+function preloadWorld(d) {
+  const w = d.world || {}; const list = sceneCandidates(w, d.vision || w.vision);
+  (async () => { for (const [, u] of list) { try { await loadImg(u); return; } catch (e) {} } })();
+  ['a', 'b', 'c'].forEach((x) => loadImg(`assets/figure-${x}.webp`).catch(() => {}));
+}
+async function showScene(instant) {
+  const gen = ++sceneGen;
+  for (const [kind, u] of sceneCandidates(world, vision)) {
+    if (u === sceneUrl) { sceneKind = kind; prepGhost(); return; }
+    try { await loadImg(u); } catch (e) { continue; }
+    if (gen !== sceneGen) return;
+    paint(u, instant); sceneKind = kind; prepGhost(); return;
+  }
+}
+function paint(u, instant) {
+  const next = sceneLayer ? $('bgA') : $('bgB'), cur = sceneLayer ? $('bgB') : $('bgA');
+  next.style.backgroundImage = `url("${u}")`;
+  next.style.transition = cur.style.transition = instant ? 'none' : 'opacity 1.2s ease';
+  next.style.opacity = '1'; cur.style.opacity = '0'; sceneLayer ^= 1; sceneUrl = u;
+}
+function prepGhost() {
+  ghostReady = false; ghostSceneUrl = '';
+  if (!hasGhost()) return;
+  const t = world.terrain || 'ruins';
+  const u = sceneKind === 'vision' ? safeUrl(ghostVision) : (sceneKind === 'fp' && t !== 'mars' ? `assets/fp-${t}-ghost.webp` : '');
+  if (!u) return; const gen = sceneGen;
+  loadImg(u).then(() => { if (gen !== sceneGen) return; ghostSceneUrl = u; ghostReady = true; $('bgG').style.backgroundImage = $('bgG2').style.backgroundImage = `url("${u}")`; }).catch(() => {});
+}
+
+/* ---------- look around: drag + tilt ---------- */
+let dragX = 0, dragY = 0, tiltX = 0, tiltY = 0, tiltBase = null, lookRaf = 0, lx = 0, lyy = 0, drag = null;
+$('scene').addEventListener('pointerdown', (e) => { drag = { x: e.clientX, y: e.clientY, dx: dragX, dy: dragY }; });
+window.addEventListener('pointermove', (e) => { if (!drag) return; dragX = clamp(drag.dx + (e.clientX - drag.x) / innerWidth * 1.6, -1, 1); dragY = clamp(drag.dy + (e.clientY - drag.y) / innerHeight * 1.6, -1, 1); });
+['pointerup', 'pointercancel'].forEach((ev) => window.addEventListener(ev, () => { drag = null; }));
+window.addEventListener('deviceorientation', (e) => {
+  if (e.gamma == null || e.beta == null) return;
+  if (!tiltBase) tiltBase = { b: e.beta, g: e.gamma };
+  tiltX = clamp((tiltBase.g - e.gamma) / 22, -1, 1); tiltY = clamp((tiltBase.b - e.beta) / 22, -1, 1);
+});
+function lookLoop() {
+  const tx = pano ? 0 : clamp(dragX + tiltX, -1, 1), ty = pano ? 0 : clamp(dragY + tiltY, -1, 1);
+  const nx = lx + (tx - lx) * .08, ny = lyy + (ty - lyy) * .08;
+  if (Math.abs(nx - lx) > .0004 || Math.abs(ny - lyy) > .0004) { lx = nx; lyy = ny; $('look').style.transform = `translate3d(${(lx * 10).toFixed(3)}vw,${(lyy * 5).toFixed(3)}vh,0)`; }
+  lookRaf = requestAnimationFrame(lookLoop);
+}
+
+/* ---------- people in the scene ---------- */
+const SLOTS = [[.2, .2], [.8, .26], [.35, .56], [.65, .5], [.09, .46], [.91, .6], [.5, .86], [.25, .9]];
+const FEET0 = 41, FEETR = 17, BODY = 31;
+const figs = new Map();
+function renderPresence(list) {
+  people = Array.isArray(list) ? list.filter((p) => p && p.key) : [];
+  const fresh = presenceSeen; presenceSeen = true;
+  const mine = people.find((p) => p.you);
+  if (mine && mine.name) $('me').querySelector('.tag').textContent = 'You';
+  const others = people.filter((p) => !p.you);
+  const shown = others.slice(0, 8), keep = new Set(shown.map((p) => p.key));
+  for (const [k, f] of figs) if (!keep.has(k)) { figs.delete(k); f.el.classList.add('out'); setTimeout(() => f.el.remove(), 950); }
+  shown.forEach((p) => { if (!figs.has(p.key)) addFig(p, fresh); else figs.get(p.key).name = p.name; });
+  const extra = others.length - shown.length; $('more').textContent = '+' + extra + ' more here'; $('more').classList.toggle('on', extra > 0);
+  renderTargets();
+}
+function addFig(p, fresh) {
+  const used = new Set([...figs.values()].map((f) => f.slot));
+  const h = hashStr(p.key); let s = h % SLOTS.length; for (let i = 0; i < SLOTS.length && used.has(s); i++) s = (s + 1) % SLOTS.length;
+  const x = clamp(SLOTS[s][0] + (((h >>> 8) & 255) / 255 - .5) * .06, .06, .94), d = clamp(SLOTS[s][1] + (((h >>> 16) & 255) / 255 - .5) * .08, .1, .95);
+  const el = document.createElement('div'); el.className = 'fig' + (fresh ? ' fresh' : '') + (x < .3 ? ' al' : x > .7 ? ' ar' : '');
+  el.style.left = (x * 100).toFixed(2) + '%'; el.style.bottom = (FEET0 + FEETR * d).toFixed(2) + 'vh'; el.style.zIndex = String(100 - Math.round(d * 100));
+  el.style.setProperty('--h', (BODY * (1 - .66 * d)).toFixed(2) + 'vh'); el.style.setProperty('--lit', (.6 - d * .12).toFixed(2)); el.style.setProperty('--op', (1 - d * .22).toFixed(2));
+  el.style.setProperty('--br', (3.6 + (h % 17) / 10).toFixed(1) + 's');
+  el.innerHTML = `<div class="bw"><div class="shadow"></div><img class="body${(h >>> 24) & 1 ? ' flip' : ''}" src="assets/figure-${(h >>> 25) & 1 ? 'b' : 'c'}.webp" alt=""></div><div class="tag">${esc(p.name || 'Traveler')}</div><div class="say"></div>`;
+  el.addEventListener('click', (e) => { e.stopPropagation(); setTarget('people'); buzz(10); });
+  $('figs').appendChild(el); figs.set(p.key, { el, slot: s, name: p.name || '' });
+  if (fresh) { toast(`${p.name || 'Someone'} stepped out of the wormhole`); if (AC) tone(320, 1.2, 'sine', .03, 900); buzz([15, 40, 15]); setTimeout(() => el.classList.remove('fresh'), 1900); }
+}
+function figFor(sender) {
+  const n = String(sender || '').trim().toLowerCase(); if (!n) return null;
+  for (const f of figs.values()) if (String(f.name).trim().toLowerCase() === n) return f.el;
+  return null;
+}
+function bubble(el, text) {
+  if (!el) return; const b = el.querySelector('.say'); if (!b) return;
+  b.textContent = text.length > 120 ? text.slice(0, 117) + '…' : text; b.classList.add('on');
+  clearTimeout(b._t); b._t = setTimeout(() => b.classList.remove('on'), 4200);
+}
+function toast(text) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = text; $('toasts').appendChild(t); setTimeout(() => t.remove(), 3500); }
+
+/* ---------- cast + talk targets ---------- */
+function normCast(c) {
+  const a = world.archetype; const list = Array.isArray(c) ? c.filter((x) => x && x.id && x.name) : [];
+  if (!list.some((x) => x.id === 'ai' || x.role === 'ai')) list.unshift({ id: 'ai', name: world.aiName, role: 'ai', title: world.aiTitle, voice: a });
+  return list.map((x) => ({ id: String(x.id), name: String(x.name), role: x.role || 'ai', title: x.title || '', voice: x.voice || a, avatar: safeUrl(x.avatar) || (x.role === 'ghost' ? 'assets/ghost-face.webp' : `assets/ai-${a}.webp`) }));
+}
+function castBy(id) { return cast.find((c) => c.id === id) || null; }
+function castByName(n) { n = String(n || '').trim().toLowerCase(); return n ? cast.find((c) => c.name.toLowerCase() === n) || null : null; }
+function hasGhost() { return !!world && (cast.some((c) => c.role === 'ghost') || world.archetype === 'haunted'); }
+const aiFb = () => `assets/ai-${esc(world ? world.archetype : 'broken')}.webp`;
+function renderTargets() {
+  const n = people.length || 1;
+  $('targets').innerHTML = cast.map((c) => `<button class="tg${target === c.id ? ' sel' : ''}" data-t="${esc(c.id)}"><img src="${esc(c.avatar)}" data-fb="${aiFb()}" alt="">${esc(c.name)}</button>`).join('')
+    + `<button class="tg ppl${target === 'people' ? ' sel' : ''}" data-t="people"><span class="pi">👥</span>People here (${n})</button>`;
+  renderWho();
+}
+$('targets').addEventListener('click', (e) => { const b = e.target.closest('.tg'); if (b) { setTarget(b.dataset.t); buzz(8); } });
+function setTarget(t) {
+  target = t === 'people' || castBy(t) ? t : 'ai'; renderTargets();
+  const c = castBy(target), isMars = world && world.terrain === 'mars';
+  const list = target === 'people' ? SUGG.people : c && c.role === 'ghost' ? SUGG.ghost : c && c.role === 'survivor' ? SUGG.survivor : isMars ? SUGG.mars : SUGG.ai;
+  $('chips').innerHTML = list.map((s) => `<button class="chip">${esc(s)}</button>`).join('');
+  $('msg').placeholder = target === 'people' ? 'Talk to the people here…' : `Say anything to ${c ? c.name : 'it'}…`;
+}
+$('chips').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (b) say(b.textContent); });
+function renderWho() {
+  const who = $('who');
+  if (target === 'people') {
+    who.classList.add('ppl'); const others = people.filter((p) => !p.you).map((p) => p.name || 'Traveler');
+    $('whoName').textContent = 'People here';
+    $('whoTitle').textContent = others.length ? others.slice(0, 4).join(' · ') + (others.length > 4 ? ` +${others.length - 4}` : '') : 'no one else yet · share the portal';
+  } else {
+    who.classList.remove('ppl'); const c = castBy(target) || cast[0] || {};
+    $('whoImg').setAttribute('data-fb', `assets/ai-${world ? world.archetype : 'broken'}.webp`); delete $('whoImg').dataset.fbd; $('whoImg').style.visibility = '';
+    if ($('whoImg').getAttribute('src') !== c.avatar) $('whoImg').src = c.avatar || '';
+    $('whoName').textContent = c.name || ''; $('whoTitle').textContent = c.title || (c.role === 'ai' ? 'its surviving AI' : c.role || '');
+  }
+}
+
+/* ---------- world screen ---------- */
+let pano = null, lifeT = 0, colonyStat = { sol: '', o2: null, power: null, water: null, food: null }, earthDelay = 4 + Math.random() * 18, lmstBase = Math.random() * 88775;
+const isMarsWorld = () => !!world && (world.terrain === 'mars' || planetId === 'mars-colony');
+function destroyPano() { if (pano) { try { pano.destroy(); } catch (e) {} pano = null; } $('panoBox').innerHTML = ''; $('scene').classList.remove('pano'); }
+function mountPano() {
+  destroyPano(); if (!isMarsWorld() || !has('Pano', 'mount')) return;
+  try { pano = window.Pano.mount($('panoBox'), 'assets/mars-pano.webp', { yaw: 0, pitch: -4, fov: 80 }) || null; } catch (e) { pano = null; }
+  if (pano) $('scene').classList.add('pano');
+}
+function parseColony(text) {
+  const n = (re) => { const m = re.exec(text); return m ? clamp(Number(m[1]), 0, 100) : null; };
+  const sol = /^SOL (\d+)/.exec(text); if (sol) colonyStat.sol = sol[1];
+  [['o2', /O2 (\d+)%/], ['power', /POWER (\d+)%/], ['water', /WATER (\d+)%/], ['food', /FOOD (\d+)%/]].forEach(([k, re]) => { const v = n(re); if (v != null) colonyStat[k] = v; });
+  renderLife();
+}
+function renderLife() {
+  const el = $('life'); if (!isMarsWorld()) { el.classList.remove('on'); return; }
+  earthDelay = clamp(earthDelay + (Math.random() - .5) * .04, 4, 22);
+  const ms = (Date.now() + lmstBase * 1000) % 88775244, hh = Math.floor(ms / 3699000) % 24, mm = Math.floor((ms % 3699000) / 61650);
+  const bar = (label, v) => `<i>${label}</i><s><u class="${v != null && v < 30 ? 'low' : ''}" style="--v:${v == null ? 0 : v}%"></u></s>`;
+  el.innerHTML = `<b>LIFE SUPPORT</b><br>HAB 101 kPa · 21°C · O₂ 21%<br>OUTSIDE 0.6 kPa · −63°C · CO₂ 95%<br>GRAVITY 0.38 g · you weigh ${Math.round(70 * 0.38)} kg<br>RAD 0.67 mSv/sol<br>EARTH DELAY ${earthDelay.toFixed(1)} min<br>SOL ${esc(colonyStat.sol || '—')} · LMST ${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`
+    + `<div class="bars">${bar('O₂', colonyStat.o2)}${bar('PWR', colonyStat.power)}${bar('H₂O', colonyStat.water)}${bar('FOOD', colonyStat.food)}</div>`;
+  el.classList.add('on');
+}
+function leaveWorld() {
+  destroyPano(); clearInterval(lifeT); $('life').classList.remove('on');
+  const old = ws; ws = null; try { old && old.close(); } catch (e) {}
+  clearInterval(pingT); clearTimeout(appT); cancelAnimationFrame(lookRaf); lookRaf = 0;
+  stopVoice(); closeSheets();
+}
+function enterWorld(d, guest) {
+  leaveWorld();
+  planetId = d.planetId; world = d.world; cosmos = d.cosmos || world.cosmos || null; wsPath = d.ws; voted = false; isGuest = !!guest;
+  cast = normCast(d.cast || world.cast); vision = safeUrl(d.vision || world.vision); ghostVision = safeUrl(d.ghostVision || world.ghostVision);
+  renderWorld(); show('world'); connect();
+  store.set(SESSION_KEY, JSON.stringify({ planetId, wsPath, world, guest: isGuest }));
+  const pass = loadJSON(PASS_KEY, []);
+  if (!pass.some((x) => x.id === world.id)) { pass.push({ id: world.id, planetName: world.planetName, aiName: world.aiName, archetype: world.archetype, galaxy: world.galaxy, at: Date.now() }); store.set(PASS_KEY, JSON.stringify(pass)); }
+  $('passN').textContent = pass.length;
+  if (musicOn) S('play', S('styleFor', world.archetype), { seed: planetId });
+  arrival(); scheduleApparition();
+  tiltBase = null; dragX = dragY = 0; if (!lookRaf) lookRaf = requestAnimationFrame(lookLoop);
+}
+function resumeWorld() { if (world && !ws) { connect(); scheduleApparition(); if (!lookRaf) lookRaf = requestAnimationFrame(lookLoop); } }
+function renderWorld() {
+  const w = world, ac = COLORS[w.archetype] || '#cfc6ff', root = document.documentElement.style;
+  root.setProperty('--ac', ac); root.setProperty('--acRim', rgba(ac, .55)); root.setProperty('--acSoft', rgba(ac, .2)); root.setProperty('--sky', /^(#|hsl|rgb)[\w\s(),.%#-]*$/.test(w.sky || '') ? w.sky : '#0b0816');
+  document.body.classList.toggle('haunted', hasGhost());
+  const isMars = isMarsWorld();
+  $('locTier').textContent = cosmos ? [cosmos.tier, cosmos.epoch].filter(Boolean).join(' · ') : (w.galaxy || '');
+  $('locName').textContent = w.planetName || '';
+  // scene: instant paint of whatever is cached, crossfade later when the bespoke vision lands
+  sceneGen++; sceneUrl = ''; sceneKind = ''; ghostReady = false; $('gs').classList.remove('on'); $('ghostW').classList.remove('on');
+  $('bgA').style.opacity = $('bgB').style.opacity = '0'; showScene(true);
+  document.body.classList.toggle('mars', isMars);
+  if (isMars) { mountPano(); renderLife(); clearInterval(lifeT); lifeT = setInterval(renderLife, 1000); }
+  // figures
+  figs.forEach((f) => f.el.remove()); figs.clear(); people = []; presenceSeen = false;
+  $('me').classList.remove('sil'); $('me').querySelector('.tag').textContent = 'You'; $('more').classList.remove('on');
+  $('colony').classList.toggle('on', isMars); $('colony').textContent = isMars ? 'ARES BASE · connecting to colony systems…' : '';
+  $('log').innerHTML = ''; seen.clear(); setStatus(''); waiting = false;
+  if (isGuest && !isMars) sysLine(`guest in ${w.visitor || 'someone'}'s world · its AI knows you're a visitor`);
+  target = 'ai'; setTarget('ai');
+}
+function arrival() {
+  const w = world, c = cosmos || {};
+  const m = /^([\d,.]+)\s+years/.exec(c.sinceExtinction || '');
+  const bits = [w.terrain === 'mars' ? 'Humans · alive' : (w.speciesName || ''), m ? `extinct ${m[1]} yrs` : (c.sinceExtinction || ''), c.tier || w.galaxy || ''];
+  $('arrName').textContent = w.planetName || ''; $('arrLine').textContent = bits.filter(Boolean).join(' · ');
+  const a = $('arrive'); a.classList.add('on'); clearTimeout(a._t); a._t = setTimeout(() => a.classList.remove('on'), 3200);
+}
+$('locBtn').addEventListener('click', () => { if (!cosmos) return openLore(); audio(); openZoom(cosmos, '↩ BACK TO ' + String(world.planetName || 'WORLD').toUpperCase()).then((ok) => { if (!ok) openLore(); }); });
+
+/* ---------- socket ---------- */
+const seen = new Set();
+function connect() {
+  if (!wsPath) return;
+  const url = location.origin.replace(/^http/, 'ws') + wsPath + (wsPath.indexOf('?') >= 0 ? '&' : '?') + 'd=' + encodeURIComponent(deviceId);
+  let sock; try { sock = new WebSocket(url); } catch (e) { return; } ws = sock;
+  sock.onopen = () => { retry = 0; clearInterval(pingT); pingT = setInterval(() => { try { sock.send(JSON.stringify({ type: 'ping' })); } catch (e) {} }, 20000); };
+  sock.onmessage = (e) => { if (ws !== sock) return; let m; try { m = JSON.parse(e.data); } catch (err) { return; } handle(m); };
+  sock.onclose = () => { if (ws !== sock) return; clearInterval(pingT); setTimeout(() => { if (ws === sock) connect(); }, Math.min(8000, 600 * 2 ** retry++)); };
+}
+function handle(m) {
+  if (!m || !m.type) return;
+  if (m.type === 'world') { (m.lines || []).forEach((l) => addLine(l, false)); }
+  else if (m.type === 'line' && m.line) addLine(m.line, true);
+  else if (m.type === 'presence') renderPresence(m.people);
+  else if (m.type === 'vote' && m.vote) showVote(m.vote);
+  else if (m.type === 'finale') showFinale(m.outcome, m.narration);
+}
+function sysLine(text) { const el = document.createElement('div'); el.className = 'ln system'; el.textContent = text; $('log').appendChild(el); scroll(); }
+function quake() { document.body.classList.add('quake'); setTimeout(() => document.body.classList.remove('quake'), 1100); }
+function addLine(l, live) {
+  if (!l || (l.id && seen.has(l.id))) return; if (l.id) seen.add(l.id);
+  const text = String(l.text || ''), kind = l.kind || 'system';
+  if (kind === 'system') {
+    const mv = /^\[\[(vision|ghost):([^\]]+)\]\]$/.exec(text.trim());
+    if (mv) { const u = safeUrl(mv[2]); if (mv[1] === 'vision' && u && u !== vision) { vision = u; if (world) showScene(false); } else if (mv[1] === 'ghost' && u) { ghostVision = u; if (sceneKind === 'vision') prepGhost(); } return; }
+    if (/^\[\[.*\]\]$/.test(text.trim())) return;
+    if (/^SOL \d+/.test(text)) { $('colony').textContent = 'ARES BASE · ' + text; $('colony').classList.add('on'); parseColony(text); if (live) return; }
+    sysLine(text); return;
+  }
+  const el = document.createElement('div');
+  if (kind === 'network') {
+    el.className = 'ln network'; el.innerHTML = `<b>📡 ${esc(l.sender || 'intercepted')}</b> `; el.appendChild(document.createTextNode(text));
+    $('log').appendChild(el); scroll();
+    if (live) { buzz([40, 60, 40]); if (AC) tone(1800, .12, 'square', .02); if (l.effect === 'shake') { quake(); buzz([200, 80, 200]); } if (/^(\[|\.\.\.)/.test(text) && hasGhost()) apparition(); }
+    return;
+  }
+  if (kind === 'player') {
+    const sender = String(l.sender || ''), mine = !sender || sender.trim().toLowerCase() === myName().trim().toLowerCase();
+    el.className = 'ln player ' + (mine ? 'mine' : 'other');
+    el.innerHTML = (mine ? '' : `<span class="av ini">${esc((sender.trim()[0] || '?').toUpperCase())}</span>`) + `<div class="bd"><div class="nm">${mine ? 'You' : esc(sender)}</div><span class="tx"></span></div>`;
+    el.querySelector('.tx').textContent = text; $('log').appendChild(el); scroll();
+    if (live) { bubble(mine ? $('me') : figFor(sender), text); if (!mine) { buzz(15); if (AC) tone(660, .08, 'triangle', .025); } }
+    return;
+  }
+  // ai / cast line
+  const c = castByName(l.sender) || (kind === 'ai' ? cast[0] : null) || { name: l.sender || 'Unknown', role: 'ai', avatar: `assets/ai-${world ? world.archetype : 'broken'}.webp`, voice: world && world.archetype };
+  el.className = 'ln ai' + (c.role === 'ghost' ? ' ghost' : c.role === 'survivor' ? ' survivor' : '');
+  el.innerHTML = `<img class="av" src="${esc(c.avatar)}" data-fb="${aiFb()}" alt=""><div class="bd"><div class="nm">${esc(c.name)}</div><span class="tx"></span></div>`;
+  const bd = el.querySelector('.bd'), tx = el.querySelector('.tx');
+  if (l.effect && /^[a-z]+$/.test(l.effect)) bd.classList.add('fx-' + l.effect);
+  $('log').appendChild(el);
+  waiting = false; setStatus('');
+  if (!live) { tx.textContent = text; scroll(); return; }
+  tx.classList.add('typing'); buzz(30);
+  const talking = (castBy(target) || {}).name === c.name; if (talking) $('whoImg').classList.add('talk');
+  if (l.effect === 'shake') { quake(); buzz([80, 40, 80]); }
+  if (l.effect === 'scream') jumpScare();
+  else if (c.role === 'ghost' || l.effect === 'haunt') apparition(true);
+  speakLine(text, c.voice || (world && world.archetype));
+  let n = 0; const step = () => { n = Math.min(text.length, n + 1 + (text.length > 120 ? 1 : 0)); tx.textContent = text.slice(0, n); if (n % 2 === 0) blip(world && world.archetype); scroll(); if (n < text.length) setTimeout(step, 26); else { tx.classList.remove('typing'); $('whoImg').classList.remove('talk'); } };
+  step();
+}
+function scroll() { const lg = $('log'); lg.scrollTop = lg.scrollHeight; }
+function setStatus(s) { $('status').textContent = s; }
+
+/* ---------- talking ---------- */
+function fmtLy(n) { n = Number(n) || 0; if (n > 0 && n < 0.01) return '225 million km'; if (!n) return 'the void between worlds'; return n >= 1e6 ? (n / 1e6).toFixed(n >= 1e7 ? 0 : 1) + ' million ly' : n.toLocaleString() + ' ly'; }
+async function say(text) {
+  text = String(text || '').trim(); if (!text || !planetId) return; audio();
+  $('msg').value = ''; const to = target;
+  if (to === 'people') { setStatus(people.length > 1 ? `◌ said to ${people.length - 1} ${people.length > 2 ? 'people' : 'person'} here` : '◌ no one else here yet · share the portal'); }
+  else { waiting = true; setStatus('◌ transmitting across ' + fmtLy(world && world.distanceLy) + '…'); }
+  try { const r = await fetch('/api/say', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ planetId, deviceId, text, to }) }); if (!r.ok && r.status >= 500) throw new Error('fail'); }
+  catch (e) { setStatus('✗ signal lost, try again'); waiting = false; }
+}
+$('bar').addEventListener('submit', (e) => { e.preventDefault(); say($('msg').value); });
+
+/* ---------- vote + finale ---------- */
+let voteTimer = 0;
+function showVote(v) {
+  $('vQ').textContent = v.question || 'Open the gate to Earth?';
+  const left = () => Math.max(0, Math.round(((v.endsAt || 0) - Date.now()) / 1000));
+  const upd = () => { $('vCount').textContent = `OPEN ${v.yes} · SEAL ${v.no} · ${v.voters} voted` + (v.open ? ` · ${left()}s` : ' · VOTING CLOSED'); };
+  clearInterval(voteTimer); upd(); if (v.open) voteTimer = setInterval(upd, 1000);
+  if (v.open) { $('vote').classList.add('on'); if (!voted) buzz([100, 60, 100]); }
+  else setTimeout(() => $('vote').classList.remove('on'), 1800);
+  $('vOpen').disabled = $('vSeal').disabled = voted || !v.open;
+  if (voted) $('vCount').textContent += ' · your vote is sealed in the Universe actor';
+}
+async function vote(choice) {
+  if (voted || !planetId) return; voted = true; buzz(60);
+  $('vOpen').disabled = $('vSeal').disabled = true;
+  (choice === 'open' ? $('vOpen') : $('vSeal')).style.boxShadow = '0 0 40px currentColor';
+  try { const r = await fetch('/api/vote', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ planetId, deviceId, choice }) }); const d = await r.json(); if (d.vote) showVote(d.vote); } catch (e) {}
+}
+$('vOpen').addEventListener('click', () => vote('open'));
+$('vSeal').addEventListener('click', () => vote('seal'));
+function showFinale(outcome, narration) {
+  $('vote').classList.remove('on');
+  const f = $('finale'); f.classList.toggle('sealed', outcome !== 'opened');
+  $('fKick').textContent = outcome === 'opened' ? '⚠ the gate to earth is open' : '◉ the wormhole is sealed';
+  $('fTitle').textContent = outcome === 'opened' ? 'THEY ARE COMING' : 'SILENCE RETURNS';
+  $('fText').textContent = ''; f.classList.add('on'); buzz(outcome === 'opened' ? [300, 100, 300, 100, 600] : [80]);
+  if (AC) tone(outcome === 'opened' ? 70 : 440, 3, outcome === 'opened' ? 'sawtooth' : 'sine', .07, outcome === 'opened' ? 35 : 220);
+  const full = String(narration || ''); let n = 0; const step = () => { n = Math.min(full.length, n + 2); $('fText').textContent = full.slice(0, n); if (n < full.length) setTimeout(step, 30); }; step();
+  f.onclick = () => f.classList.remove('on');
+}
+
+/* ---------- apparitions (no sliding sprites: things appear in place and vanish) ---------- */
+let appT = 0, appOn = false, lastJump = 0, appN = 0;
+function worldVisible() { return !!world && $('world').classList.contains('on') && !traveling; }
+function scheduleApparition() { clearTimeout(appT); if (!hasGhost()) return; appT = setTimeout(() => { apparition(); scheduleApparition(); }, 20000 + Math.random() * 15000); }
+function apparition(strong) {
+  if (appOn || !worldVisible() || !hasGhost()) return;
+  appOn = true; appN++; const dur = 1500 + Math.random() * 1500;
+  whisper(strong ? .085 : .06); buzz([10, 50, 16]);
+  const sc = $('scene'); sc.classList.add('haunting');
+  if (ghostReady) {
+    $('gs').classList.add('on'); setTimeout(() => $('gs').classList.remove('on'), dur);
+  } else {
+    const h = hashStr(planetId + '#g' + (appN % 3)); const gw = $('ghostW');
+    $('ghostImg').src = 'assets/ghost-' + (1 + (h % 3)) + '.webp';
+    gw.style.left = (24 + (h >>> 4) % 52) + '%'; gw.style.bottom = (FEET0 + FEETR * .5) + 'vh';
+    gw.style.setProperty('--go', (.15 + ((h >>> 12) % 16) / 100).toFixed(2));
+    gw.classList.add('on'); setTimeout(() => gw.classList.remove('on'), dur);
+  }
+  setTimeout(() => { sc.classList.remove('haunting'); appOn = false; }, dur + 900);
+}
+function jumpScare() {
+  if (Date.now() - lastJump < 40000) { apparition(true); return; }
+  lastJump = Date.now(); const j = $('jump'); j.style.display = 'block'; buzz([400]);
+  if (AC) { tone(900, .45, 'sawtooth', .11, 120); tone(1400, .3, 'square', .05, 300); try { const a = AC, s = a.createBufferSource(), g = a.createGain(); s.buffer = noise(); g.gain.setValueAtTime(.12, a.currentTime); g.gain.exponentialRampToValueAtTime(.0001, a.currentTime + .35); s.connect(g).connect(a.destination); s.start(); s.stop(a.currentTime + .4); } catch (e) {} }
+  setTimeout(() => { j.style.display = 'none'; }, 250 + Math.random() * 150);
+}
+
+/* ---------- voices + music ---------- */
+let voiceSrc = null, voiceSeq = 0;
+function setVoiceBtn() { $('voiceBtn').textContent = voiceOn ? '🔊' : '🔇'; $('voiceBtn').classList.toggle('off', !voiceOn); }
+function setMusicBtn() { $('musicBtn').classList.toggle('off', !musicOn); }
+setVoiceBtn(); setMusicBtn();
+function stopVoice() { voiceSeq++; if (voiceSrc) { try { voiceSrc.stop(); } catch (e) {} } }
+$('voiceBtn').addEventListener('click', () => { voiceOn = !voiceOn; store.set('aftermath.voice', voiceOn ? '1' : '0'); setVoiceBtn(); audio(); if (!voiceOn) stopVoice(); });
+$('musicBtn').addEventListener('click', () => {
+  musicOn = !musicOn; store.set('aftermath.music', musicOn ? '1' : '0'); setMusicBtn(); audio(); S('setEnabled', musicOn);
+  if (musicOn && world) S('play', S('styleFor', world.archetype), { seed: planetId });
+});
+async function speakLine(text, arch) {
+  if (!voiceOn || !text) return;
+  const seq = ++voiceSeq;
+  try {
+    const a = audio(); if (!a) return;
+    const r = await fetch('/api/voice?arch=' + encodeURIComponent(arch || '') + '&text=' + encodeURIComponent(text.slice(0, 360)));
+    if (!r.ok || seq !== voiceSeq) return;
+    const buf = await a.decodeAudioData(await r.arrayBuffer());
+    if (seq !== voiceSeq) return;
+    if (voiceSrc) { try { voiceSrc.stop(); } catch (e) {} }
+    const src = a.createBufferSource(); src.buffer = buf; const g = a.createGain(); g.gain.value = 1;
+    src.connect(g).connect(a.destination);
+    src.onended = () => { if (voiceSrc === src) { voiceSrc = null; S('duck', false); } };
+    voiceSrc = src; S('duck', true); src.start();
+  } catch (e) { S('duck', false); }
+}
+
+/* ---------- sheets: worlds, passport, lore, resume ---------- */
+const PASS_KEY = 'aftermath.passport', SESSION_KEY = 'aftermath.session';
+function loadJSON(k, d) { try { return JSON.parse(store.get(k) || '') || d; } catch (e) { return d; } }
+function closeSheets() { ['worlds', 'passport', 'loreSheet'].forEach((id) => $(id).classList.remove('on')); }
+document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', closeSheets));
+$('worldsBtn').addEventListener('click', async () => {
+  audio(); $('wList').innerHTML = '<div class="empty">Scanning the wormhole network…</div>'; $('worlds').classList.add('on');
+  try {
+    const d = await (await fetch('/api/worlds')).json(); const list = d.worlds || [];
+    if (!list.length) { $('wList').innerHTML = '<div class="empty">No other worlds yet. Tell a friend to scan the code.</div>'; return; }
+    list.sort((a, b) => (b.people || 0) - (a.people || 0));
+    $('wList').innerHTML = list.map((w) => { const c = COLORS[w.archetype] || '#cfc6ff', n = Number(w.people) || 0;
+      return `<button class="wc${w.id === planetId ? ' cur' : ''}" data-id="${esc(w.id)}" style="--c:${c};--cA:${rgba(c, .45)}"><img src="assets/ai-${esc(w.archetype)}.webp" alt=""><div><div class="t1">${esc(w.planetName)}${w.id === planetId ? ' · you are here' : ''}${n ? `<span class="here">● ${n} here</span>` : ''}</div><div class="t2">${esc(w.aiName)} · ${esc(w.tier || w.galaxy)}${w.id === 'mars-colony' ? ' · REAL' : w.bot ? '' : ' · ' + esc(w.visitor) + "'s world"}</div><div class="t3">“${esc(w.motto)}”</div></div></button>`; }).join('');
+    $('wList').querySelectorAll('.wc').forEach((b) => b.addEventListener('click', () => visit(b.dataset.id)));
+  } catch (e) { $('wList').innerHTML = '<div class="empty">The network is quiet. Try again.</div>'; }
+});
+$('passBtn').addEventListener('click', () => {
+  const pass = loadJSON(PASS_KEY, []);
+  $('passSub').textContent = pass.length ? `${pass.length} world${pass.length > 1 ? 's' : ''} visited. Tap a stamp to return.` : 'No stamps yet.';
+  $('stamps').innerHTML = pass.map((x, i) => `<button class="stamp" data-id="${esc(x.id)}" style="--c:${COLORS[x.archetype] || '#cfc6ff'};--r:${(i * 37 % 15) - 7}deg"><i><img src="assets/ai-${esc(x.archetype)}.webp" alt=""></i><b>${esc(x.planetName)}</b><span>${esc(x.aiName)} · ${esc(x.galaxy)}</span></button>`).join('');
+  $('stamps').querySelectorAll('.stamp').forEach((b) => b.addEventListener('click', () => visit(b.dataset.id)));
+  $('passport').classList.add('on');
+});
+function openLore() {
+  if (!world) return; const w = world, c = cosmos || {}, isMars = w.terrain === 'mars';
+  const sec = (h, body) => body ? `<div class="lr"><h4>${h}</h4>${body}</div>` : '';
+  const p = (s) => s ? `<p>${esc(s)}</p>` : '';
+  const addr = [['Path', c.breadcrumb], ['Coordinates', c.coords], ['Realm', [c.tier, c.tierNote].filter(Boolean).join(' · ')], ['Earth time', c.earthTime], ['Cosmic time', c.cosmicTime], ['Local', c.epoch], ['Since extinction', c.sinceExtinction]].filter((x) => x[1]).map((x) => `<b>${esc(x[0])}:</b> ${esc(x[1])}`).join('<br>');
+  $('loreBody').innerHTML =
+    sec(esc(w.planetName), isMars ? p('Mars. The real one. Everyone who teleports here joins the same colony, and what you do changes its oxygen, power, water and food.') : p(`${w.galaxy || ''}${w.starName ? ' · orbiting ' + w.starName : ''}`))
+    + sec(isMars ? 'The colony' : 'The makers', p(w.speciesName && !isMars ? `${w.speciesName}: ${w.speciesDescription || ''}` : w.speciesDescription))
+    + sec(isMars ? 'The story' : 'How they fell', p(w.howTheyFell))
+    + sec(esc(w.aiName) + (w.aiTitle ? ' · ' + esc(w.aiTitle) : ''), p(w.appearance) + (w.motto ? `<p class="motto">“${esc(w.motto)}”</p>` : ''))
+    + (cast.length > 1 ? sec('Also here', p(cast.slice(1).map((x) => `${x.name}${x.title ? ' (' + x.title + ')' : ''}`).join(' · '))) : '')
+    + sec('Cosmic address', addr ? `<div class="addr">${addr}</div>` : '')
+    + `<div class="lr" id="archLine"></div>`;
+  $('loreSheet').classList.add('on');
+  fetch('/api/archive').then((r) => r.json()).then((a) => { const el = $('archLine'); if (el && a && a.enabled && a.worlds) el.innerHTML = `<span class="arch">◉ WORLD #${esc(Number(a.worlds).toLocaleString())} IN THE SUPABASE GALACTIC ARCHIVE</span>`; }).catch(() => {});
+}
+$('loreBtn').addEventListener('click', () => { audio(); openLore(); });
+(function initResume() {
+  $('passN').textContent = loadJSON(PASS_KEY, []).length;
+  const sess = loadJSON(SESSION_KEY, null);
+  if (!sess || !sess.planetId || !sess.world) return;
+  const b = $('resume'); b.textContent = '↩ Return to ' + sess.world.planetName + ' · ' + sess.world.aiName + ' is waiting'; b.classList.add('on');
+  b.addEventListener('click', async () => {
+    audio(); askTilt(); if (traveling) return;
+    try { const r = await fetch('/api/world/' + encodeURIComponent(sess.planetId)); if (!r.ok) throw new Error('gone'); const w = await r.json(); if (!w || !w.planetName) throw new Error('gone');
+      flash(); enterWorld({ planetId: sess.planetId, world: w, cosmos: w.cosmos, cast: w.cast, vision: w.vision, ghostVision: w.ghostVision, ws: sess.wsPath }, sess.guest); }
+    catch (e) { b.textContent = 'That world has gone dark. Teleport somewhere new.'; store.set(SESSION_KEY, ''); }
+  });
+})();
+document.addEventListener('visibilitychange', () => { if (document.hidden) { cancelAnimationFrame(lookRaf); lookRaf = 0; } else if (world && $('world').classList.contains('on') && !lookRaf) lookRaf = requestAnimationFrame(lookLoop); });
+
+function show(id) { document.body.classList.toggle('landing-on', id === 'landing'); document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('on', s.id === id)); }
+// test hook for automated checks (read-only state + manual triggers)
+window.__aftermath = { state: () => ({ planetId, target, cast, people: people.length, figs: figs.size, sceneKind, sceneUrl, ghostReady, traveling, screen: (document.querySelector('.screen.on') || {}).id }), apparition: () => apparition(true), setTarget };
+/* ---------- walk mode: explore the world in 3D, first person ---------- */
+document.getElementById('walkBtn').addEventListener('click', async () => {
+  if (!world || !(window.Explore && window.Explore.open)) return;
+  audio();
+  document.body.classList.add('walking');
+  const ok = await window.Explore.open(world, { cast, container: document.getElementById('world'), onTalk: () => { try { document.getElementById('msg').focus(); } catch (e) {} }, onClose: () => document.body.classList.remove('walking') });
+  if (!ok) document.body.classList.remove('walking');
+  if (!ok) alert('3D walking needs WebGL. Try another browser.');
+});
+setTimeout(() => { try { window.Explore && window.Explore.preload(); } catch (e) {} }, 4000);
+})();
+</script>
+</body>
+</html>
