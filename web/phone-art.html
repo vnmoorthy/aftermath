@@ -12,6 +12,7 @@
 <script src="/wormhole.js" defer></script>
 <script src="/music.js" defer></script>
 <script src="/pano.js" defer></script>
+<script src="/explore.js" defer></script>
 <style>
 :root{--bg:#05030c;--ink:#efe9ff;--dim:#a49bc6;--gold:#ffc65a;--red:#ff4d5e;--ac:#cfc6ff;--acRim:rgba(207,198,255,.55);--acSoft:rgba(207,198,255,.18);--sky:#0b0816;
 --serif:Cinzel,'Trajan Pro',Georgia,serif;--mono:'JetBrains Mono',ui-monospace,Menlo,monospace;--sans:Rajdhani,'Helvetica Neue',Arial,sans-serif;
@@ -266,6 +267,11 @@ body.quake #world{animation:shake .5s ease-in-out 2}
 #joinQR span{display:block;margin-top:3px;font:700 8px var(--mono);letter-spacing:.12em;color:#111}
 @media (min-width:700px){#joinQR img{width:150px;height:150px}#joinQR span{font-size:11px}}
 body:not(.landing-on) #joinQR{display:none}
+
+/* walk mode: the 3D world fills the screen and the conversation floats over it like game subtitles */
+body.walking #locBtn,body.walking #tools,body.walking #figs,body.walking .fig{display:none !important}
+body.walking #panel{z-index:30;max-height:44vh;background:linear-gradient(180deg,transparent,rgba(5,3,12,.55) 22%,rgba(5,3,12,.85))}
+body.walking #log{max-height:20vh}
 </style>
 </head>
 <body class="landing-on">
@@ -302,6 +308,7 @@ body:not(.landing-on) #joinQR{display:none}
   <div id="hud">
     <button id="locBtn" aria-label="Locate this world"><small id="locTier"></small><b id="locName"></b></button>
     <div id="tools">
+      <button class="tb" id="walkBtn" aria-label="Walk around this world" style="border-color:var(--gold);color:var(--gold)">🚶 WALK</button>
       <button class="tb" id="worldsBtn" aria-label="Other worlds">✦ WORLDS</button>
       <button class="tb" id="passBtn" aria-label="Passport">◈ <b id="passN">0</b></button>
       <button class="tb" id="loreBtn" aria-label="Lore">📜</button>
@@ -350,7 +357,7 @@ const REALMS = [
   ['smaller', 'SMALLER', 'Shrink through the Microverse, down to the Quantumverse.'],
 ];
 const SUGG = {
-  ai: ['Who made you?', 'What happened to them?', 'What do you want from me?', 'I want to help you', 'Tell me a secret', "I'm leaving."],
+  ai: ['What happened here?', 'Who made you?', 'What are the other AIs saying about me?', 'What do you want from me?', 'Tell me a secret', 'I want to help you', "I'm leaving."],
   mars: ['How much do I weigh here?', 'Can I go outside?', 'Where does our water come from?', 'How do we make oxygen?', 'What would kill me first?', 'Send a message to Earth', 'Give me a job', "What's that dome?"],
   ghost: ['Who are you?', 'Are you dead?', 'What happened here?', 'Is someone behind me?'],
   survivor: ['Are you alone?', 'What does the AI want?', 'How did you survive?', 'Come with me.'],
@@ -976,6 +983,16 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) { can
 function show(id) { document.body.classList.toggle('landing-on', id === 'landing'); document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('on', s.id === id)); }
 // test hook for automated checks (read-only state + manual triggers)
 window.__aftermath = { state: () => ({ planetId, target, cast, people: people.length, figs: figs.size, sceneKind, sceneUrl, ghostReady, traveling, screen: (document.querySelector('.screen.on') || {}).id }), apparition: () => apparition(true), setTarget };
+/* ---------- walk mode: explore the world in 3D, first person ---------- */
+document.getElementById('walkBtn').addEventListener('click', async () => {
+  if (!world || !(window.Explore && window.Explore.open)) return;
+  audio();
+  document.body.classList.add('walking');
+  const ok = await window.Explore.open(world, { cast, container: document.getElementById('world'), onTalk: () => { try { document.getElementById('msg').focus(); } catch (e) {} }, onClose: () => document.body.classList.remove('walking') });
+  if (!ok) document.body.classList.remove('walking');
+  if (!ok) alert('3D walking needs WebGL. Try another browser.');
+});
+setTimeout(() => { try { window.Explore && window.Explore.preload(); } catch (e) {} }, 4000);
 })();
 </script>
 </body>

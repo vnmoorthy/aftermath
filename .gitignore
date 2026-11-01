@@ -16,3 +16,4 @@ video/raw/
 video/*.mp4
 renders/
 *.log
+static-build/

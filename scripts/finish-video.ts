@@ -10,7 +10,7 @@ const run = (args: string[]) => { const r = Bun.spawnSync(["ffmpeg", "-y", "-log
 const probe = (f: string, entries: string) => Bun.spawnSync(["ffprobe", "-v", "error", "-select_streams", entries.startsWith("stream") ? "v:0" : "v", "-show_entries", entries, "-of", "csv=p=0", f]).stdout.toString().trim()
 const hasAudio = (f: string) => Bun.spawnSync(["ffprobe", "-v", "error", "-select_streams", "a", "-show_entries", "stream=index", "-of", "csv=p=0", f]).stdout.toString().trim() !== ""
 // Text is drawn by PIL into full-frame transparent PNGs (this ffmpeg build has no drawtext).
-const overlay = (name: string, spec: any) => { const p = `${B}/${name}.png`; const r = Bun.spawnSync(["python3", "-I", "scripts/overlay-png.py", JSON.stringify(spec), p]); if (r.exitCode) throw new Error(r.stderr.toString()); return p }
+const overlay = (name: string, spec: any) => { const p = `${B}/${name}.png`; const r = Bun.spawnSync(["python3", "scripts/overlay-png.py", JSON.stringify(spec), p]); if (r.exitCode) throw new Error(r.stderr.toString()); return p }
 const enc = ["-c:v", "libx264", "-preset", "veryfast", "-crf", "19", "-pix_fmt", "yuv420p", "-r", String(FPS), "-c:a", "aac", "-ar", "48000", "-ac", "2"]
 
 // 1. The input: an explicit path, else the newest video in video/raw/ that isn't one of the numbered demo clips.

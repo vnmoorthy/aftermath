@@ -23,7 +23,7 @@ const probe = (f: string, entries: string) => Bun.spawnSync(["ffprobe", "-v", "e
 const hasAudio = (f: string) => Bun.spawnSync(["ffprobe", "-v", "error", "-select_streams", "a", "-show_entries", "stream=index", "-of", "csv=p=0", f]).stdout.toString().trim() !== ""
 const findClip = (id: string) => { const f = existsSync("video/raw") ? readdirSync("video/raw").find(n => n.toLowerCase().startsWith(id.toLowerCase() + ".")) : null; return f ? `video/raw/${f}` : null }
 // Text is drawn by PIL into full-frame transparent PNGs (this ffmpeg build has no drawtext).
-const overlay = (name: string, spec: any) => { const p = `video/build/${name}-ov.png`; const r = Bun.spawnSync(["python3", "-I", "scripts/overlay-png.py", JSON.stringify(spec), p]); if (r.exitCode) throw new Error(r.stderr.toString()); return p }
+const overlay = (name: string, spec: any) => { const p = `video/build/${name}-ov.png`; const r = Bun.spawnSync(["python3", "scripts/overlay-png.py", JSON.stringify(spec), p]); if (r.exitCode) throw new Error(r.stderr.toString()); return p }
 const list: string[] = []
 for (const s of shots) {
   const vo = `video/vo/${s.id}.mp3`
